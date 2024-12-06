@@ -150,6 +150,17 @@ export const AddCourse = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
+      const storedToken = localStorage.getItem(
+        "sb-iyzmaaubmvzitbqdicbe-auth-token"
+      );
+      const parsedToken = JSON.parse(storedToken);
+      const accessToken = parsedToken?.access_token;
+
+      if (!accessToken) {
+        alert("Not authenticated");
+        return;
+      }
+
       let imageUrl = courseData.image
         ? await uploadToCloudinary(courseData.image, cloudinaryPresets.image)
         : null;
@@ -170,7 +181,13 @@ export const AddCourse = () => {
       };
       const response = await axios.post(
         "/api/admin/create_course",
-        updatedCourseData
+        updatedCourseData,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
       );
       alert("Course created successfully!");
       router.push("/admin/course_list");
