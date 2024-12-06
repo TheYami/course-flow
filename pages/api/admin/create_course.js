@@ -1,4 +1,5 @@
 import pool from "../../../utils/db.js";
+import supabase from "@/lib/supabase.js";
 
 export default async function handler(req, res) {
   if (req.method === "POST") {
@@ -29,6 +30,42 @@ export default async function handler(req, res) {
     }
 
     try {
+      const token = req.headers.authorization?.split(" ")[1];
+
+      if (!token) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+
+      console.log("Received Token:", token);
+      await supabase.auth.setAuth(token);
+      const { user, error: authError } = await supabase.auth.getUser(token);
+      console.log("User:", user);
+      if (authError || !user) {
+        console.error("Authentication Error:", authError);
+        return res.status(401).json({
+          error: "Invalid or expired token",
+          details: authError?.message,
+        });
+      }
+
+      const { data, error: fetchError } = await supabase
+        .from("users")
+        .select("role")
+        .eq("email", user.email)
+        .single();
+
+      if (fetchError || !data) {
+        console.error("User Fetch Error:", fetchError);
+        return res.status(500).json({
+          error: "Error fetching user data",
+          details: fetchError?.message,
+        });
+      }
+
+      if (data.role !== "admin") {
+        return res.status(403).json({ error: "Forbidden: Admins only." });
+      }
+
       const query = `
         INSERT INTO courses (course_name, detail, summary, price, created_by, total_time, video_file, image_file, document_file, created_at, updated_at)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)

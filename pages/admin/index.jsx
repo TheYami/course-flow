@@ -11,7 +11,7 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-    
+
     try {
       const { data: user, error } = await supabase.auth.signInWithPassword({
         email,
@@ -30,6 +30,11 @@ const LoginPage = () => {
           .eq("email", email)
           .single();
 
+        if (roleError) {
+          setError("Error fetching user data: " + roleError.message);
+          return;
+        }
+
         if (data.role === "admin") {
           alert("admin log in succesfully");
           router.push("/admin/course_list");
@@ -41,8 +46,6 @@ const LoginPage = () => {
       setError(err.message || "An unexpected error occurred");
     }
   };
-
-  
 
   return (
     <div className="login-page h-screen flex justify-center  bg-gradient-to-bl from-[#95BEFF] to-[#0040E5] ">
