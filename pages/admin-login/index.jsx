@@ -11,7 +11,7 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-
+    
     try {
       const { data: user, error } = await supabase.auth.signInWithPassword({
         email,
@@ -30,14 +30,9 @@ const LoginPage = () => {
           .eq("email", email)
           .single();
 
-        if (roleError) {
-          setError("Error fetching user data: " + roleError.message);
-          return;
-        }
-
         if (data.role === "admin") {
           alert("admin log in succesfully");
-          router.push("/admin/course_list");
+          // router.push("/admin/course_list");
         } else {
           alert("You do not have permission to access the admin panel.");
         }
