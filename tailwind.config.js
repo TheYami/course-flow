@@ -12,6 +12,8 @@ module.exports = {
         foreground: "var(--foreground)",
         blue500: "#2F5FAC",
         darkBlue500: "#191C77",
+        lightblue: "#E5ECF8",
+        fmgray700: "#646D89",
       },
     },
   },
