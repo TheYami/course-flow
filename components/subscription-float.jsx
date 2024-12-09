@@ -8,6 +8,8 @@ export default function SubscriptionFloat({ course }) {
    };
 
 
+
+
   // ตรวจสอบว่า course มีค่าหรือไม่
   if (!course) {
     return (
