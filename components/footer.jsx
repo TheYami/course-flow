@@ -1,23 +1,23 @@
 export default function Footer() {
   return (
-    <footer className="bg-[#1E2A47] py-8">
+    <footer className="bg-[#183056] py-8">
       <div className="container mx-auto flex flex-col items-start space-y-8 md:flex-row md:justify-between md:items-center md:space-y-0 md:h-32">
         {/* Logo Section */}
         <a href="#" className="md:flex-shrink-0">
           <img
             src="/assets/icon/courseflow.png"
             alt="CourseFlow Logo"
-            className="w-48 h-auto"
+            className="w-[140px] h-auto py-2 2xl:ml-14"
           />
         </a>
 
         {/* Links Section */}
         <div>
-          <ul className="space-y-2 m-0 p-0 text-left md:space-y-0 md:flex md:space-x-6">
+          <ul className="space-y-2 m-0 p-0 text-left md:space-y-0 md:flex md:space-x-6 2xl:space-x-[100px]">
             <li>
               <a
                 href="#"
-                className="text-white no-underline hover:text-blue-400"
+                className="text-[#C8CCDB] no-underline hover:text-blue-400 text-base font-normal"
               >
                 All Courses
               </a>
@@ -25,7 +25,7 @@ export default function Footer() {
             <li>
               <a
                 href="#"
-                className="text-white no-underline hover:text-blue-400"
+                className="text-[#C8CCDB] no-underline hover:text-blue-400 text-base font-normal"
               >
                 Bundle Package
               </a>
@@ -34,7 +34,7 @@ export default function Footer() {
         </div>
 
         {/* Social Media Section */}
-        <div className="flex justify-center space-x-6">
+        <div className="flex justify-center space-x-6 2xl:space-x-4 2xl:mr-[70px]">
           {/* Facebook */}
           <a
             href="https://www.facebook.com"
