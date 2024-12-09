@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/router";
 import Sidebar from "@/components/admin/AdminSidebar";
 import AdminHeaderbar from "@/components/admin/AdminHeaderbar";
 import { TrashIcon, EditIcon } from "@/assets/icons/admin_icon/adminIcon";
