@@ -1,9 +1,13 @@
-import { AddLesson } from "@/components/admin/AddLesson"
+import { AddLesson } from "@/components/admin/AddLesson";
+import useAdminAuth from "@/hooks/useAdminAuth";
 
 const AddLessonPage = () => {
-    return (
-        <AddLesson/>
-    )
-}
+  const { loading } = useAdminAuth();
 
-export default AddLessonPage
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+  return <AddLesson />;
+};
+
+export default AddLessonPage;

@@ -4,20 +4,24 @@ import { TrashIcon, EditIcon } from "@/assets/icons/admin_icon/adminIcon";
 import AdminHeaderbar from "@/components/admin/AdminHeaderbar";
 import axios from "axios";
 import formatDate from "@/utils/formatDate";
+import useAdminAuth from "@/hooks/useAdminAuth";
 
 const AdminPanel = () => {
   const [allCourses, setAllCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingData, setLoadingData] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const { loading } = useAdminAuth();
 
   useEffect(() => {
-    fetchCourses(currentPage);
-  }, [currentPage]);
+    if (!loading) {
+      fetchCourses(currentPage);
+    }
+  }, [currentPage, loading]);
 
   const fetchCourses = async (page) => {
-    setLoading(true);
+    setLoadingData(true);
     try {
       const { data } = await axios.get("/api/admin/courses", {
         params: { page, limit: 6 },
@@ -28,12 +32,12 @@ const AdminPanel = () => {
       console.error("Error fetching course data:", err);
       setError("Failed to load courses data.");
     } finally {
-      setLoading(false);
+      setLoadingData(false);
     }
   };
 
   const handleSearch = async (searchQuery) => {
-    setLoading(true);
+    setLoadingData(true);
     try {
       const { data } = await axios.get("/api/admin/courses", {
         params: { name: searchQuery, page: 1, limit: 6 },
@@ -45,7 +49,7 @@ const AdminPanel = () => {
       console.error("Error fetching course data:", err);
       setError("Failed to load courses data.");
     } finally {
-      setLoading(false);
+      setLoadingData(false);
     }
   };
 
@@ -130,6 +134,10 @@ const AdminPanel = () => {
     ));
   };
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="flex">
       <Sidebar />
@@ -142,7 +150,7 @@ const AdminPanel = () => {
           navigatePath="/admin/AddCourse"
         />
         <div className="p-6">
-          {loading ? (
+          {loadingData ? (
             <div className="absolute inset-0 bg-[#FFFFFF] bg-opacity-80 flex items-center justify-center z-10">
               <div className="loader border-t-4 border-[#2F5FAC] w-12 h-12 rounded-full animate-spin"></div>
             </div>

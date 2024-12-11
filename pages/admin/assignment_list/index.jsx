@@ -4,20 +4,25 @@ import AdminHeaderbar from "@/components/admin/AdminHeaderbar";
 import { TrashIcon, EditIcon } from "@/assets/icons/admin_icon/adminIcon";
 import axios from "axios";
 import formatDate from "@/utils/formatDate";
+import useAdminAuth from "@/hooks/useAdminAuth";
+
 
 const AdminPanelAssignments = () => {
   const [assignments, setAssignments] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingData, setLoadingData] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const { loading } = useAdminAuth();
 
   useEffect(() => {
-    fetchAssignments(currentPage);
-  }, [currentPage]);
+    if (!loading) {
+      fetchAssignments(currentPage);
+    }
+  }, [currentPage, loading]);
 
   const fetchAssignments = async (page) => {
-    setLoading(true);
+    setLoadingData(true);
     try {
       const { data } = await axios.get("/api/admin/assignments", {
         params: { page, limit: 6 },
@@ -28,12 +33,12 @@ const AdminPanelAssignments = () => {
       console.error("Error fetching assignments data:", err);
       setError("Failed to load assignments data.");
     } finally {
-      setLoading(false);
+      setLoadingData(false);
     }
   };
 
   const handleSearch = async (searchQuery) => {
-    setLoading(true);
+    setLoadingData(true);
     try {
       const { data } = await axios.get("/api/admin/assignments", {
         params: { description: searchQuery, page: 1, limit: 6 },
@@ -45,7 +50,7 @@ const AdminPanelAssignments = () => {
       console.error("Error fetching assignments data:", err);
       setError("Failed to load assignments data.");
     } finally {
-      setLoading(false);
+      setLoadingData(false);
     }
   };
 
@@ -130,7 +135,7 @@ const AdminPanelAssignments = () => {
           onSearch={handleSearch}
         />
         <div className="p-6">
-          {loading ? (
+          {loadingData ? (
             <div className="absolute inset-0 bg-[#FFFFFF] bg-opacity-80 flex items-center justify-center z-10">
               <div className="loader border-t-4 border-[#2F5FAC] w-12 h-12 rounded-full animate-spin"></div>
             </div>
