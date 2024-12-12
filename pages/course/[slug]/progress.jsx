@@ -7,7 +7,6 @@ const CourseProgressPage = () => {
     <>
     <Navbar />
     <CourseProgress />
-    <CollapsiblePanel />
     <Footer />
     </>
     
