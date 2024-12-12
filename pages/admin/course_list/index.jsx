@@ -53,6 +53,10 @@ const AdminPanel = () => {
     }
   };
 
+  const handleEdit = (course) => {
+    router.push(`/admin/edit_course/${course.course_id}`);
+  };
+  
   const renderPagination = () => {
     return (
       <div className="flex justify-center mt-4">
@@ -126,7 +130,10 @@ const AdminPanel = () => {
           <button className="mr-2 hover:scale-110">
             <TrashIcon />
           </button>
-          <button className="hover:scale-110">
+          <button
+            onClick={() => handleEdit(course)}
+            className="hover:scale-110"
+          >
             <EditIcon />
           </button>
         </td>
