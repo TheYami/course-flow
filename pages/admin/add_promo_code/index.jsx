@@ -3,6 +3,7 @@ import Sidebar from "@/components/admin/AdminSidebar";
 import AdminHeaderbarAddEdit from "@/components/admin/AdminHeaderbarAddEdit";
 import axios from "axios";
 import { XICon } from "@/assets/icons/admin_icon/adminIcon";
+import useAdminAuth from "@/hooks/useAdminAuth";
 
 const AdminPanelAddPromoCode = () => {
   const [allCourses, setAllCourses] = useState([]);
@@ -13,6 +14,7 @@ const AdminPanelAddPromoCode = () => {
   const [percent, setPercent] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+  const { loading } = useAdminAuth();
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -26,7 +28,7 @@ const AdminPanelAddPromoCode = () => {
       }
     };
     fetchCourses();
-  }, []);
+  }, [loading]);
 
   const handleToggleCourse = (course) => {
     setSelectedCourses((prev) =>
