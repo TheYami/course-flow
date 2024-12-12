@@ -1,14 +1,16 @@
 //pages\course\[slug]\index.jsx
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/useUserAuth"; // นำเข้า useAuth จาก AuthContext
 import axios from "axios";
 import Navbar from "@/components/navbar";
 import VideoPlayer from "@/components/video-presentation";
 import SubscritonFloat from "@/components/subscription-float";
 import Footer from "@/components/footer";
-import Checkout from "@/components/checkout-course";
 import CourseList from "@/components/course-card";
-import supabase from "@/lib/supabase";
+import Checkout from "@/components/checkout-course";
+import { AuthProvider } from "@/contexts/useUserAuth"; // นำเข้า AuthProvider
+
 
 export default function CourseDetail() {
   const router = useRouter();
@@ -18,59 +20,35 @@ export default function CourseDetail() {
   const [loading, setLoading] = useState(true); // ใช้สำหรับแสดงสถานะการโหลด
   const [openLesson, setOpenLesson] = useState(null); // เก็บ id ของ lesson ที่เปิด
 
+  // ใช้ useAuth เพื่อเข้าถึงค่า isLoggedIn และ user
+  const { isLoggedIn, loading: authLoading, user } = useAuth();
 
   const getCourseById = async () => {
-    setLoading(true); // เริ่มการโหลด
+    setLoading(true); 
     try {
       const response = await axios.get(`/api/courseById?slug=${slug}`);
       setCourse(response.data.data);
-      setLoading(false); // เสร็จสิ้นการโหลด
+      setLoading(false); 
     } catch (err) {
       console.error("Error fetching course:", err);
       setError(err.response?.data?.message || "Error fetching course");
-      setLoading(false); // เสร็จสิ้นการโหลด
+      setLoading(false);
     }
   };
 
   const toggleAccordion = (id) => {
-    setOpenLesson((prev) => (prev === id ? null : id)); // เปิด/ปิด accordion
+    setOpenLesson((prev) => (prev === id ? null : id)); 
   };
 
   useEffect(() => {
     if (slug) getCourseById();
-    const checkSession = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      setLoading(false);
-
-      if (session) {
-        const { data, error } = await supabase
-          .from("users")
-          .select("*")
-          .eq("email", session.user.email)
-          .single();
-       if (error && error.code === "PGRST116") {
-         console.log("No user found with the given email");
-       } else if (error) {
-         console.error("Unknown error:", error);
-       }
-      }
-    };
-    checkSession();
   }, [slug]);
-
-
-
-
-
 
   return (
     <div>
       <nav className="border-b-[1px]">
         <Navbar />
       </nav>
-
       <div className="all-content box-border flex flex-col relative items-center px-3">
         {error ? (
           <div className="error-message text-red-500">
@@ -98,6 +76,15 @@ export default function CourseDetail() {
           </div>
         ) : course ? (
           <>
+            {/* <div>
+              {authLoading ? (
+                <p>Loading user data...</p>
+              ) : isLoggedIn ? (
+                <p>Welcome, {user.email}</p> // แสดงชื่อผู้ใช้ที่ล็อกอิน
+              ) : (
+                <p>Please log in to access the course details.</p>
+              )}
+            </div> */}
             <article className="flex flex-col relative lg:flex-row lg:items-start items-center">
               <div className="article-content lg:w-[740px] ">
                 {/* back to all course */}
