@@ -1,22 +1,93 @@
-import React from "react";
+import React, { useState } from "react";
+import Image from "next/image";
 import CollapsiblePanel from "./collapsible-panel";
 
+function AssignmentForm({ onComplete }) {
+  const [answer, setAnswer] = useState("");
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    alert(`Your answer: ${answer}`);
+    setAnswer("");
+    if (onComplete) onComplete();
+  };
+
+  return (
+    <div className="bg-[#E5ECF8] border rounded-lg shadow-md p-4 mt-6">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-semibold text-gray-800">Assignment</h2>
+        <span className="px-2 py-1 text-sm font-medium text-yellow-700 bg-yellow-100 rounded">
+          Pending
+        </span>
+      </div>
+      <p className="text-gray-600 mb-4">
+        What are the 4 elements of service design?
+      </p>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <textarea
+          value={answer}
+          onChange={(e) => setAnswer(e.target.value)}
+          placeholder="Answer..."
+          className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+          rows="4"
+        ></textarea>
+        <button
+          type="submit"
+          className="w-full px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
+        >
+          Send Assignment
+        </button>
+      </form>
+      <p className="mt-4 text-sm text-gray-500">Assign within 2 days</p>
+    </div>
+  );
+}
+
 export default function CourseProgress() {
+  const [progress, setProgress] = useState(15);
+
   const sections = [
     {
       id: 1,
       title: "Introduction",
-      lessons: ["4 Levels of Service Design in an Organization"],
+      lessons: [
+        {
+          title: "4 Levels of Service Design in an Organization",
+          imgurl: "/assets/icon/none.png",
+        },
+        {
+          title: "5 Levels of Service Design in an Organization",
+          imgurl: "/assets/icon/complete.png",
+        },
+        {
+          title: "6 Levels of Service Design in an Organization",
+          imgurl: "/assets/icon/ongoing.png",
+        },
+      ],
     },
     {
       id: 2,
       title: "Service Design Theories and Principles",
-      lessons: [],
+      lessons: [
+        {
+          title: "6 Levels of Service Design in an Organization",
+          imgurl: "/assets/icon/ongoing.png",
+        },
+      ],
     },
     {
       id: 3,
       title: "Understanding Users and Finding Opportunities",
-      lessons: [],
+      lessons: [
+        {
+          title: "4 Levels of Service Design in an Organization",
+          imgurl: "/assets/icon/none.png",
+        },
+        {
+          title: "5 Levels of Service Design in an Organization",
+          imgurl: "/assets/icon/complete.png",
+        },
+      ],
     },
     {
       id: 4,
@@ -27,51 +98,64 @@ export default function CourseProgress() {
     { id: 6, title: "Course Summary", lessons: [] },
   ];
 
+  const handleCompleteAssignment = () => {
+    setProgress((prev) => Math.min(prev + 10, 100));
+  };
+
   return (
-    <section className="w-[343px] flex-col m-0 pt-4 px-4 box-border">
-      <h1 className="text-xs font-normal mb-4 text-[#F47E20]">Course</h1>
+    <div className="flex justify-center">
+      <section className="w-[343px] flex-col m-0 pt-4 pl-4 box-border">
+        <h1 className="text-xs font-normal mb-4 text-[#F47E20]">Course</h1>
 
-      {/* Course Header */}
-      <div className="h-10 mb-4 rounded">
-        <h1 className="text-base font-medium">Service Design Essentials</h1>
-        <h2 className="text-xs font-normal">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-        </h2>
-      </div>
-
-      {/* Progress Bar */}
-      <div className="mb-6">
-        <div className="text-xs font-normal mb-1 text-[#646D89]">
-          15% Complete
+        {/* Course Header */}
+        <div className="h-10 mb-4 rounded">
+          <h1 className="text-base font-medium">Service Design Essentials</h1>
+          <h2 className="text-xs font-normal">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          </h2>
         </div>
-        <div className="w-full bg-gray-300 h-4 rounded-full">
-          <div
-            className="bg-gradient-to-r from-[#95BEFF] to-[#0040E5] h-4 rounded-full"
-            style={{ width: "15%" }}
-          ></div>
-        </div>
-      </div>
 
-      {/* Course Sections */}
-      <div>
+        {/* Progress Bar */}
+        <div className="mb-6">
+          <div className="text-xs font-normal mb-1 text-[#646D89]">
+            {progress}% Complete
+          </div>
+          <div className="w-full bg-gray-300 h-4 rounded-full">
+            <div
+              className="bg-gradient-to-r from-[#95BEFF] to-[#0040E5] h-4 rounded-full"
+              style={{ width: `${progress}%` }}
+            ></div>
+          </div>
+        </div>
+
+        {/* Course Sections */}
         {sections.map((section) => (
           <div key={section.id} className="mb-4">
             <CollapsiblePanel
               title={
-                <span className="text-base font-medium">
-                  {`${section.id.toString().padStart(2, "0")} ${section.title}`}
+                <span className="text-base font-medium flex gap-3">
+                  <span className="text-gray-500">
+                    {section.id.toString().padStart(2, "0")}
+                  </span>
+                  <span className="text-black">{section.title}</span>
                 </span>
               }
             >
               {section.lessons.length > 0 ? (
-                <div className="ml-4">
+                <div className="mt-3">
                   {section.lessons.map((lesson, index) => (
-                    <p
-                      key={index}
-                      className="text-sm text-[#646D89] bg-blue-50 rounded p-2 mb-2"
-                    >
-                      {lesson}
-                    </p>
+                    <div key={index} className="mb-4">
+                      <div className="flex items-center bg-[#F6F7FC] rounded w-[309px] pl-1">
+                        <img
+                          src={lesson.imgurl}
+                          alt="lesson progress"
+                          className="w-6 h-6 rounded-full object-cover"
+                        />
+                        <p className="text-sm text-[#646D89] bg-blue-50 rounded p-2 mb-2">
+                          {lesson.title}
+                        </p>
+                      </div>
+                    </div>
                   ))}
                 </div>
               ) : (
@@ -80,7 +164,18 @@ export default function CourseProgress() {
             </CollapsiblePanel>
           </div>
         ))}
-      </div>
-    </section>
+        {/* Assignment Form */}
+        <AssignmentForm onComplete={handleCompleteAssignment} />
+        {/*previous,next */}
+        <div className="flex justify-between my-10">
+          <button className="text-[#2F5FAC] font-semibold">
+            Previous Lesson
+          </button>
+          <button className="bg-[#2F5FAC] w-[161px] h-[60px] rounded-xl text-white font-semibold">
+            Next Lesson
+          </button>
+        </div>
+      </section>
+    </div>
   );
 }
