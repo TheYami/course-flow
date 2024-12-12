@@ -2,7 +2,7 @@ import connectionPool from "@/utils/db";
 
 export default async function handler(req, res) {
   const { user_id } = req.query;
-  console.log(user_id)
+  
   try {
     const result = await connectionPool.query(
       `SELECT 
