@@ -262,50 +262,40 @@ export default function CourseProgress({slug}) {
             </div>
           </div>
 
-          {/* Course Sections */}
-          <div className="flex flex-col items-center">
-            {/* Course Sections */}
-            {/* {subcribeCoursesData.map((section) => (
-              <div key={section.id} className="mb-4 w-full">
-                <CollapsiblePanel
-                  title={
-                    <span className="text-base font-medium flex gap-3">
-                      <span className="text-gray-500">
-                        {section.id.toString().padStart(2, "0")}
-                      </span>
-                      <span className="text-black">{section.title}</span>
-                    </span>
-                  }
-                >
-                  {section.lessons.length > 0 ? (
-                    <div className="mt-3">
-                      {section.lessons.map((lesson, index) => (
-                        <div
-                          key={index}
-                          className="mb-4 cursor-pointer"
-                          onClick={() => handleLessonClick(lesson, index)}
-                        >
-                          <div className="flex items-center bg-[#F6F7FC] rounded w-[309px] pl-1">
-                            <img
-                              src={lesson.imgurl}
-                              alt="lesson progress"
-                              className="w-6 h-6 rounded-full object-cover"
-                            />
-                            <p className="text-sm text-[#646D89] bg-blue-50 rounded p-2 mb-2">
-                              {lesson.subtitle}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
+        {/* Course Sections */}
+        {sections.map((section) => (
+          <div key={section.id} className="mb-4">
+            <CollapsiblePanel
+              title={
+                <span className="text-base font-medium flex gap-3">
+                  <span className="text-gray-500">
+                    {section.id.toString().padStart(2, "0")}
+                  </span>
+                  <span className="text-black">{section.title}</span>
+                </span>
+              }
+            >
+              {section.lessons.length > 0 ? (
+                <div className="mt-3">
+                  {section.lessons.map((lesson, index) => (
+                    <div key={index} className="mb-4">
+                      <div className="flex items-center bg-[#F6F7FC] rounded w-[309px] pl-1">
+                        <img
+                          src={lesson.imgurl}
+                          alt="lesson progress"
+                          className="w-6 h-6 rounded-full object-cover"
+                        />
+                        <p className="text-sm text-[#646D89] bg-blue-50 rounded p-2 mb-2">
+                          {lesson.title}
+                        </p>
+                      </div>
                     </div>
-                  ) : (
-                    <p className="text-sm text-gray-500">
-                      No lessons available
-                    </p>
-                  )}
-                </CollapsiblePanel>
-              </div>
-            ))} */}
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500">No lessons available</p>
+              )}
+            </CollapsiblePanel>
           </div>
         </section>
 
