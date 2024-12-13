@@ -14,6 +14,7 @@ export default function MyCourse() {
   const [allCourses, setAllCourses] = useState([]);
   const [inProgressCourses, setInProgressCourses] = useState([]);
   const [completedCourses, setCompletedCourses] = useState([]);
+  console.log(allCourses);
 
   // useEffect(() => {
   //   if (userData) {
