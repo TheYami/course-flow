@@ -39,7 +39,7 @@ export default function Login() {
                 setPasswordColor('border-[#9B2FAC]')
                 setPasswordAlert('block')
             }else{
-                router.push('/profile');
+                router.push('/');
             }
           } catch (error) {
             if(email === ''){
