@@ -11,12 +11,23 @@ export default async function handler(req, res) {
     const values = [courseId];
 
     try {
-      const query = `DELETE FROM courses WHERE course_id = $1`;
-      const result = await pool.query(query, values);
+      const deleteQuery = `DELETE FROM courses WHERE course_id = $1 RETURNING *`;
+      const result = await pool.query(deleteQuery, values);
 
       if (result.rowCount === 0) {
         return res.status(404).json({ error: "Course not found or already deleted" });
       }
+
+      await pool.query(`
+        DO $$
+        BEGIN
+          PERFORM reset_sequence('courses', 'course_id');
+          PERFORM reset_sequence('lessons', 'lesson_id');
+          PERFORM reset_sequence('sub_lessons', 'sub_lesson_id');
+        END;
+        $$;
+      `);
+      
 
       return res.status(200).json({
         message: "Course deleted successfully",

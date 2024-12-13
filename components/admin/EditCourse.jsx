@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useRouter } from "next/router";
 import SideBar from "@/components/admin/AdminSidebar";
-import { ArrowBack } from "@/assets/icons/admin_icon/adminIcon";
+import { ArrowBack, ModalXIcon } from "@/assets/icons/admin_icon/adminIcon";
+import { EditCourseLessonTable } from "./EditCourseLessonTable";
 
 const EditCoursePage = () => {
   const router = useRouter();
@@ -24,6 +25,7 @@ const EditCoursePage = () => {
   const [videoPreview, setVideoPreview] = useState("");
   const [documentPreview, setDocumentPreview] = useState("");
   const [fileName, setFileName] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (courseId) {
@@ -50,9 +52,11 @@ const EditCoursePage = () => {
           video: "",
           document: "",
         });
+
         setImagePreview(course.image_file || "");
         setVideoPreview(course.video_file || "");
         setDocumentPreview(course.document_file || "");
+        setFileName(course.document_file.split("/").pop());
       } else {
         setError("Course not found.");
       }
@@ -100,8 +104,8 @@ const EditCoursePage = () => {
     setFormValues((prev) => ({
       ...prev,
       image: "",
-      imagePreview: "",
     }));
+    setImagePreview("");
   };
 
   const handleVideoFileChange = (e) => {
@@ -147,15 +151,35 @@ const EditCoursePage = () => {
   };
 
   const handleRemoveFile = () => {
-    setFormValues((pre) => ({
-      ...pre,
+    setFormValues((prev) => ({
+      ...prev,
       document: null,
     }));
-    setDocumentPreview((prev) => ({
-      ...prev,
-      document: "",
-    }));
+    setDocumentPreview("");
     setFileName("");
+  };
+
+  const handleDeleteCourse = async (courseId) => {
+    if (!courseId) {
+      console.error("Course ID is missing.");
+      setError("Invalid Course ID.");
+      return;
+    }
+
+    setLoadingData(true);
+
+    try {
+      const { data } = await axios.delete(
+        `/api/admin/delete_course/${courseId}`
+      );
+    } catch (err) {
+      console.error("Error deleting lesson data:", err);
+      setError("Failed to delete lesson data.");
+    } finally {
+      setIsModalOpen(false);
+      setLoadingData(false);
+      router.push(`/admin/course_list`);
+    }
   };
 
   const uploadToCloudinary = async (file, preset = "unSigned") => {
@@ -202,7 +226,6 @@ const EditCoursePage = () => {
         ? await uploadToCloudinary(formValues.document)
         : null;
 
-      // อัปเดตข้อมูลของคอร์ส
       const updatedCourseData = {
         ...formValues,
         image_file: imageUrl,
@@ -233,15 +256,16 @@ const EditCoursePage = () => {
     router.push("/admin/course_list");
   };
 
-  // รวบสถานะ loading เพื่อให้ render คงที่
-
   return (
     <div className="flex">
       <SideBar />
       <div className="flex-1 bg-[#F6F7FC]">
         <div className="flex bg-[#FFFFFF] justify-between items-center p-6 mb-6 border-b shadow-sm">
           <div className="flex">
-            <div onClick={handleCancel} className=" absolute top-11">
+            <div
+              onClick={handleCancel}
+              className=" cursor-pointer absolute top-11"
+            >
               <ArrowBack />
             </div>
             <h1 className="text-2xl font-sans text-[#9AA1B9] ml-10 mr-3">
@@ -278,7 +302,6 @@ const EditCoursePage = () => {
             >
               <main className="course-data-form bg-[#F6F7FC]">
                 <div className="bg-white mx-10 rounded-[16px] px-[100px] pt-[40px] pb-[60px] flex flex-col gap-[40px]">
-                  {/* Course Name */}
                   <section className="course-name">
                     <label htmlFor="courseName">Course Name *</label>
                     <input
@@ -292,8 +315,6 @@ const EditCoursePage = () => {
                       className="w-full mt-1 px-4 py-3 border border-[#D6D9E4] rounded-[8px]"
                     />
                   </section>
-
-                  {/* Price and Total Time */}
                   <div className="flex gap-[40px]">
                     <section className="price w-[50%]">
                       <label htmlFor="price">Price *</label>
@@ -322,8 +343,6 @@ const EditCoursePage = () => {
                       />
                     </section>
                   </div>
-
-                  {/* Course Summary */}
                   <section className="course-summary">
                     <label htmlFor="summary">Course Summary *</label>
                     <textarea
@@ -337,8 +356,6 @@ const EditCoursePage = () => {
                       className="w-full mt-1 px-4 py-3 border border-[#D6D9E4] rounded-[8px]"
                     />
                   </section>
-
-                  {/* Course Details */}
                   <section className="course-detail">
                     <label htmlFor="detail">Course Detail:</label>
                     <textarea
@@ -352,8 +369,6 @@ const EditCoursePage = () => {
                       className="w-full h-[40rem] mt-1 px-4 py-3 border border-[#D6D9E4] rounded-[8px]"
                     />
                   </section>
-
-                  {/* Cover Image Section */}
                   <section className="cover-image bg-white">
                     <h3>Cover Image *</h3>
                     <p className="text-[#9AA1B9] mt-2 text-[14px]">
@@ -362,7 +377,7 @@ const EditCoursePage = () => {
                     </p>
 
                     <div className="mt-4">
-                      {!formValues.image ? (
+                      {!imagePreview ? (
                         <button
                           type="button"
                           className="border-dashed w-[240px] h-[240px] bg-[#F6F7FC] rounded-[8px] p-6 text-center cursor-pointer"
@@ -386,11 +401,13 @@ const EditCoursePage = () => {
                       ) : (
                         <div className="relative w-[240px] h-[240px]">
                           <img
+                            type="button"
                             src={imagePreview}
                             alt="Uploaded Preview"
                             className="w-[240px] h-[240px] object-cover rounded-lg"
                           />
                           <button
+                            type="button"
                             onClick={handleRemoveImage}
                             className="absolute top-0 right-0 bg-[#9B2FAC] text-white rounded-full flex items-center justify-center w-8 h-8"
                           >
@@ -401,7 +418,6 @@ const EditCoursePage = () => {
                     </div>
                   </section>
 
-                  {/* Video Section */}
                   <section className="cover-video bg-white">
                     <h3>Video Trailer *</h3>
                     <p className="text-[#9AA1B9] mt-2 text-[14px]">
@@ -410,7 +426,7 @@ const EditCoursePage = () => {
                     </p>
 
                     <div className="mt-4">
-                      {!formValues.video ? (
+                      {!videoPreview ? (
                         <button
                           type="button"
                           className="border-dashed w-[240px] h-[240px] bg-[#F6F7FC] rounded-[8px] p-6 text-center cursor-pointer"
@@ -423,6 +439,7 @@ const EditCoursePage = () => {
                             Upload Video
                           </div>
                           <input
+                            name="video"
                             type="file"
                             id="videoInput"
                             className="hidden"
@@ -433,7 +450,6 @@ const EditCoursePage = () => {
                         </button>
                       ) : (
                         <div className="relative w-[240px] h-[240px]">
-                          {/* Video Preview */}
                           <video
                             src={videoPreview}
                             controls
@@ -441,6 +457,7 @@ const EditCoursePage = () => {
                             alt="Uploaded Video Preview"
                           />
                           <button
+                            type="button"
                             onClick={handleRemoveVideo}
                             className="absolute top-0 right-0 bg-[#9B2FAC] text-white rounded-full flex items-center justify-center w-8 h-8"
                           >
@@ -459,7 +476,7 @@ const EditCoursePage = () => {
                     </p>
 
                     <div className="mt-4">
-                      {!formValues.document ? (
+                      {!documentPreview ? (
                         <button
                           type="button"
                           className="border-dashed w-[160px] h-[160px] bg-[#F6F7FC] rounded-[8px] p-6 text-center cursor-pointer"
@@ -481,7 +498,6 @@ const EditCoursePage = () => {
                         </button>
                       ) : (
                         <div className="relative w-[160px] h-[160px]">
-                          {/* File Preview */}
                           <div className="w-full h-full flex flex-col justify-center items-center">
                             <div className="mt-2 text-sm text-[#9AA1B9]">
                               <a
@@ -495,6 +511,7 @@ const EditCoursePage = () => {
                             </div>
                           </div>
                           <button
+                            type="button"
                             onClick={handleRemoveFile}
                             className="absolute top-0 right-0 bg-[#9B2FAC] text-white rounded-full flex items-center justify-center w-8 h-8"
                           >
@@ -508,7 +525,54 @@ const EditCoursePage = () => {
               </main>
             </form>
           )}
+          <EditCourseLessonTable
+            loadingData={loadingData}
+            setLoadingData={setLoadingData}
+            courseId={courseId}
+          />
         </div>
+        <div
+          onClick={() => {
+            setIsModalOpen(true);
+          }}
+          className="flex font-semibold text-[#2F5FAC] justify-end mr-16 pb-20 mt-0 cursor-pointer"
+        >
+          <p className="hover:scale-105">Delete Course</p>
+        </div>
+        {isModalOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white rounded-3xl shadow-lg w-[30rem]">
+              <div className="px-6 pt-6 pb-2 border-b flex justify-between">
+                <h3 className="text-xl">Confirmation</h3>
+                <div
+                  className=" cursor-pointer"
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  <ModalXIcon />
+                </div>
+              </div>
+              <div className="p-6">
+                <p>Are you sure you want to delete this Course?</p>
+                <div className="flex justify-center gap-6 mt-6">
+                  <button
+                    type="button"
+                    className="font-semibold px-4 py-3 bg-[#FFFFFF] border-1 border-[#F47E20] text-[#F47E20] rounded-xl hover:bg-[#F47E20] hover:text-[#FFFFFF]"
+                    onClick={() => handleDeleteCourse(courseId)}
+                  >
+                    Yes, I want to delete this Course
+                  </button>
+                  <button
+                    type="button"
+                    className="px-4 py-3 bg-[#2F5FAC] text-[#FFFFFF] rounded-xl hover:bg-[#FFFFFF] hover:text-[#2F5FAC] border-1 border-[#2F5FAC]"
+                    onClick={() => setIsModalOpen(false)}
+                  >
+                    No, keep it
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -161,7 +161,7 @@ const AdminPanel = () => {
             className="mr-2 hover:scale-110"
             onClick={() => {
               setIsModalOpen(true);
-              setCourseToDelete(course.course_id); // เก็บ course_id
+              setCourseToDelete(course.course_id);
             }}
           >
             <TrashIcon />
@@ -190,7 +190,7 @@ const AdminPanel = () => {
           buttonLabel="+ Add Course"
           apiEndpoint="/api/admin/courses"
           onSearch={handleSearch}
-          navigatePath="/admin/AddCourse"
+          navigatePath="/admin/add_course"
         />
         <div className="p-6">
           {loadingData ? (
