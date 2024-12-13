@@ -1,14 +1,95 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/useUserAuth";
+import { useRouter } from "next/router";
+import axios from "axios";
 
 export default function SubscriptionFloat({ course }) {
+  const router = useRouter();
+  const [wishlist, setWishlist] = useState([]);
   const [showButton, setShowButton] = useState(false);
-  
-   const formatPrice = (price) => {
-     return price.toLocaleString("en-US");
-   };
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [inWishlist, setInWishlist] = useState(true);
 
+  const { isLoggedIn, loading: authLoading, user, userData } = useAuth();
 
+  // Load wishlist
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      if (!userData) return;
+      setLoading(true);
 
+      try {
+        const wishListResult = await axios.get(
+          `/api/wishlist?user_id=${userData.id}`
+        );
+        setWishlist(wishListResult.data.data || []);
+      } catch (err) {
+        console.error("Error fetching course:", err);
+        setError(err.response?.data?.message || "Error fetching course");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWishlist();
+  }, [userData]);
+
+// set InWishlist ถ้าเคยเพิ่มไปแล้ว
+useEffect(() => {
+  if (!wishlist || !course) return; // ดักกรณีที่ wishlist หรือ course ยังไม่มีค่า
+
+  const result = wishlist.filter((w) => w.course_id === course.course_id);
+  if (result.length > 0) {
+    setInWishlist(true);
+  } else {
+    setInWishlist(false);
+  }
+}, [wishlist, course]);
+
+  const handleAddToWishlist = async () => {
+    if (!isLoggedIn) {
+      router.push("/login");
+    } else {
+      setLoading(true);
+      try {
+        if (inWishlist) {
+          // Remove from wishlist
+          await axios.delete("/api/removeFromWishlist", {
+           params: {email: user.email,
+            course_id: course.course_id,}
+          });
+          setInWishlist(false);
+          console.log("Removed from wishlist");
+        } else {
+          // Add to wishlist
+          await axios.post("/api/addToWishlist", {
+            email: user.email,
+            course_id: course.course_id,
+          });
+          setInWishlist(true);
+          console.log("Added to wishlist");
+        }
+      } catch (err) {
+        console.error("Error updating wishlist:", err);
+        setError(err.response.data.message || "Error updating wishlist");
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handlSubscription = () => {
+    if (!isLoggedIn) {
+      router.push("/login");
+    } else {
+      console.log("User is logged in, proceed with action");
+    }
+  };
+
+  const formatPrice = (price) => {
+    return price.toLocaleString("en-US");
+  };
 
   // ตรวจสอบว่า course มีค่าหรือไม่
   if (!course) {
@@ -41,7 +122,9 @@ export default function SubscriptionFloat({ course }) {
               {course.detail}
             </div>
           ) : null}
-          <p className="m-0 text-gray-700 lg:text-2xl">THB {formatPrice(course.price)}</p>
+          <p className="m-0 text-gray-700 lg:text-2xl">
+            THB {formatPrice(course.price)}
+          </p>
         </div>
         {/* ปุ่มซ่อน/แสดง */}
         <div className="header-r lg:hidden">
@@ -109,10 +192,16 @@ export default function SubscriptionFloat({ course }) {
         </div>
       </div>
       <div className="action flex lg:flex-col gap-2 text-xs lg:text-base font-bold">
-        <button className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-white border border-orange-500 text-orange-500 shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-0 flex-grow">
-          Add to Wishlist
+        <button
+          className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-white border border-orange-500 text-orange-500 shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-0 flex-grow"
+          onClick={handleAddToWishlist}
+        >
+          {inWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
         </button>
-        <button className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-[#2F5FAC] text-white shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-1 flex-grow">
+        <button
+          className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-[#2F5FAC] text-white shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-1 flex-grow"
+          onClick={handlSubscription}
+        >
           Subscribe This Course
         </button>
       </div>
