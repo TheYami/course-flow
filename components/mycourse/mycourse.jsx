@@ -1,41 +1,11 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import useUserAuth from "@/hooks/useUserAuth";
-import Image from "next/image";
-import bookIcon from "@/assets/icons/mycourse-icon/book.svg";
-import clockIcon from "@/assets/icons/mycourse-icon/clock.svg";
 import Footer from "../footer";
-
-function MyCourseCard({ course }) {
-  return (
-    <div className="mycourse-card shadow-md rounded-[8px] overflow-hidden w-[357px] xl:w-[365px]">
-      <img
-        src={course.image_file}
-        alt={course.course_name}
-        className="h-[240px] w-full"
-      ></img>
-      <div className="px-4 py-2 flex flex-col gap-1 mb-4">
-        <div className="text-[#F47E20] text-[12px]">Course</div>
-        <div className="course-name text-[20px] font-[400]">
-          {course.course_name}
-        </div>
-        <div className="course_summary text-[#646D89] text-[14px] leading-tight">
-          {course.summary}
-        </div>
-      </div>
-      <div className="bottom-card-part p-4 flex items-center gap-6 border-t-[1px] text-[#646D89]">
-        <div className="lesson-count flex gap-2">
-          <Image src={bookIcon} alt="book-icon" />
-          {course.lessons_count} Lesson
-        </div>
-        <div className="total-time flex gap-2">
-          <Image src={clockIcon} alt="clock-icon" />
-          {course.total_time} Hours
-        </div>
-      </div>
-    </div>
-  );
-}
+import Decoration from "./decoration";
+import MyCourseCard from "./mycourse-card";
+import StickyMobile from "./sticky-mobile";
+import StickyDesktop from "./sticky-desktop";
 
 export default function MyCourse() {
   const [selectedTab, setSelectedTab] = useState("all");
@@ -140,61 +110,7 @@ export default function MyCourse() {
 
   return (
     <div className="my-course-list shadow-inner">
-      <div className="decoaration relative w-full z-[-10]">
-        {/* Decoration */}
-        <svg
-          width="100%"
-          height="350"
-          viewBox="0 0 375 157"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="absolute top-5 left-0 xl:hidden"
-        >
-          <circle cx="350" cy="170" r="37" fill="#C6DCFF" />
-          <path
-            d="M320.372 35.5449L338.99 32.7062L332.139 50.249L320.372 35.5449Z"
-            stroke="#FBAA1C"
-            strokeWidth="3"
-          />
-          <circle cx="58" cy="-89" r="5.5" stroke="#2F5FAC" strokeWidth="3" />
-          <circle cx="0.253627" cy="-20" r="13" fill="#C6DCFF" />
-        </svg>
-
-        <svg
-          width="100%"
-          height="500"
-          viewBox="0 0 1980 500"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="absolute top-5 left-0 hidden xl:block"
-        >
-          <circle cx="1965" cy="90" r="37" fill="#C6DCFF" />
-          <g className="triangle" transform="scale(1.4) translate(950,-40)">
-            <path
-              d="M320.372 35.5449L338.99 32.7062L332.139 50.249L320.372 35.5449Z"
-              stroke="#FBAA1C"
-              strokeWidth="3"
-            />
-          </g>
-          <circle cx="130" cy="-50" r="5.5" stroke="#2F5FAC" strokeWidth="3" />
-          <circle cx="70" cy="20" r="13" fill="#C6DCFF" />
-
-          <g className="green-x" transform="scale(1.4) translate(30,-80)">
-            <path
-              d="M248.843 132L243.838 150.68"
-              stroke="#2FAC61"
-              strokeWidth="3"
-              strokeLinecap="round"
-            />
-            <path
-              d="M237 138.838L255.68 143.843"
-              stroke="#2FAC61"
-              strokeWidth="3"
-              strokeLinecap="round"
-            />
-          </g>
-        </svg>
-      </div>
+      <Decoration />
 
       <div className="py-10 px-4">
         <h1 className="text-[24px] font-[500] text-center xl:text-[36px]">
@@ -237,34 +153,11 @@ export default function MyCourse() {
         <div className="xl:flex xl:justify-center gap-4 mt-8 xl:mx-[120px]">
           {/* Profile Column (Sticky on Large Screens) */}
           {userData && (
-            <div className="desktop-sticky py-8 hidden xl:block xl:sticky xl:top-24 xl:h-full w-full xl:w-[357px] bg-white rounded-xl shadow-md ">
-              
-              <div className="profile  flex flex-col justify-center items-center gap-6">
-                <img
-                  src={userData.profile_picture}
-                  alt={userData.name}
-                  className="xl:h-[120px] xl:w-[120px] rounded-full"
-                />
-                <div className="text-[#424C6B] text-[24px]">
-                  {userData.name}
-                </div>
-              </div>
-
-              <div className="status h-[134px] flex items-center gap-4 justify-evenly mt-4 mx-4 bg-white">
-                <div className="in-progress w-[142.5px] text-[#646D89] text-[16px] bg-[#F1F2F6] rounded-[8px] flex flex-col gap-2 p-4">
-                  Course Inprogress
-                  <div className="text-black text-[20px]">
-                    {inProgressCourses.length}
-                  </div>
-                </div>
-                <div className="complete w-[142.5px] text-[#646D89] text-[16px] bg-[#F1F2F6] rounded-[8px] flex flex-col gap-2 p-4">
-                  Course Complete
-                  <div className="text-black text-[20px]">
-                    {completedCourses.length}
-                  </div>
-                </div>
-              </div>
-            </div>
+            <StickyDesktop
+              userData={userData}
+              inProgressCourses={inProgressCourses}
+              completedCourses={completedCourses}
+            />
           )}
 
           {/* Cards Layout - Flexbox to adapt to screen size */}
@@ -277,30 +170,11 @@ export default function MyCourse() {
 
         {/* Mobile Layout - Sticky Profile at the Bottom */}
         {userData && (
-          <div className="mobile-sticky xl:hidden fixed bottom-0 left-0 right-0 z-20 p-4 bg-white flex flex-col gap-2 shadow-xl">
-            <div className="header flex items-center gap-3">
-              <img
-                src={userData.profile_picture}
-                alt={userData.name}
-                className="h-10 w-10 rounded-full"
-              />
-              <div className="text-[#424C6B]">{userData.name}</div>
-            </div>
-            <div className="status flex items-center justify-between bg-white">
-              <div className="in-progress text-[#646D89] text-[12px] bg-[#F1F2F6] px-4 py-1 rounded-[8px] flex items-center gap-2">
-                Course Inprogress
-                <div className="text-black text-[20px]">
-                  {inProgressCourses.length}
-                </div>
-              </div>
-              <div className="complete text-[#646D89] text-[12px] bg-[#F1F2F6] px-4 py-1 rounded-[8px] flex items-center gap-2">
-                Course Complete
-                <div className="text-black text-[20px]">
-                  {completedCourses.length}
-                </div>
-              </div>
-            </div>
-          </div>
+          <StickyMobile
+            userData={userData}
+            inProgressCourses={inProgressCourses}
+            completedCourses={completedCourses}
+          />
         )}
       </div>
       <Footer />
