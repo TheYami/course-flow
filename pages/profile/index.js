@@ -62,6 +62,7 @@ export default function Profile() {
           <button onClick={handleLogout} className="bg-red-500 text-white py-2 px-4 rounded">
             Log out
           </button>
+          <button onClick={() => router.push("/wishlist")}>wishlist</button>
         </>
       ) : (
         <>

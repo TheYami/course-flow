@@ -2,7 +2,7 @@ import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-export default function CourseList() {
+export default function CourseList({ currentCourse }) {
   const router = useRouter();
   const [courses, setCourses] = useState([]);
   const [randomCourses, setRandomCourses] = useState([]);
@@ -13,11 +13,9 @@ export default function CourseList() {
   const fetchCourses = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`/api/courses`); // ปรับ endpoint ให้ตรงกับ API ของคุณ
+      const response = await axios.get(`/api/courses`);
       setCourses(response.data.data || []);
       setLoading(false);
-      console.log(courses);
-      
     } catch (err) {
       console.error("Error fetching courses:", err);
       setError("Failed to load courses");
@@ -26,10 +24,17 @@ export default function CourseList() {
   };
 
   // ฟังก์ชันสำหรับสุ่มคอร์ส
-  const getRandomCourses = () => {
-    const shuffledCourses = [...courses].sort(() => Math.random() - 0.5);
-    setRandomCourses(shuffledCourses.slice(0, 3)); // เลือก 3 คอร์ส
-  };
+const getRandomCourses = () => {
+  if (!currentCourse) return;
+
+  const availableCourses = courses.filter(
+    (course) => course.course_id !== currentCourse.course_id
+  );
+
+  const shuffledCourses = [...availableCourses].sort(() => Math.random() - 0.5);
+
+  setRandomCourses(shuffledCourses.slice(0, 3));
+ };
 
   // useEffect สำหรับโหลดข้อมูลเมื่อ component ถูก mount
   useEffect(() => {
@@ -37,11 +42,15 @@ export default function CourseList() {
   }, []);
 
   // useEffect สำหรับสุ่มคอร์สใหม่ทุกครั้งที่ courses ถูกอัปเดต
-  useEffect(() => {
-    if (courses.length > 0) {
-      getRandomCourses();
-    }
-  }, [courses]);
+useEffect(() => {
+  if (courses.length > 0 && currentCourse) {
+    getRandomCourses();
+  }
+}, [courses, currentCourse]);
+
+
+
+
 
   if (loading) {
     return <p>Loading...</p>; // แสดงข้อความหรือ spinner ระหว่างโหลดข้อมูล
