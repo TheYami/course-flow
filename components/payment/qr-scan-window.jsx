@@ -27,7 +27,7 @@ const QrScanWindow = React.memo(function QrScanWindow() {
     if (hasFetchedRef.current) return;
     setLoading(true);
     setError(null);
-    
+
     const fetchCheckoutUrl = async () => {
       console.log("Component mounted or re-rendered");
       try {
@@ -38,7 +38,7 @@ const QrScanWindow = React.memo(function QrScanWindow() {
         });
         if (response.data.url) {
           setCheckoutUrl(response.data.url);
-          setReferenceNumber(response.data.referenceNumber)
+          setReferenceNumber(response.data.referenceNumber);
         } else {
           setError("Error creating checkout session");
         }
