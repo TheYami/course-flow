@@ -29,12 +29,12 @@ export default function QrScanWindow() {
   };
 
   const handleQrClick = () => {
-    router.push(`/payment-submit?ref=${refNumber}`);
+    router.push(`/payment/payment-submit?ref=${refNumber}&price=${amount}`);
   };
 
   const handleDownload = async () => {
     QRCodeLib.toDataURL(
-      `https://localhost:3000/payment-submit?ref=${refNumber}`,
+      `http://localhost:3000/payment/payment-submit?ref=${refNumber}&price=${amount}`,
       {
         errorCorrectionLevel: "H",
       },
@@ -61,7 +61,8 @@ export default function QrScanWindow() {
   }, [userId, courseId]);
 
   return (
-    <div className="qr-code flex flex-col items-center p-10 rounded-[8px] shadow-md gap-2">
+    <div className="qr-code flex flex-col items-center rounded-[8px] gap-2 p-10 shadow">
+      
       <div className="flex flex-col items-center gap-1">
         <h1 className="title text-[24px]">Scan QR code</h1>
         <h2 className="reference-number text-[#646D89] text-[16px]">
@@ -72,15 +73,17 @@ export default function QrScanWindow() {
         THB {amount}
       </div>
       {refNumber && (
-        <div
-          className="qr-code p-4 w-[200px] h-[200px]"
-          onClick={handleQrClick}
-        >
-          <QRCode
-            value={`https://localhost:3000/payment-submit?ref=${refNumber}`}
-            className="w-full h-full"
-          />
-        </div>
+        <a
+        href={`http://localhost:3000/payment/payment-submit?ref=${refNumber}&price=${amount}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="qr-code p-4 w-[200px] h-[200px]"
+      >
+        <QRCode
+          value={`http://localhost:3000/payment/payment-submit?ref=${refNumber}&price=${amount}`}
+          className="w-full h-full"
+        />
+      </a>
       )}
       <div
         type="button"

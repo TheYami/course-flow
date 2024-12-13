@@ -110,7 +110,7 @@ export default function MyCourse() {
   }, [selectedTab, allCourses, inProgressCourses, completedCourses]);
 
   return (
-    <div className="my-course-list shadow-inner">
+    <div className="my-course-list">
       <Decoration />
 
       <div className="py-10 px-4">
