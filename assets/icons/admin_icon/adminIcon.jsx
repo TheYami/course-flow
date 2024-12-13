@@ -342,3 +342,23 @@ export function ArrowBack() {
     </svg>
   );
 }
+
+export function ModalXIcon() {
+  return (
+    <svg
+      width="13"
+      height="12"
+      viewBox="0 0 13 12"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M1.53125 10.8483L11.4706 1.15137M1.53125 1.15137L11.4706 10.8483"
+        stroke="#C8CCDB"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
