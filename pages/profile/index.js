@@ -186,7 +186,9 @@ export default function Profile() {
 
   useEffect(() => {
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();//email auth
+      const {
+        data: { session },
+      } = await supabase.auth.getSession(); //email auth
 
       if (!session) {
         setUser(null);
@@ -221,7 +223,11 @@ export default function Profile() {
   }, []);
 
   if (loading) {
-    return <div className="absolute inset-0 flex items-center justify-center min-h-screen"><Loading /></div>;
+    return (
+      <div className="absolute inset-0 flex items-center justify-center min-h-screen">
+        <Loading />
+      </div>
+    );
   }
 
   return (
