@@ -44,24 +44,38 @@ function AssignmentForm({ onComplete }) {
 }
 
 export default function CourseProgress() {
-  const [progress, setProgress] = useState(15);
+  const [progress, setProgress] = useState(0);
 
-  const sections = [
+  const [selectedLesson, setSelectedLesson] = useState(null);
+
+  const [selectedLessonIndex, setSelectedLessonIndex] = useState(null); // เก็บตำแหน่งของ selectedLesson
+
+  //mockup data
+  const [sections, setSections] = useState([
     {
       id: 1,
       title: "Introduction",
       lessons: [
         {
-          title: "4 Levels of Service Design in an Organization",
+          subtitle: "4 Levels of Service Design in an Organization",
           imgurl: "/assets/icon/none.png",
+          videourl: "/assets/image/mockupvideo.png",
+          status: "Pending", // เพิ่มสถานะเริ่มต้น
+          answer: "", // เก็บคำตอบของแต่ละ lesson
         },
         {
-          title: "5 Levels of Service Design in an Organization",
+          subtitle: "5 Levels of Service Design in an Organization",
           imgurl: "/assets/icon/complete.png",
+          videourl: "/assets/image/mockupvideo.png",
+          status: "Pending",
+          answer: "",
         },
         {
-          title: "6 Levels of Service Design in an Organization",
+          subtitle: "6 Levels of Service Design in an Organization",
           imgurl: "/assets/icon/ongoing.png",
+          videourl: "/assets/image/mockupvideo.png",
+          status: "Pending",
+          answer: "",
         },
       ],
     },
@@ -70,8 +84,11 @@ export default function CourseProgress() {
       title: "Service Design Theories and Principles",
       lessons: [
         {
-          title: "6 Levels of Service Design in an Organization",
+          subtitle: "7 Levels of Service Design in an Organization",
           imgurl: "/assets/icon/ongoing.png",
+          videourl: "/assets/image/mockupvideo.png",
+          status: "Pending",
+          answer: "",
         },
       ],
     },
@@ -80,24 +97,102 @@ export default function CourseProgress() {
       title: "Understanding Users and Finding Opportunities",
       lessons: [
         {
-          title: "4 Levels of Service Design in an Organization",
+          subtitle: "8 Levels of Service Design in an Organization",
           imgurl: "/assets/icon/none.png",
+          videourl: "/assets/image/mockupvideo.png",
+          status: "Pending",
+          answer: "",
         },
         {
-          title: "5 Levels of Service Design in an Organization",
+          subtitle: "9 Levels of Service Design in an Organization",
           imgurl: "/assets/icon/complete.png",
+          videourl: "/assets/image/mockupvideo.png",
+          status: "Pending",
+          answer: "",
         },
       ],
     },
     {
       id: 4,
       title: "Identifying and Validating Opportunities for Design",
-      lessons: [],
+      lessons: [
+        {
+          subtitle: "10 Levels of Service Design in an Organization",
+          imgurl: "/assets/icon/ongoing.png",
+          videourl: "/assets/image/mockupvideo.png",
+          status: "Pending",
+          answer: "",
+        },
+      ],
     },
-    { id: 5, title: "Prototyping", lessons: [] },
-    { id: 6, title: "Course Summary", lessons: [] },
-  ];
+    {
+      id: 5,
+      title: "Prototyping",
+      lessons: [
+        {
+          subtitle: "11 Levels of Service Design in an Organization",
+          imgurl: "/assets/icon/ongoing.png",
+          videourl: "/assets/image/mockupvideo.png",
+          status: "Pending",
+          answer: "",
+        },
+      ],
+    },
+    {
+      id: 6,
+      title: "Course Summary",
+      lessons: [
+        {
+          subtitle: "12 Levels of Service Design in an Organization",
+          imgurl: "/assets/icon/ongoing.png",
+          videourl: "/assets/image/mockupvideo.png",
+          status: "Pending",
+          answer: "",
+        },
+      ],
+    },
+  ]);
 
+  const handleLessonClick = (lesson, index) => {
+    setSelectedLesson(lesson);
+    setSelectedLessonIndex(index);
+  };
+
+  const handleLessonUpdate = (updatedLesson) => {
+    setSections((prevSections) =>
+      prevSections.map((section) => ({
+        ...section,
+        lessons: section.lessons.map((lesson) =>
+          lesson.subtitle === updatedLesson.subtitle ? updatedLesson : lesson
+        ),
+      }))
+    );
+  };
+
+  const handlePreviousLesson = () => {
+    if (selectedLessonIndex > 0) {
+      const previousLesson = sections
+        .flatMap((section) => section.lessons)
+        .find((_, index) => index === selectedLessonIndex - 1);
+      setSelectedLesson(previousLesson);
+      setSelectedLessonIndex(selectedLessonIndex - 1);
+    }
+  };
+
+  const handleNextLesson = () => {
+    if (
+      selectedLessonIndex <
+      sections.flatMap((section) => section.lessons).length - 1
+    ) {
+      const nextLesson = sections
+        .flatMap((section) => section.lessons)
+        .find((_, index) => index === selectedLessonIndex + 1);
+      setSelectedLesson(nextLesson);
+      setSelectedLessonIndex(selectedLessonIndex + 1);
+    }
+  };
+
+  //update progress
   const handleCompleteAssignment = () => {
     setProgress((prev) => Math.min(prev + 10, 100));
   };
@@ -129,49 +224,81 @@ export default function CourseProgress() {
         </div>
 
         {/* Course Sections */}
-        {sections.map((section) => (
-          <div key={section.id} className="mb-4">
-            <CollapsiblePanel
-              title={
-                <span className="text-base font-medium flex gap-3">
-                  <span className="text-gray-500">
-                    {section.id.toString().padStart(2, "0")}
+        <div className="flex flex-col items-center">
+          {/* Course Sections */}
+          {sections.map((section) => (
+            <div key={section.id} className="mb-4 w-full">
+              <CollapsiblePanel
+                title={
+                  <span className="text-base font-medium flex gap-3">
+                    <span className="text-gray-500">
+                      {section.id.toString().padStart(2, "0")}
+                    </span>
+                    <span className="text-black">{section.title}</span>
                   </span>
-                  <span className="text-black">{section.title}</span>
-                </span>
-              }
-            >
-              {section.lessons.length > 0 ? (
-                <div className="mt-3">
-                  {section.lessons.map((lesson, index) => (
-                    <div key={index} className="mb-4">
-                      <div className="flex items-center bg-[#F6F7FC] rounded w-[309px] pl-1">
-                        <img
-                          src={lesson.imgurl}
-                          alt="lesson progress"
-                          className="w-6 h-6 rounded-full object-cover"
-                        />
-                        <p className="text-sm text-[#646D89] bg-blue-50 rounded p-2 mb-2">
-                          {lesson.title}
-                        </p>
+                }
+              >
+                {section.lessons.length > 0 ? (
+                  <div className="mt-3">
+                    {section.lessons.map((lesson, index) => (
+                      <div
+                        key={index}
+                        className="mb-4 cursor-pointer"
+                        onClick={() => handleLessonClick(lesson, index)}
+                      >
+                        <div className="flex items-center bg-[#F6F7FC] rounded w-[309px] pl-1">
+                          <img
+                            src={lesson.imgurl}
+                            alt="lesson progress"
+                            className="w-6 h-6 rounded-full object-cover"
+                          />
+                          <p className="text-sm text-[#646D89] bg-blue-50 rounded p-2 mb-2">
+                            {lesson.subtitle}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-gray-500">No lessons available</p>
-              )}
-            </CollapsiblePanel>
-          </div>
-        ))}
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-gray-500">No lessons available</p>
+                )}
+              </CollapsiblePanel>
+            </div>
+          ))}
+
+          {/* Learning Section */}
+          {selectedLesson && (
+            <div className="w-[335px] flex-col mt-6">
+              <h1 className="w-[343px] text-2xl p-2">
+                {selectedLesson.subtitle}
+              </h1>
+              <img
+                src={selectedLesson.videourl}
+                alt="mockup video"
+                className="w-[343px]"
+              />
+            </div>
+          )}
+        </div>
         {/* Assignment Form */}
         <AssignmentForm onComplete={handleCompleteAssignment} />
         {/*previous,next */}
         <div className="flex justify-between my-10">
-          <button className="text-[#2F5FAC] font-semibold">
+          <button
+            className="text-[#2F5FAC] font-semibold"
+            onClick={handlePreviousLesson}
+            disabled={selectedLessonIndex === 0}
+          >
             Previous Lesson
           </button>
-          <button className="bg-[#2F5FAC] w-[161px] h-[60px] rounded-xl text-white font-semibold">
+          <button
+            className="bg-[#2F5FAC] w-[161px] h-[60px] rounded-xl text-white font-semibold"
+            onClick={handleNextLesson}
+            disabled={
+              selectedLessonIndex ===
+              sections.flatMap((section) => section.lessons).length - 1
+            }
+          >
             Next Lesson
           </button>
         </div>
