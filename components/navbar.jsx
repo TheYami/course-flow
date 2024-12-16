@@ -85,7 +85,7 @@ export default function Navbar() {
     >
       <div className="container flex items-center justify-between px-4 py-3 xl:py-9">
         {/* Logo */}
-        <a href="#">
+        <a href="/homepage">
           <img
             src="/assets/icon/CourseFlow.png"
             alt="courseflow"
@@ -102,8 +102,8 @@ export default function Navbar() {
           <ul className="flex items-center text-gray-700 font-medium m-0 p-0 gap-2 lg:gap-8">
             <li>
               <a
-                href="#"
-                className=" text-darkBlue500 font-bold no-underline text-sm md:text-base lg:pr-6"
+                href="/course"
+                className=" text-darkBlue500 font-bold no-underline text-sm md:text-base xl:mr-5"
               >
                 Our Courses
               </a>
