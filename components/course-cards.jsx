@@ -2,7 +2,6 @@ import { useRouter } from "next/router";
 
 export default function CourseCards({ courses }) {
   const router = useRouter();
-    const { slug } = router.query;
 
   return (
     <div className="course-card flex flex-col items-center md:grid md:grid-cols-2 lg:grid-cols-3 w-full md:w-fit gap-8 px-4">
