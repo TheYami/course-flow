@@ -16,7 +16,7 @@ export default function Footer() {
           <ul className="space-y-2 m-0 p-0 text-left md:space-y-0 md:flex md:space-x-6 2xl:space-x-[100px]">
             <li>
               <a
-                href="#"
+                href="/course"
                 className="text-[#C8CCDB] no-underline hover:text-blue-400 text-base font-normal"
               >
                 All Courses
