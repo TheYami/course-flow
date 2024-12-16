@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowBack, ModalXIcon } from "@/assets/icons/admin_icon/adminIcon";
+import { ArrowBack, ModalXIcon,DragIcon } from "@/assets/icons/admin_icon/adminIcon";
 import { useRouter } from "next/router";
 import axios from "axios";
 
@@ -276,6 +276,7 @@ export const EditLesson = ({ lessonId }) => {
                   key={index}
                   className="sub-lesson-box pt-6 pb-20 px-20 mb-4 bg-[#F6F7FC] border border-[#E4E6ED] rounded-[12px] relative"
                 >
+                  <div className=" absolute left-5 top-14"><DragIcon/></div>
                   <button
                     type="button"
                     onClick={() => handleDeleteSubLesson(index)}
