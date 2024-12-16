@@ -1,7 +1,7 @@
 import Image from "next/image";
 export default function HeroSection() {
   return (
-    <section className="pt-3">
+    <section>
       <div className="relative overflow-hidden inset-0 bg-cover bg-center bg-[url('/assets/image/herobg.png')] md:bg-lightblue md:bg-none md:h-auto">
         <div className="container mx-auto flex flex-col md:flex-row items-center justify-between p-8 text-black md:max-w-screen-md lg:max-w-screen-lg xl:h-[700px] xl:pt-30">
           {/* Text Content */}
