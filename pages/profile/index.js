@@ -86,9 +86,7 @@ export default function Profile() {
             .from('users')
             .update({ profile_picture: imageUrl })
             .eq('email', userData.email);
-
-          router.reload()
-          
+  
           if (error) {
             console.error("Error updating profile picture:", error);
           }
@@ -102,6 +100,7 @@ export default function Profile() {
       setLoading(false);
     }
   };
+  
   
 
   const handleUpdateProfile = async (e) => {
@@ -162,10 +161,14 @@ export default function Profile() {
       .update({profile_picture:null})
       .eq('email',userData.email)
 
-      router.reload()
-
       if (error) {
         console.error("Error removing profile picture:", error);
+      }else {
+        setUserData(prevState => ({
+          ...prevState,
+          profile_picture: null,  // รีเซ็ตค่าภาพโปรไฟล์
+        }));
+        setPreviewImage({ image: null });  // ลบพรีวิวภาพ
       }
 
     } catch (error) {
@@ -176,12 +179,10 @@ export default function Profile() {
   }
 
   const deletePreviewImage = () => {
-    setPreviewImage((prev) => ({
-      ...prev,
-      image: null,
-    }));
-    router.reload()
-  }
+    setPreviewImage({ image: null });
+    setProfileImage({ image: null });
+    console.log("หลังกด x :",userData.profile_picture);
+  };
 
   useEffect(() => {
     const checkSession = async () => {
@@ -248,11 +249,11 @@ export default function Profile() {
                   htmlFor="file-upload" 
                   onClick={clickToUpLoad}
                   className='px-8 py-[18px] bg-[#2F5FAC] hover:bg-blue-500 rounded-xl text-white font-bold cursor-pointer'>
-                    {userData.profile_picture === null ? 'Upload photo':'Change photo'}
+                    {userData.profile_picture !== null ? 'Change photo' : 'Upload photo'}
                   </label>
                 </div>):(
                   <div className='relative flex flex-col items-center justify-center gap-4'>
-                    <Image src={previewImage.image}
+                    <Image src={previewImage.image === null ? userData.profile_picture || profilePic : previewImage.image}
                        alt='preview profile' width={358} height={358} className='rounded-2xl'/>
 
                     <input 
@@ -266,15 +267,17 @@ export default function Profile() {
                       htmlFor="file-upload" 
                       onClick={clickToUpLoad}
                       className='px-8 py-[18px] bg-[#2F5FAC] rounded-xl text-white font-bold cursor-pointer'>
-                        Upload photo
+                        {userData.profile_picture !== null ? 'Change photo' : 'Upload photo'}
                     </label>
 
-                    <div 
-                      onClick={deletePreviewImage}
-                      className='absolute top-[-5px] right-[-5px] w-[20px] h-[20px] 
-                          rounded-full flex items-center justify-center bg-[#9B2FAC] text-white font-bold cursor-pointer'>
-                            x
-                    </div>
+                    {previewImage.image !== null && (
+                      <div 
+                        onClick={deletePreviewImage}
+                        className='absolute top-[-5px] right-[-5px] w-[20px] h-[20px] 
+                            rounded-full flex items-center justify-center bg-[#9B2FAC] text-white font-bold cursor-pointer'>
+                              x
+                      </div>
+                    )}
 
                   </div>
                 )}
