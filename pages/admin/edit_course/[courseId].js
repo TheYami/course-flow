@@ -1,13 +1,14 @@
-import { AddLesson } from "@/components/admin/AddLesson";
+import EditCourse from "@/components/admin/editCourse";
 import useAdminAuth from "@/hooks/useAdminAuth";
 
-const AddLessonPage = () => {
+const AddCoursePage = () => {
   const { loading } = useAdminAuth();
 
   if (loading) {
     return <div>Loading...</div>;
   }
-  return <AddLesson />;
+
+  return <EditCourse />;
 };
 
-export default AddLessonPage;
+export default AddCoursePage;

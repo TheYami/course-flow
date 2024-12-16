@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../../../components/admin/AdminSidebar";
-import { TrashIcon, EditIcon } from "@/assets/icons/admin_icon/adminIcon";
+import {
+  TrashIcon,
+  EditIcon,
+  ModalXIcon,
+} from "@/assets/icons/admin_icon/adminIcon";
 import AdminHeaderbar from "@/components/admin/AdminHeaderbar";
 import axios from "axios";
 import formatDate from "@/utils/formatDate";
 import useAdminAuth from "@/hooks/useAdminAuth";
+import { useRouter } from "next/router";
 
 const AdminPanel = () => {
   const [allCourses, setAllCourses] = useState([]);
@@ -13,6 +18,9 @@ const AdminPanel = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const { loading } = useAdminAuth();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [courseToDelete, setCourseToDelete] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
     if (!loading) {
@@ -49,6 +57,32 @@ const AdminPanel = () => {
       console.error("Error fetching course data:", err);
       setError("Failed to load courses data.");
     } finally {
+      setLoadingData(false);
+    }
+  };
+
+  const handleEdit = (course) => {
+    router.push(`/admin/edit_course/${course.course_id}`);
+  };
+
+  const handleDelete = async (courseId) => {
+    setLoadingData(true);
+    try {
+      const { data } = await axios.delete(
+        `/api/admin/delete_course/${courseId}`
+      );
+      console.log("Delete successful:", data);
+
+      setAllCourses((prevCourses) =>
+        prevCourses.filter((course) => course.course_id !== courseId)
+      );
+
+      fetchCourses(currentPage);
+    } catch (err) {
+      console.error("Error deleting course data:", err);
+      setError("Failed to delete course data.");
+    } finally {
+      setIsModalOpen(false);
       setLoadingData(false);
     }
   };
@@ -123,10 +157,19 @@ const AdminPanel = () => {
           {formatDate(course.updated_at)}
         </td>
         <td className="p-4 border-t border-[#F1F2F6]">
-          <button className="mr-2 hover:scale-110">
+          <button
+            className="mr-2 hover:scale-110"
+            onClick={() => {
+              setIsModalOpen(true);
+              setCourseToDelete(course.course_id);
+            }}
+          >
             <TrashIcon />
           </button>
-          <button className="hover:scale-110">
+          <button
+            onClick={() => handleEdit(course)}
+            className="hover:scale-110"
+          >
             <EditIcon />
           </button>
         </td>
@@ -147,7 +190,7 @@ const AdminPanel = () => {
           buttonLabel="+ Add Course"
           apiEndpoint="/api/admin/courses"
           onSearch={handleSearch}
-          navigatePath="/admin/AddCourse"
+          navigatePath="/admin/add_course"
         />
         <div className="p-6">
           {loadingData ? (
@@ -174,6 +217,35 @@ const AdminPanel = () => {
               </table>
               {renderPagination()}
             </>
+          )}
+          {isModalOpen && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+              <div className="bg-white rounded-3xl shadow-lg w-[30rem]">
+                <div className="px-6 pt-6 pb-2 border-b flex justify-between">
+                  <h3 className="text-xl">Confirmation</h3>
+                  <div onClick={() => setIsModalOpen(false)}>
+                    <ModalXIcon />
+                  </div>
+                </div>
+                <div className="p-6">
+                  <p>Are you sure you want to delete this course?</p>
+                  <div className="flex justify-center gap-8 mt-6">
+                    <button
+                      className="px-4 py-3 bg-[#FFFFFF] border-1 border-[#F47E20] text-[#F47E20] rounded-xl hover:bg-[#F47E20] hover:text-[#FFFFFF]"
+                      onClick={() => handleDelete(courseToDelete)}
+                    >
+                      Yes, I want to delete this course
+                    </button>
+                    <button
+                      className="px-4 py-3 bg-[#2F5FAC] text-[#FFFFFF] rounded-xl hover:bg-[#FFFFFF] hover:text-[#2F5FAC] border-1 border-[#2F5FAC]"
+                      onClick={() => setIsModalOpen(false)}
+                    >
+                      No, keep it
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </div>

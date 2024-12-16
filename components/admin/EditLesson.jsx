@@ -1,34 +1,46 @@
 import { useState, useEffect } from "react";
-import { ArrowBack } from "@/assets/icons/admin_icon/adminIcon";
+import { ArrowBack, ModalXIcon } from "@/assets/icons/admin_icon/adminIcon";
 import { useRouter } from "next/router";
 import axios from "axios";
 
-export const AddLesson = ({ courseId }) => {
+export const EditLesson = ({ lessonId }) => {
   const [courseName, setCourseName] = useState("");
+  const [courseId, setCourseId] = useState("");
   const [lessonName, setLessonName] = useState("");
   const [subLessonData, setSubLessonData] = useState([
-    { subLessonName: "", videoUrl: "", videoPreview: "" },
+    { subLessonId: "", subLessonName: "", videoUrl: "", videoPreview: "" },
   ]);
   const router = useRouter();
   const [loadingData, setLoadingData] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    const fetchCourseData = async () => {
+    const fetchLessonData = async () => {
       try {
         const response = await axios.get(
-          `/api/admin/courses?courseId=${courseId}`
+          `/api/admin/fetch_edit_lesson/${lessonId}`
         );
 
+        setCourseId(response.data.data[0].course_id);
         setCourseName(response.data.data[0].course_name);
+        setLessonName(response.data.data[0].lesson_name);
+
+        const subLessons = response.data.data.map((item) => ({
+          subLessonId: item.sub_lesson_id,
+          subLessonName: item.sub_lesson_name,
+          videoPreview: item.video,
+        }));
+
+        setSubLessonData(subLessons);
       } catch (error) {
-        console.error("Error fetching course data:", error);
+        console.error("Error fetching lesson data:", error);
       }
     };
 
-    if (courseId) {
-      fetchCourseData();
+    if (lessonId) {
+      fetchLessonData();
     }
-  }, [courseId]);
+  }, [lessonId]);
 
   const handleLessonInput = (e) => {
     setLessonName(e.target.value);
@@ -48,14 +60,6 @@ export const AddLesson = ({ courseId }) => {
       ...prev,
       { subLessonName: "", videoUrl: "", videoPreview: "" },
     ]);
-  };
-
-  const deleteSubLesson = (index) => {
-    if (subLessonData.length > 1) {
-      setSubLessonData((prev) => prev.filter((_, i) => i !== index));
-    } else {
-      alert("You must have at least one sub-lesson.");
-    }
   };
 
   const handleClickUploadVideo = (index) => {
@@ -93,9 +97,52 @@ export const AddLesson = ({ courseId }) => {
     );
   };
 
-  const isFormValid = subLessonData.every(
-    (subLesson) => subLesson.subLessonName && subLesson.videoUrl
-  );
+  const handleDeleteLesson = async (lessonId) => {
+    if (!lessonId) {
+      console.error("Lesson ID is missing.");
+      setError("Invalid lesson ID.");
+      return;
+    }
+
+    setLoadingData(true);
+
+    try {
+      const { data } = await axios.delete(
+        `/api/admin/delete_lesson/${lessonId}`
+      );
+    } catch (err) {
+      console.error("Error deleting lesson data:", err);
+      setError("Failed to delete lesson data.");
+    } finally {
+      setIsModalOpen(false);
+      setLoadingData(false);
+      router.push(`/admin/edit_course/${courseId}`);
+    }
+  };
+
+  const handleDeleteSubLesson = async (index) => {
+    const subLesson = subLessonData[index];
+
+    if (subLesson.subLessonId) {
+      try {
+        const response = await axios.delete(
+          `/api/admin/delete_sub_lesson/${subLesson.subLessonId}`
+        );
+
+        if (response.status === 200) {
+          const updatedData = subLessonData.filter((_, idx) => idx !== index);
+          setSubLessonData(updatedData);
+        } else {
+          console.error("Failed to delete sub-lesson from the database");
+        }
+      } catch (error) {
+        console.error("Error deleting sub-lesson:", error);
+      }
+    } else {
+      const updatedData = subLessonData.filter((_, idx) => idx !== index);
+      setSubLessonData(updatedData);
+    }
+  };
 
   const uploadToCloudinary = async (file, preset = "unSigned") => {
     const cloudinaryUrl = "https://api.cloudinary.com/v1_1/dxjamlkhi/upload";
@@ -134,13 +181,14 @@ export const AddLesson = ({ courseId }) => {
 
       const updatedSubLessonData = await Promise.all(
         subLessonData.map(async (subLesson) => {
-          if (subLesson.videoUrl) {
-            const videoCloudinaryUrl = await uploadToCloudinary(
-              subLesson.videoUrl
-            );
-            return { ...subLesson, videoUrl: videoCloudinaryUrl };
+          if (subLesson.videoUrl && subLesson.videoUrl instanceof File) {
+            const videoUrl = await uploadToCloudinary(subLesson.videoUrl);
+            return { ...subLesson, videoUrl };
           }
-          return subLesson;
+          return {
+            ...subLesson,
+            videoUrl: subLesson.videoUrl || subLesson.videoPreview,
+          };
         })
       );
 
@@ -149,14 +197,13 @@ export const AddLesson = ({ courseId }) => {
         subLessonData: updatedSubLessonData,
       };
 
-      const response = await axios.post(
-        `/api/admin/create_lesson/${courseId}`,
+      const response = await axios.put(
+        `/api/admin/edit_lesson/${lessonId}`,
         updatedLessonData,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
-          withCredentials: true,
         }
       );
 
@@ -185,7 +232,10 @@ export const AddLesson = ({ courseId }) => {
           </div>
           <div className="text-[14px]">
             <span className=" text-[#9AA1B9] mr-1">Course</span> '{courseName}'
-            <h1 className="text-[24px] font-[500]">Add Lesson</h1>
+            <div className=" flex gap-2">
+              <h1 className="text-[24px] text-[#9AA1B9] font-[500]">Lesson</h1>
+              <h1 className="text-[24px] font-[500]">'{lessonName}'</h1>
+            </div>
           </div>
         </div>
         <div className="button flex gap-4">
@@ -194,14 +244,9 @@ export const AddLesson = ({ courseId }) => {
           </button>
           <button
             type="submit"
-            disabled={!isFormValid}
-            className={`create-button px-8 py-[18px] font-[700] rounded-[12px] ${
-              isFormValid
-                ? "bg-[#2F5FAC] text-[#FFFFFF]"
-                : "bg-[#D3D8E5] text-[#9AA1B9]"
-            }`}
+            className="create-button px-8 py-[18px] font-[700] rounded-[12px] bg-[#2F5FAC] text-[#FFFFFF]"
           >
-            Create
+            Edit
           </button>
         </div>
       </header>
@@ -218,7 +263,7 @@ export const AddLesson = ({ courseId }) => {
             <input
               type="text"
               id="lessonName"
-              name="courseName"
+              name="lessonName"
               value={lessonName}
               onChange={handleLessonInput}
               placeholder="Enter the lesson name"
@@ -236,12 +281,13 @@ export const AddLesson = ({ courseId }) => {
               {subLessonData.map((subLesson, index) => (
                 <div
                   key={index}
-                  className="sub-lesson-box py-6 px-20 mb-4 bg-[#F6F7FC] border border-[#E4E6ED] rounded-[12px] shadow-sm relative"
+                  className="sub-lesson-box pt-6 pb-20 px-20 mb-4 bg-[#F6F7FC] border border-[#E4E6ED] rounded-[12px] relative"
                 >
                   <button
-                    onClick={() => deleteSubLesson(index)}
+                    type="button"
+                    onClick={() => handleDeleteSubLesson(index)}
                     disabled={subLessonData.length === 1}
-                    className={` absolute top-6 right-6 text-[#2F5FAC] ${
+                    className={` absolute top-6 right-6 font-semibold text-[#2F5FAC] hover:scale-105 ${
                       subLessonData.length === 1
                         ? "cursor-not-allowed text-[#C8CCDB]"
                         : ""
@@ -277,6 +323,7 @@ export const AddLesson = ({ courseId }) => {
                           <input
                             type="file"
                             id={`videoInput-${index}`}
+                            name={`userVideo-${index}`}
                             className="hidden"
                             accept="video/*"
                             onChange={(e) => handleVideoFileChange(index, e)}
@@ -288,8 +335,7 @@ export const AddLesson = ({ courseId }) => {
                           <video
                             src={subLesson.videoPreview}
                             controls
-                            className="w-[240px] h-[240px] object-cover rounded-lg"
-                            alt="Uploaded Video Preview"
+                            className="w-[240px] h-[240px] object-cover rounded-[8px]"
                           />
                           <button
                             onClick={() => handleRemoveVideo(index)}
@@ -306,14 +352,59 @@ export const AddLesson = ({ courseId }) => {
             </div>
 
             <button
-              className="font-semibold px-4 py-3 bg-[#FFFFFF] border-1 border-[#F47E20] text-[#F47E20] rounded-xl hover:bg-[#F47E20] hover:text-[#FFFFFF] my-8"
+              type="button"
+              className="font-semibold px-4 py-3 bg-[#FFFFFF] border-1 border-[#F47E20] text-[#F47E20] rounded-xl hover:bg-[#F47E20] hover:text-[#FFFFFF] "
               onClick={addSubLesson}
             >
               + Add Sub Lesson
             </button>
           </section>
         </div>
+        <div
+          onClick={() => {
+            setIsModalOpen(true);
+          }}
+          className="flex font-semibold text-[#2F5FAC] justify-end mr-12 pb-20 mt-0 cursor-pointer"
+        >
+          <p className="hover:scale-105">Delete Lesson</p>
+        </div>
+        {isModalOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white rounded-3xl shadow-lg w-[30rem]">
+              <div className="px-6 pt-6 pb-2 border-b flex justify-between">
+                <h3 className="text-xl">Confirmation</h3>
+                <div
+                  className=" cursor-pointer"
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  <ModalXIcon />
+                </div>
+              </div>
+              <div className="p-6">
+                <p>Are you sure you want to delete this lesson?</p>
+                <div className="flex justify-center gap-6 mt-6">
+                  <button
+                    type="button"
+                    className="font-semibold px-4 py-3 bg-[#FFFFFF] border-1 border-[#F47E20] text-[#F47E20] rounded-xl hover:bg-[#F47E20] hover:text-[#FFFFFF]"
+                    onClick={() => handleDeleteLesson(lessonId)}
+                  >
+                    Yes, I want to delete this Lesson
+                  </button>
+                  <button
+                    type="button"
+                    className="px-4 py-3 bg-[#2F5FAC] text-[#FFFFFF] rounded-xl hover:bg-[#FFFFFF] hover:text-[#2F5FAC] border-1 border-[#2F5FAC]"
+                    onClick={() => setIsModalOpen(false)}
+                  >
+                    No, keep it
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </form>
   );
 };
+
+export default EditLesson;
