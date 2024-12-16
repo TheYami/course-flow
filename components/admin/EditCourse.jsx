@@ -55,8 +55,10 @@ const EditCoursePage = () => {
 
         setImagePreview(course.image_file || "");
         setVideoPreview(course.video_file || "");
-        setDocumentPreview(course.document_file || "");
-        setFileName(course.document_file.split("/").pop());
+        if (course.document_file) {
+          setDocumentPreview(course.document_file || "");
+          setFileName(course.document_file.split("/").pop());
+        }
       } else {
         setError("Course not found.");
       }
