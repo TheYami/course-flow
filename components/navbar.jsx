@@ -72,7 +72,10 @@ export default function Navbar() {
   }, []);
 
   return (
-    <nav className="bg-white xl:h-[88px] xl:pt-3 shadow-md">
+    <nav
+      className="bg-white h-14 xl:h-[88px] xl:pt-4 shadow-md
+    "
+    >
       <div className="container flex items-center justify-between px-4 py-3 xl:py-9">
         {/* Logo */}
         <a href="#">
