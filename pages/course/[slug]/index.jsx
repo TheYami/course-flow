@@ -11,7 +11,6 @@ import CourseList from "@/components/course-card";
 import Checkout from "@/components/checkout-course";
 import { AuthProvider } from "@/contexts/useUserAuth"; // นำเข้า AuthProvider
 
-
 export default function CourseDetail() {
   const router = useRouter();
   const { slug } = router.query;
@@ -21,14 +20,14 @@ export default function CourseDetail() {
   const [openLesson, setOpenLesson] = useState(null); // เก็บ id ของ lesson ที่เปิด
 
   // ใช้ useAuth เพื่อเข้าถึงค่า isLoggedIn และ user
-  const { isLoggedIn, loading: authLoading, user } = useAuth();
+  const { isLoggedIn, loading: authLoading, user, userData } = useAuth();
 
   const getCourseById = async () => {
-    setLoading(true); 
+    setLoading(true);
     try {
       const response = await axios.get(`/api/courseById?slug=${slug}`);
       setCourse(response.data.data);
-      setLoading(false); 
+      setLoading(false);
     } catch (err) {
       console.error("Error fetching course:", err);
       setError(err.response?.data?.message || "Error fetching course");
@@ -37,12 +36,13 @@ export default function CourseDetail() {
   };
 
   const toggleAccordion = (id) => {
-    setOpenLesson((prev) => (prev === id ? null : id)); 
+    setOpenLesson((prev) => (prev === id ? null : id));
   };
 
   useEffect(() => {
     if (slug) getCourseById();
   }, [slug]);
+
 
   return (
     <div>
