@@ -5,14 +5,11 @@ import Footer from "@/components/footer";
 const CourseProgressPage = () => {
   return (
     <>
-    <Navbar />
-    <CourseProgress />
-    <Footer />
+      <Navbar />
+      <CourseProgress />
+      <Footer />
     </>
-    
-  )
-}
-    
+  );
+};
 
 export default CourseProgressPage;
-
