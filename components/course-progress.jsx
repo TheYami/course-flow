@@ -125,13 +125,15 @@ export default function CourseProgress({ slug }) {
   console.log(subcribeCoursesData[0]);
 
   const handleNextLesson = () => {
-    const totalSubLessons = subcribeCoursesData[0]?.lessons.sub_lessons.flatMap((lesson) => lesson.sub_lessons).length;
-    
+    const totalSubLessons = subcribeCoursesData[0]?.lessons.sub_lessons.flatMap(
+      (lesson) => lesson.sub_lessons
+    ).length;
+
     if (selectedSubLessonIndex < totalSubLessons - 1) {
       // คำนวณ sub-lesson ถัดไป
-      const nextSubLesson = subcribeCoursesData[0]?.lessons
-        .flatMap((lesson) => lesson.sub_lessons)
-        [selectedSubLessonIndex + 1]; // หาค่าบทเรียนถัดไปจาก index
+      const nextSubLesson = subcribeCoursesData[0]?.lessons.flatMap(
+        (lesson) => lesson.sub_lessons
+      )[selectedSubLessonIndex + 1]; // หาค่าบทเรียนถัดไปจาก index
       setSelectedSubLesson(nextSubLesson);
       setSelectedSubLessonIndex(selectedSubLessonIndex + 1); // อัปเดต index
     }
