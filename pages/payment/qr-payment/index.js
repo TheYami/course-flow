@@ -9,10 +9,10 @@ export default function Payment() {
       <nav className="border-b-[1px]">
         <Navbar />
       </nav>
-      <main className="pt-4 px-4 pb-10 flex flex-col gap-8">
+      <div className="pt-4 px-4 pb-10 flex flex-col gap-8">
         <BackBotton url="/payment" />
         <QrScanWindow />
-      </main>
+      </div>
       <Footer />
     </div>
   );
