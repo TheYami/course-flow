@@ -13,6 +13,7 @@ export const EditLesson = ({ lessonId }) => {
   const router = useRouter();
   const [loadingData, setLoadingData] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deletedSubLessons, setDeletedSubLessons] = useState([]);
 
   useEffect(() => {
     const fetchLessonData = async () => {
@@ -120,28 +121,14 @@ export const EditLesson = ({ lessonId }) => {
     }
   };
 
-  const handleDeleteSubLesson = async (index) => {
+  const handleDeleteSubLesson = (index) => {
     const subLesson = subLessonData[index];
 
     if (subLesson.subLessonId) {
-      try {
-        const response = await axios.delete(
-          `/api/admin/delete_sub_lesson/${subLesson.subLessonId}`
-        );
-
-        if (response.status === 200) {
-          const updatedData = subLessonData.filter((_, idx) => idx !== index);
-          setSubLessonData(updatedData);
-        } else {
-          console.error("Failed to delete sub-lesson from the database");
-        }
-      } catch (error) {
-        console.error("Error deleting sub-lesson:", error);
-      }
-    } else {
-      const updatedData = subLessonData.filter((_, idx) => idx !== index);
-      setSubLessonData(updatedData);
+      setDeletedSubLessons((prev) => [...prev, subLesson.subLessonId]);
     }
+
+    setSubLessonData((prev) => prev.filter((_, idx) => idx !== index));
   };
 
   const uploadToCloudinary = async (file, preset = "unSigned") => {
@@ -179,6 +166,12 @@ export const EditLesson = ({ lessonId }) => {
         return;
       }
 
+      await Promise.all(
+        deletedSubLessons.map(async (subLessonId) => {
+          await axios.delete(`/api/admin/delete_sub_lesson/${subLessonId}`);
+        })
+      );
+
       const updatedSubLessonData = await Promise.all(
         subLessonData.map(async (subLesson) => {
           if (subLesson.videoUrl && subLesson.videoUrl instanceof File) {
@@ -197,15 +190,11 @@ export const EditLesson = ({ lessonId }) => {
         subLessonData: updatedSubLessonData,
       };
 
-      const response = await axios.put(
-        `/api/admin/edit_lesson/${lessonId}`,
-        updatedLessonData,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      await axios.put(`/api/admin/edit_lesson/${lessonId}`, updatedLessonData, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
       router.push(`/admin/edit_course/${courseId}`);
     } catch (error) {
@@ -239,7 +228,11 @@ export const EditLesson = ({ lessonId }) => {
           </div>
         </div>
         <div className="button flex gap-4">
-          <button className="cancel-button px-8 py-[18px] text-[#F47E20] font-[700] border border-[#F47E20] rounded-[12px]">
+          <button
+            type="button"
+            onClick={() => router.push(`/admin/edit_course/${courseId}`)}
+            className="cancel-button px-8 py-[18px] text-[#F47E20] font-[700] border border-[#F47E20] rounded-[12px]"
+          >
             Cancel
           </button>
           <button
