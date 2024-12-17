@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/useUserAuth";
 import { useRouter } from "next/router";
 import axios from "axios";
 
-export default function SubscriptionFloat({ course }) {
+export default function SubscriptionFloat({ course, subscriptionStatus }) {
   const router = useRouter();
   const [wishlist, setWishlist] = useState([]);
   const [showButton, setShowButton] = useState(false);
@@ -12,7 +12,15 @@ export default function SubscriptionFloat({ course }) {
   const [inWishlist, setInWishlist] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const { isLoggedIn, loading: authLoading, user, userData } = useAuth();
+  const {
+    isLoggedIn,
+    loading: authLoading,
+    user,
+    userData,
+    subscriptions,
+  } = useAuth();
+
+
 
   // Load wishlist
   useEffect(() => {
@@ -34,12 +42,11 @@ export default function SubscriptionFloat({ course }) {
     };
 
     fetchWishlist();
-    
   }, [userData]);
 
   // set InWishlist ถ้าเคยเพิ่มไปแล้ว
   useEffect(() => {
-    if (!wishlist || !course) return; // ดักกรณีที่ wishlist หรือ course ยังไม่มีค่า
+    if (!wishlist || !course) return;
 
     const result = wishlist.filter((w) => w.course_id === course.course_id);
     if (result.length > 0) {
@@ -145,7 +152,6 @@ export default function SubscriptionFloat({ course }) {
             <button
               onClick={() => {
                 setShowButton(!showButton);
-                console.log(showButton);
               }}
             >
               <svg
@@ -180,7 +186,6 @@ export default function SubscriptionFloat({ course }) {
             <button
               onClick={() => {
                 setShowButton(!showButton);
-                console.log(showButton);
               }}
             >
               <svg
@@ -205,18 +210,26 @@ export default function SubscriptionFloat({ course }) {
         </div>
       </div>
       <div className="action flex lg:flex-col gap-2 text-xs lg:text-base font-bold">
-        <button
-          className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-white border border-orange-500 text-orange-500 shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-0 flex-grow"
-          onClick={handleAddToWishlist}
-        >
-          {inWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
-        </button>
-        <button
-          className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-[#2F5FAC] text-white shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-1 flex-grow"
-          onClick={handlSubscription}
-        >
-          Subscribe This Course
-        </button>
+        {subscriptionStatus ? (
+          <button className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-[#2F5FAC] text-white shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-1 flex-grow">
+            Start Learning
+          </button>
+        ) : (
+          <>
+            <button
+              className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-white border border-orange-500 text-orange-500 shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-0 flex-grow"
+              onClick={handleAddToWishlist}
+            >
+              {inWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
+            </button>
+            <button
+              className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-[#2F5FAC] text-white shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-1 flex-grow"
+              onClick={handlSubscription}
+            >
+              Subscribe This Course
+            </button>
+          </>
+        )}
         {isModalOpen && (
           <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50 z-50">
             {/* Backdrop */}
