@@ -533,14 +533,18 @@ const EditCoursePage = () => {
             courseId={courseId}
           />
         </div>
-        <div
-          onClick={() => {
-            setIsModalOpen(true);
-          }}
-          className="flex font-semibold text-[#2F5FAC] justify-end mr-16 pb-20 mt-0 cursor-pointer"
-        >
-          <p className="hover:scale-105">Delete Course</p>
-        </div>
+        {loadingData ? null : (
+          <div className="flex font-semibold text-[#2F5FAC] justify-end mr-16 pb-20 mt-0 cursor-pointer">
+            <button
+              onClick={() => {
+                setIsModalOpen(true);
+              }}
+              className="hover:scale-105"
+            >
+              Delete Course
+            </button>
+          </div>
+        )}
         {isModalOpen && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <div className="bg-white rounded-3xl shadow-lg w-[30rem]">

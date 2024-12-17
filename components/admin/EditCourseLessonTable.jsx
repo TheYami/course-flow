@@ -5,6 +5,7 @@ import {
   EditIcon,
   DragIcon,
   ModalXIcon,
+  DisabledTrashIcon,
 } from "@/assets/icons/admin_icon/adminIcon";
 import { useRouter } from "next/router";
 
@@ -13,11 +14,12 @@ export function EditCourseLessonTable({
   setLoadingData,
   courseId,
 }) {
-  const [LessonData, setLessonData] = useState([]);
+  const [lessonData, setLessonData] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [lessonToDelete, setLessonToDelete] = useState(null);
   const [error, setError] = useState(null);
   const router = useRouter();
+  const [isShaking, setIsShaking] = useState(false);
 
   useEffect(() => {
     if (courseId) {
@@ -76,27 +78,43 @@ export function EditCourseLessonTable({
     ));
   };
 
+  const handleShakeIcon = () => {
+    setIsShaking(true);
+    setTimeout(() => setIsShaking(false), 500);
+  };
+
   const renderTableBody = () => {
-    return LessonData.map((lesson, index) => (
+    return lessonData.map((lesson, index) => (
       <tr key={lesson.lesson_id} className="hover:bg-[#F6F7FC]">
         <td className="pl-4 border-t border-[#F1F2F6]">
           <DragIcon />
         </td>
         <td className="p-2 py-4 border-t border-[#F1F2F6]">{index + 1}</td>
         <td className="p-2 border-t border-[#F1F2F6]">{lesson.lesson_name}</td>
-        <td className="p-2 border-t border-[#F1F2F6]">
-          {lesson.sub_lesson_count} Lessons
+        <td className="p-2 px-5 border-t border-[#F1F2F6]">
+          {lesson.sub_lesson_count}
         </td>
         <td className="p-2 border-t border-[#F1F2F6]">
-          <button
-            onClick={() => {
-              setIsModalOpen(true);
-              setLessonToDelete(lesson.lesson_id);
-            }}
-            className="mr-2 hover:scale-110"
-          >
-            <TrashIcon />
-          </button>
+          {lessonData.length <= 1 ? (
+            <button
+              onClick={handleShakeIcon}
+              className={`mr-2 hover:scale-110 ${
+                isShaking ? "animate-shake" : ""
+              }`}
+            >
+              <DisabledTrashIcon />
+            </button>
+          ) : (
+            <button
+              onClick={() => {
+                setIsModalOpen(true);
+                setLessonToDelete(lesson.lesson_id);
+              }}
+              className="mr-2 hover:scale-110"
+            >
+              <TrashIcon />
+            </button>
+          )}
           <button
             onClick={() =>
               router.push(`/admin/edit_lesson/${lesson.lesson_id}`)
@@ -128,7 +146,7 @@ export function EditCourseLessonTable({
             <tr>{renderTableHeaders()}</tr>
           </thead>
           <tbody className="bg-[#FFFFFF]">
-            {LessonData.length === 0 ? (
+            {lessonData.length === 0 ? (
               <tr>
                 <td colSpan="8" className="text-center text-[#6B7280]">
                   lesson Not Found !
