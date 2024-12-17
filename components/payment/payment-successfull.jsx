@@ -3,7 +3,7 @@ import successfullIcon from "@/assets/icons/payment-icons/payment-successfull-ic
 
 export default function PaymentSuccessfullCard() {
   return (
-    <div className="payment-successfull-card flex flex-col items-center rounded-[8px] gap-8 p-10 shadow">
+    <div className="payment-successfull-card flex flex-col items-center rounded-[8px] gap-8 p-10 shadow-[4px_4px_24px_0px_rgba(0,0,0,0.08)]">
       <div className="alert-part flex flex-col gap-6 items-center justify-center">
         <Image src={successfullIcon} />
         <div className="flex flex-col gap-2 items-center justify-center">
