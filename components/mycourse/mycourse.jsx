@@ -15,80 +15,24 @@ export default function MyCourse() {
   const [inProgressCourses, setInProgressCourses] = useState([]);
   const [completedCourses, setCompletedCourses] = useState([]);
 
-  // useEffect(() => {
-  //   if (userData) {
-  //     const fetchCourses = async () => {
-  //       try {
-  //         const allCoursesResponse = await axios.get(
-  //           `/api/my-course/getAllCourses?user_id=${userData.id}`
-  //         );
-  //         setAllCourses(allCoursesResponse.data);
-
-  //         const inProgressCoursesResponse = await axios.get(
-  //           `/api/my-course/getInProgressCourses?user_id=${userData.id}`
-  //         );
-  //         setInProgressCourses(inProgressCoursesResponse.data);
-
-  //         const completedCoursesResponse = await axios.get(
-  //           `/api/my-course/getCompletedCourses?user_id=${userData.id}`
-  //         );
-  //         setCompletedCourses(completedCoursesResponse.data);
-  //       } catch (error) {
-  //         console.log("Error fetching courses:", error);
-  //       }
-  //     };
-
-  //     fetchCourses();
-  //   }
-  // }, [userData]);
-
   useEffect(() => {
     if (userData) {
       const fetchCourses = async () => {
         try {
-          // Check if courses are stored in localStorage
-          const storedAllCourses = localStorage.getItem("allCourses");
-          const storedInProgressCourses =
-            localStorage.getItem("inProgressCourses");
-          const storedCompletedCourses =
-            localStorage.getItem("completedCourses");
+          const allCoursesResponse = await axios.get(
+            `/api/my-course/getAllCourses?user_id=${userData.id}`
+          );
+          setAllCourses(allCoursesResponse.data);
 
-          if (
-            storedAllCourses &&
-            storedInProgressCourses &&
-            storedCompletedCourses
-          ) {
-            setAllCourses(JSON.parse(storedAllCourses));
-            setInProgressCourses(JSON.parse(storedInProgressCourses));
-            setCompletedCourses(JSON.parse(storedCompletedCourses));
-          } else {
-            const allCoursesResponse = await axios.get(
-              `/api/my-course/getAllCourses?user_id=${userData.id}`
-            );
-            setAllCourses(allCoursesResponse.data);
-            localStorage.setItem(
-              "allCourses",
-              JSON.stringify(allCoursesResponse.data)
-            );
+          const inProgressCoursesResponse = await axios.get(
+            `/api/my-course/getInProgressCourses?user_id=${userData.id}`
+          );
+          setInProgressCourses(inProgressCoursesResponse.data);
 
-            const inProgressCoursesResponse = await axios.get(
-              `/api/my-course/getInProgressCourses?user_id=${userData.id}`
-            );
-            setInProgressCourses(inProgressCoursesResponse.data);
-            localStorage.setItem(
-              "inProgressCourses",
-              JSON.stringify(inProgressCoursesResponse.data)
-            );
-
-            const completedCoursesResponse = await axios.get(
-              `/api/my-course/getCompletedCourses?user_id=${userData.id}`
-            );
-            setCompletedCourses(completedCoursesResponse.data);
-            localStorage.setItem(
-              "completedCourses",
-              JSON.stringify(completedCoursesResponse.data)
-            );
-          }
+          const completedCoursesResponse = await axios.get(
+            `/api/my-course/getCompletedCourses?user_id=${userData.id}`
+          );
+          setCompletedCourses(completedCoursesResponse.data);
         } catch (error) {
           console.log("Error fetching courses:", error);
         }
@@ -97,6 +41,62 @@ export default function MyCourse() {
       fetchCourses();
     }
   }, [userData]);
+
+  // useEffect(() => {
+  //   if (userData) {
+  //     const fetchCourses = async () => {
+  //       try {
+  //         // Check if courses are stored in localStorage
+  //         const storedAllCourses = localStorage.getItem("allCourses");
+  //         const storedInProgressCourses =
+  //           localStorage.getItem("inProgressCourses");
+  //         const storedCompletedCourses =
+  //           localStorage.getItem("completedCourses");
+
+  //         if (
+  //           storedAllCourses &&
+  //           storedInProgressCourses &&
+  //           storedCompletedCourses
+  //         ) {
+  //           setAllCourses(JSON.parse(storedAllCourses));
+  //           setInProgressCourses(JSON.parse(storedInProgressCourses));
+  //           setCompletedCourses(JSON.parse(storedCompletedCourses));
+  //         } else {
+  //           const allCoursesResponse = await axios.get(
+  //             `/api/my-course/getAllCourses?user_id=${userData.id}`
+  //           );
+  //           setAllCourses(allCoursesResponse.data);
+  //           localStorage.setItem(
+  //             "allCourses",
+  //             JSON.stringify(allCoursesResponse.data)
+  //           );
+
+  //           const inProgressCoursesResponse = await axios.get(
+  //             `/api/my-course/getInProgressCourses?user_id=${userData.id}`
+  //           );
+  //           setInProgressCourses(inProgressCoursesResponse.data);
+  //           localStorage.setItem(
+  //             "inProgressCourses",
+  //             JSON.stringify(inProgressCoursesResponse.data)
+  //           );
+
+  //           const completedCoursesResponse = await axios.get(
+  //             `/api/my-course/getCompletedCourses?user_id=${userData.id}`
+  //           );
+  //           setCompletedCourses(completedCoursesResponse.data);
+  //           localStorage.setItem(
+  //             "completedCourses",
+  //             JSON.stringify(completedCoursesResponse.data)
+  //           );
+  //         }
+  //       } catch (error) {
+  //         console.log("Error fetching courses:", error);
+  //       }
+  //     };
+
+  //     fetchCourses();
+  //   }
+  // }, [userData]);
 
   useEffect(() => {
     if (selectedTab === "all") {

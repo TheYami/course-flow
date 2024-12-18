@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import bookIcon from "@/assets/icons/mycourse-icon/book.svg";
 import clockIcon from "@/assets/icons/mycourse-icon/clock.svg";
 
