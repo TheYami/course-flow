@@ -7,30 +7,32 @@ import { v4 as uuidv4 } from "uuid";
 import useUserAuth from "@/hooks/useUserAuth";
 import { saveAs } from "file-saver";
 
-
 export default function QrScanWindow() {
   //   const { userData, loading } = useUserAuth();
   const [loading, setLoading] = useState(false);
   const [checkoutUrl, setCheckoutUrl] = useState(null);
-  const [referenceNumber, setReferenceNumber] = useState("")
+  const [referenceNumber, setReferenceNumber] = useState("");
   const [error, setError] = useState(null);
+  const [status, setStatus] = useState(null);
   const router = useRouter();
 
+  const { session_id } = router.query;
   const courseId = 5;
   const userId = 3;
-  const amount = 500;
+  const amount = 700;
 
   const generateCustomReferenceNumber = () => {
-    const uuid = uuidv4(); 
-    return `CF${uuid.slice(0, 10)}`; 
+    const uuid = uuidv4();
+    return `CF${uuid.slice(0, 10)}`;
   };
-  
+
+
   useEffect(() => {
     const fetchCheckoutUrl = async () => {
       setLoading(true);
       setError(null);
-      const refNumber = generateCustomReferenceNumber()
-      setReferenceNumber(refNumber)
+      const refNumber = generateCustomReferenceNumber();
+      setReferenceNumber(refNumber);
       try {
         const response = await axios.post("/api/payment/createPromptpayUrl", {
           courseId,
@@ -56,7 +58,7 @@ export default function QrScanWindow() {
   }, []);
 
   console.log(checkoutUrl);
-  
+
   const handleDownload = async () => {
     QRCodeLib.toDataURL(
       checkoutUrl,
