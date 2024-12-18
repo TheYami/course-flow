@@ -244,8 +244,18 @@ export default function CourseProgress({slug}) {
   const handleCompleteAssignment = () => {
     setProgress((prev) => Math.min(prev + 10, 100));
   };
-  return <>
-  <div className="flex flex-col items-center md:flex-row md:justify-center md:items-start gap-3">
+
+  //auto scroll to learning section
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  return (
+    <>
+      <div className="flex flex-col items-center md:flex-row md:justify-center md:items-start gap-3">
         {/* Left Section */}
         <section className="w-[343px] lg:w-[387px] flex-col mt-4 pt-4 p-4 box-border rounded-md ml-4 shadow-md xl:ml-8">
           <h1 className="text-xs font-normal mb-4 text-[#F47E20]">Course</h1>
@@ -273,86 +283,91 @@ export default function CourseProgress({slug}) {
             </div>
           </div>
 
-        {/* Course Sections */}
-        <div className="flex flex-col items-center">
           {/* Course Sections */}
-          {sections.map((section) => (
-            <div key={section.id} className="mb-4 w-full">
-              <CollapsiblePanel
-                title={
-                  <span className="text-base font-medium flex gap-3">
-                    <span className="text-gray-500">
-                      {section.id.toString().padStart(2, "0")}
+          <div className="flex flex-col items-center">
+            {/* Course Sections */}
+            {sections.map((section) => (
+              <div key={section.id} className="mb-4 w-full">
+                <CollapsiblePanel
+                  title={
+                    <span className="text-base font-medium flex gap-3">
+                      <span className="text-gray-500">
+                        {section.id.toString().padStart(2, "0")}
+                      </span>
+                      <span className="text-black">{section.title}</span>
                     </span>
-                    <span className="text-black">{section.title}</span>
-                  </span>
-                }
-              >
-                {section.lessons.length > 0 ? (
-                  <div className="mt-3">
-                    {section.lessons.map((lesson, index) => (
-                      <div
-                        key={index}
-                        className="mb-4 cursor-pointer"
-                        onClick={() => handleLessonClick(lesson, index)}
-                      >
-                        <div className="flex items-center bg-[#F6F7FC] rounded w-[309px] pl-1">
-                          <img
-                            src={lesson.imgurl}
-                            alt="lesson progress"
-                            className="w-6 h-6 rounded-full object-cover"
-                          />
-                          <p className="text-sm text-[#646D89] bg-blue-50 rounded p-2 mb-2">
-                            {lesson.subtitle}
-                          </p>
+                  }
+                >
+                  {section.lessons.length > 0 ? (
+                    <div className="mt-3">
+                      {section.lessons.map((lesson, index) => (
+                        <div
+                          key={index}
+                          className="mb-4 cursor-pointer"
+                          onClick={() => handleLessonClick(lesson, index)}
+                        >
+                          <div className="flex items-center bg-[#F6F7FC] rounded w-[309px] pl-1">
+                            <img
+                              src={lesson.imgurl}
+                              alt="lesson progress"
+                              className="w-6 h-6 rounded-full object-cover"
+                            />
+                            <p className="text-sm text-[#646D89] bg-blue-50 rounded p-2 mb-2">
+                              {lesson.subtitle}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-gray-500">No lessons available</p>
-                )}
-              </CollapsiblePanel>
-            </div>
-          ))}
-
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500">
+                      No lessons available
+                    </p>
+                  )}
+                </CollapsiblePanel>
+              </div>
+            ))}
+          </div>
+        </section>
+        {/*Right section */}
+        <section className="flex-col xl:ml-12" ref={learningSectionRef}>
           {/* Learning Section */}
           {selectedLesson && (
-            <div className="w-[335px] flex-col mt-6">
-              <h1 className="w-[343px] text-2xl p-2">
+            <div className="w-[343px] lg:w-[739px] flex flex-col items-start justify-center lg:ml-4 mt-6 lg:mt-4">
+              <h1 className="w-[343px] lg:w-[439px] text-2xl p-2">
                 {selectedLesson.subtitle}
               </h1>
               <img
                 src={selectedLesson.videourl}
                 alt="mockup video"
-                className="w-[343px]"
+                className="w-[343px] lg:w-[739px]"
               />
             </div>
           )}
-        </div>
-        {/* Assignment Form */}
-        <AssignmentForm onComplete={handleCompleteAssignment} />
-        {/*previous,next */}
-        <div className="flex justify-between my-10">
-          <button
-            className="text-[#2F5FAC] font-semibold"
-            onClick={handlePreviousLesson}
-            disabled={selectedLessonIndex === 0}
-          >
-            Previous Lesson
-          </button>
-          <button
-            className="bg-[#2F5FAC] w-[161px] h-[60px] rounded-xl text-white font-semibold"
-            onClick={handleNextLesson}
-            disabled={
-              selectedLessonIndex ===
-              sections.flatMap((section) => section.lessons).length - 1
-            }
-          >
-            Next Lesson
-          </button>
-        </div>
-      </section>
-    </div>
+          {/* Assignment Form */}
+          <AssignmentForm onComplete={handleCompleteAssignment} />
+        </section>
+      </div>
+      {/*previous,next */}
+      <div className="flex justify-between mt-10 px-3 shadow-[0_-1px_15px_-6px_rgba(0,0,0,0.3)] h-[92px]">
+        <button
+          className="text-[#2F5FAC] font-semibold xl:ml-10 2xl:ml-64"
+          onClick={handlePreviousLesson}
+          disabled={selectedLessonIndex === 0}
+        >
+          Previous Lesson
+        </button>
+        <button
+          className="bg-[#2F5FAC] w-[161px] h-[60px] rounded-xl text-white font-semibold mt-3 2xl:mr-52"
+          onClick={handleNextLesson}
+          disabled={
+            selectedLessonIndex ===
+            sections.flatMap((section) => section.lessons).length - 1
+          }
+        >
+          Next Lesson
+        </button>
+      </div>
+    </>
   );
 }
