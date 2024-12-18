@@ -99,11 +99,11 @@ export default function MyCourse() {
   // }, [userData]);
 
   useEffect(() => {
-    if (selectedTab === "all" ) {
+    if (selectedTab === "all") {
       setCourses(allCourses);
-    } else if (selectedTab === "inProgress" ) {
+    } else if (selectedTab === "inProgress") {
       setCourses(inProgressCourses);
-    } else if (selectedTab === "completed" ) {
+    } else if (selectedTab === "completed") {
       setCourses(completedCourses);
     }
   }, [selectedTab, allCourses, inProgressCourses, completedCourses]);
