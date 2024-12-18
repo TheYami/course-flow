@@ -69,7 +69,9 @@ export default function CourseProgress({ slug }) {
         setLoading(false);
 
         setSubscribeCoursesData(subscribeData.data);
-        setSubLessonId(subscribeData.data[0].lessons[0].sub_lessons[0].sub_lesson_id);
+        setSubLessonId(
+          subscribeData.data[0].lessons[0].sub_lessons[0].sub_lesson_id
+        );
       } catch (error) {
         console.error("Error fetching subscriptions:", error);
       }
@@ -102,7 +104,7 @@ export default function CourseProgress({ slug }) {
   const handleLessonClick = (lesson, index) => {
     setSelectedSubLesson(lesson); // เลือก sub-lesson ที่คลิก
     setSelectedSubLessonIndex(index); // เก็บ index ของ sub-lesson ที่เลือก
-    
+
     console.log(lesson);
     console.log(selectedSubLesson?.sub_lesson_id);
     // ตรวจสอบว่า lesson มี assignments และเลือก assignment ที่ต้องการ
@@ -206,10 +208,18 @@ export default function CourseProgress({ slug }) {
       element.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  //auto scroll to learning section
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
   console.log(slug);
   console.log(userData);
   console.log(subLessonId);
-  
+
   return subscribeCoursesData && subscribeCoursesData.length > 0 ? (
     <>
       <div className="flex flex-col items-center md:flex-row md:justify-center md:items-start gap-3">
