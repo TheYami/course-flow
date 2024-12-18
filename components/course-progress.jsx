@@ -244,8 +244,18 @@ export default function CourseProgress({slug}) {
   const handleCompleteAssignment = () => {
     setProgress((prev) => Math.min(prev + 10, 100));
   };
-  return <>
-  <div className="flex flex-col items-center md:flex-row md:justify-center md:items-start gap-3">
+
+  //auto scroll to learning section
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  return (
+    <>
+      <div className="flex flex-col items-center md:flex-row md:justify-center md:items-start gap-3">
         {/* Left Section */}
         <section className="w-[343px] lg:w-[387px] flex-col mt-4 pt-4 p-4 box-border rounded-md ml-4 shadow-md xl:ml-8">
           <h1 className="text-xs font-normal mb-4 text-[#F47E20]">Course</h1>
