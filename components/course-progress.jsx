@@ -156,6 +156,14 @@ export default function CourseProgress({ slug }) {
       element.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  //auto scroll to learning section
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
   console.log(slug);
 
   return subcribeCoursesData && subcribeCoursesData.length > 0 ? (
