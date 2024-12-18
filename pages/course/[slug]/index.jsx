@@ -9,6 +9,7 @@ import SubscritonFloat from "@/components/subscription-float";
 import Footer from "@/components/footer";
 import CourseList from "@/components/course-card";
 import Checkout from "@/components/checkout-course";
+import FileSizeDisplay from "@/utils/fileSize";
 
 export default function CourseDetail() {
   const router = useRouter();
@@ -58,9 +59,6 @@ export default function CourseDetail() {
     if (slug) getCourseById();
   }, [slug]);
 
-  // useEffect(() => {
-  //   console.log(course);
-  // }, [course]);
 
   return (
     <div>
@@ -162,6 +160,7 @@ export default function CourseDetail() {
                         </div>
                         <div className="file-right flex flex-col gap-1 w-fit">
                           <p>{course.course_name}.pdf</p>
+                          <FileSizeDisplay fileUrl={course.document_file} />
                         </div>
                       </div>
                     </div>

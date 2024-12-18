@@ -29,7 +29,6 @@ export default function Course() {
   useEffect(() => {
     getCourse(inputName);
   }, [inputName]);
-
  
 
   return (

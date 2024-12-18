@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/useUserAuth";
 import { useRouter } from "next/router";
 import axios from "axios";
+import Modal from "./modal";
 
 export default function SubscriptionFloat({ course, subscriptionStatus }) {
   const router = useRouter();
@@ -11,6 +12,7 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
   const [error, setError] = useState(null);
   const [inWishlist, setInWishlist] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [action, setAction] = useState(null);
 
   const {
     isLoggedIn,
@@ -19,8 +21,6 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
     userData,
     subscriptions,
   } = useAuth();
-
-
 
   // Load wishlist
   useEffect(() => {
@@ -44,7 +44,7 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
     fetchWishlist();
   }, [userData]);
 
-  // set InWishlist ถ้าเคยเพิ่มไปแล้ว
+  // set InWishlist ถ้าเคยเพิ่มไปในDBแล้ว
   useEffect(() => {
     if (!wishlist || !course) return;
 
@@ -68,27 +68,22 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
     };
   }, [isModalOpen]);
 
-  const handleAddToWishlist = async () => {
+  // Add-Remove to wishlist
+  const handleRemoveFromWishlist = async () => {
     if (!isLoggedIn) {
       router.push("/login");
     } else {
       setLoading(true);
       try {
         if (inWishlist) {
-          // Remove from wishlist
           await axios.delete("/api/removeFromWishlist", {
             params: { email: user.email, course_id: course.course_id },
           });
           setInWishlist(false);
-          console.log("Removed from wishlist");
         } else {
           // Add to wishlist
-          await axios.post("/api/addToWishlist", {
-            email: user.email,
-            course_id: course.course_id,
-          });
-          setInWishlist(true);
-          console.log("Added to wishlist");
+          setAction("add");
+          setIsModalOpen(true);
         }
       } catch (err) {
         console.error("Error updating wishlist:", err);
@@ -103,12 +98,19 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
     if (!isLoggedIn) {
       router.push("/login");
     } else {
+      setAction("subscribe");
       setIsModalOpen(true);
     }
   };
 
   const formatPrice = (price) => {
     return price.toLocaleString("en-US");
+  };
+
+  const handleModalClose = (wishlist) => {
+    // ทำอะไรบางอย่างเมื่อ Modal ปิดหรือส่งค่ากลับ
+    setInWishlist(true);
+    setIsModalOpen(false); // ปิด Modal
   };
 
   // ตรวจสอบว่า course มีค่าหรือไม่
@@ -218,7 +220,12 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
           <>
             <button
               className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-white border border-orange-500 text-orange-500 shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-0 flex-grow"
-              onClick={handleAddToWishlist}
+              onClick={() => {
+                if (!inWishlist) {
+                  setIsModalOpen(true);
+                  setAction("add")
+                } else {handleRemoveFromWishlist();}
+              }}
             >
               {inWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
             </button>
@@ -226,64 +233,12 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
               className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-[#2F5FAC] text-white shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-1 flex-grow"
               onClick={handlSubscription}
             >
-              Subscribe This Course
+              Subscribe This Course 
             </button>
           </>
         )}
         {isModalOpen && (
-          <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50 z-50">
-            {/* Backdrop */}
-            <div
-              className="absolute top-0 left-0 w-full h-full"
-              onClick={() => setIsModalOpen(false)} // คลิกนอก Modal เพื่อปิด
-            ></div>
-
-            {/* Modal Content */}
-            <div className="model relative z-10 flex flex-col items-center w-[528px] h-fit bg-white shadow-[2px_2px_12px_rgba(64,50,133,0.12)] rounded-[24px]">
-              <div className="model-top w-full flex justify-between items-center px-6 py-2 border-b-[1px] border-[#E4E6ED]">
-                <div className="text-xl font-normal">Confirmation</div>
-                <div className="close-button">
-                  <svg
-                    width="41"
-                    height="40"
-                    viewBox="0 0 41 40"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M15.5303 24.8483L25.4697 15.1514M15.5303 15.1514L25.4697 24.8483"
-                      stroke="#C8CCDB"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-              </div>
-              <div className="model-btm w-full flex flex-col gap-6 p-6 ">
-                <p className="text-base font-normal text-[#646D89] m-0">
-                  Do you sure to subscribe {course.course_name} Course?
-                </p>
-                <div className="model-btm-button flex gap-4 h-[60px]">
-                  <button
-                    className="bg-white w-1/4 border-[1px] border-[#F47E20] rounded-xl text-[#F47E20] font-bold text-base"
-                    onClick={() => setIsModalOpen(false)}
-                  >
-                    No, I don’t
-                  </button>
-                  <button
-                    className="w-1/2 bg-[#2F5FAC] rounded-xl text-white font-normal text-base"
-                    onClick={() => {
-                      router.push(`/`);
-                      setIsModalOpen(false);
-                    }}
-                  >
-                    Yes, I want to subscribe
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <Modal course={course} action={action} onClose={handleModalClose} user={user} />
         )}
       </div>
     </div>
