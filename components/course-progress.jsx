@@ -1,12 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
 import supabase from "../lib/supabase";
-import React, { useState, useRef, useEffect } from "react";
-import supabase from "../lib/supabase";
+
 import Image from "next/image";
 import CollapsiblePanel from "./collapsible-panel";
-import AssignmentForm from "./mycourse/assignment-form";
-import axios from "axios";
-import { useRouter } from "next/router";
 import AssignmentForm from "./mycourse/assignment-form";
 import axios from "axios";
 import { useRouter } from "next/router";
@@ -132,6 +128,14 @@ export default function CourseProgress({ slug }) {
   //update progress
   const handleCompleteAssignment = () => {
     setProgress((prev) => Math.min(prev + 10, 100));
+  };
+
+  //auto scroll to learning section
+  const scrollToSection = (id) => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   //auto scroll to learning section
