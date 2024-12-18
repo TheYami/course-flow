@@ -153,6 +153,11 @@ export default function CourseProgress({slug}) {
     }
   };
 
+  //update progress
+  const handleCompleteAssignment = () => {
+    setProgress((prev) => Math.min(prev + 10, 100));
+  };
+
   //auto scroll to learning section
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
@@ -160,9 +165,8 @@ export default function CourseProgress({slug}) {
       element.scrollIntoView({ behavior: "smooth" });
     }
   };
-  console.log(slug);
 
-  return subcribeCoursesData && subcribeCoursesData.length > 0 ? (
+  return (
     <>
       <div className="flex flex-col items-center md:flex-row md:justify-center md:items-start gap-3">
         {/* Left Section */}
