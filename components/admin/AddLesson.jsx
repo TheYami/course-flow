@@ -192,12 +192,12 @@ export const AddLesson = ({ courseId }) => {
       );
       const parsedToken = JSON.parse(storedToken);
       const accessToken = parsedToken?.access_token;
-
+  
       if (!accessToken) {
         alert("Not authenticated");
         return;
       }
-
+  
       const updatedSubLessonData = await Promise.all(
         subLessonData.map(async (subLesson) => {
           if (subLesson.videoUrl) {
@@ -209,12 +209,12 @@ export const AddLesson = ({ courseId }) => {
           return subLesson;
         })
       );
-
+  
       const updatedLessonData = {
         lessonName,
         subLessonData: updatedSubLessonData,
       };
-
+  
       const response = await axios.post(
         `/api/admin/create_lesson/${courseId}`,
         { lessons: [updatedLessonData] },
@@ -225,7 +225,7 @@ export const AddLesson = ({ courseId }) => {
           withCredentials: true,
         }
       );
-
+  
       router.push(`/admin/edit_course/${courseId}`);
     } catch (error) {
       console.error("Error:", error);
