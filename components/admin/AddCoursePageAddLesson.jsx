@@ -1,34 +1,18 @@
 import { useState, useEffect } from "react";
 import { ArrowBack } from "@/assets/icons/admin_icon/adminIcon";
 import { useRouter } from "next/router";
-import axios from "axios";
+import { useLesson } from "@/contexts/LessonContext";
+import { useCourse } from "@/contexts/CourseContext";
 
-export const AddLesson = ({ courseId }) => {
-  const [courseName, setCourseName] = useState("");
+export const AddCoursePageAddLesson = () => {
+  const { courseData } = useCourse();
+  const { addLesson } = useLesson();
   const [lessonName, setLessonName] = useState("");
   const [subLessonData, setSubLessonData] = useState([
     { subLessonName: "", videoUrl: "", videoPreview: "" },
   ]);
   const router = useRouter();
   const [loadingData, setLoadingData] = useState(false);
-
-  useEffect(() => {
-    const fetchCourseData = async () => {
-      try {
-        const response = await axios.get(
-          `/api/admin/courses?courseId=${courseId}`
-        );
-
-        setCourseName(response.data.data[0].course_name);
-      } catch (error) {
-        console.error("Error fetching course data:", error);
-      }
-    };
-
-    if (courseId) {
-      fetchCourseData();
-    }
-  }, [courseId]);
 
   const handleLessonInput = (e) => {
     setLessonName(e.target.value);
@@ -44,10 +28,7 @@ export const AddLesson = ({ courseId }) => {
   };
 
   const addSubLesson = () => {
-    setSubLessonData((prev) => [
-      ...prev,
-      { subLessonName: "", videoUrl: "", videoPreview: "" },
-    ]);
+    setSubLessonData((prev) => [...prev, { subLessonName: "", videoUrl: "" }]);
   };
 
   const deleteSubLesson = (index) => {
@@ -97,77 +78,21 @@ export const AddLesson = ({ courseId }) => {
     (subLesson) => subLesson.subLessonName && subLesson.videoUrl
   );
 
-  const uploadToCloudinary = async (file, preset = "unSigned") => {
-    const cloudinaryUrl = "https://api.cloudinary.com/v1_1/dxjamlkhi/upload";
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("upload_preset", preset);
-
-    try {
-      const response = await axios.post(cloudinaryUrl, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      return response.data.secure_url;
-    } catch (error) {
-      console.error("Cloudinary upload error:", error);
-      throw new Error("Failed to upload to Cloudinary");
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoadingData(true);
-  
-    try {
-      const storedToken = localStorage.getItem(
-        "sb-iyzmaaubmvzitbqdicbe-auth-token"
-      );
-      const parsedToken = JSON.parse(storedToken);
-      const accessToken = parsedToken?.access_token;
-  
-      if (!accessToken) {
-        alert("Not authenticated");
-        return;
-      }
-  
-      const updatedSubLessonData = await Promise.all(
-        subLessonData.map(async (subLesson) => {
-          if (subLesson.videoUrl) {
-            const videoCloudinaryUrl = await uploadToCloudinary(
-              subLesson.videoUrl
-            );
-            return { ...subLesson, videoUrl: videoCloudinaryUrl };
-          }
-          return subLesson;
-        })
-      );
-  
-      const updatedLessonData = {
-        lessonName,
-        subLessonData: updatedSubLessonData,
-      };
-  
-      const response = await axios.post(
-        `/api/admin/create_lesson/${courseId}`,
-        { lessons: [updatedLessonData] },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          withCredentials: true,
-        }
-      );
-  
-      router.push(`/admin/edit_course/${courseId}`);
-    } catch (error) {
-      console.error("Error:", error);
-    } finally {
-      setLoadingData(false);
-    }
+    const newLesson = {
+      lesson_id: Date.now(),
+      lesson_name: lessonName,
+      sub_lesson_data: subLessonData,
+    };
+    addLesson(newLesson);
+    router.push("/admin/add_course");
   };
-  
+
+  const handleCancel = () => {
+    router.push("/admin/add_course");
+  };
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -176,20 +101,25 @@ export const AddLesson = ({ courseId }) => {
       <header className="top-bar flex justify-between items-center h-[92px] px-10 py-4 bg-white">
         <div className="flex gap-4 items-center">
           <div>
-            <div
-              onClick={() => router.push(`/admin/edit_course/${courseId}`)}
+            <button
+              type="button"
+              onClick={handleCancel}
               className="cursor-pointer"
             >
               <ArrowBack />
-            </div>
+            </button>
           </div>
           <div className="text-[14px]">
-            <span className=" text-[#9AA1B9] mr-1">Course</span> '{courseName}'
+            <span className=" text-[#9AA1B9] mr-1">Course</span>{`${courseData.courseName}`}
             <h1 className="text-[24px] font-[500]">Add Lesson</h1>
           </div>
         </div>
         <div className="button flex gap-4">
-          <button className="cancel-button px-8 py-[18px] text-[#F47E20] font-[700] border border-[#F47E20] rounded-[12px]">
+          <button
+            type="button"
+            onClick={handleCancel}
+            className="cancel-button px-8 py-[18px] text-[#F47E20] font-[700] border border-[#F47E20] rounded-[12px]"
+          >
             Cancel
           </button>
           <button
@@ -239,6 +169,7 @@ export const AddLesson = ({ courseId }) => {
                   className="sub-lesson-box py-6 px-20 mb-4 bg-[#F6F7FC] border border-[#E4E6ED] rounded-[12px] shadow-sm relative"
                 >
                   <button
+                    type="button"
                     onClick={() => deleteSubLesson(index)}
                     disabled={subLessonData.length === 1}
                     className={` absolute top-6 right-6 text-[#2F5FAC] ${
@@ -292,6 +223,7 @@ export const AddLesson = ({ courseId }) => {
                             alt="Uploaded Video Preview"
                           />
                           <button
+                            type="button"
                             onClick={() => handleRemoveVideo(index)}
                             className="absolute top-0 right-0 bg-[#9B2FAC] text-white rounded-full flex items-center justify-center w-8 h-8"
                           >
@@ -306,6 +238,7 @@ export const AddLesson = ({ courseId }) => {
             </div>
 
             <button
+              type="button"
               className="font-semibold px-4 py-3 bg-[#FFFFFF] border-1 border-[#F47E20] text-[#F47E20] rounded-xl hover:bg-[#F47E20] hover:text-[#FFFFFF] my-8"
               onClick={addSubLesson}
             >
@@ -317,3 +250,5 @@ export const AddLesson = ({ courseId }) => {
     </form>
   );
 };
+
+export default AddCoursePageAddLesson;
