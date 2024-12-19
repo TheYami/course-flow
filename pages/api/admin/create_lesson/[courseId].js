@@ -4,12 +4,12 @@ export default async function handler(req, res) {
   const { courseId } = req.query;
 
   if (req.method === "POST") {
-    const { lessonName, subLessonData } = req.body;
+    const { lessons } = req.body;
 
-    if (!lessonName || !subLessonData || subLessonData.length === 0) {
+    if (!lessons || !Array.isArray(lessons) || lessons.length === 0) {
       return res
         .status(400)
-        .json({ error: "Lesson Name and Sub-Lessons are required." });
+        .json({ error: "Lessons array is required and cannot be empty." });
     }
 
     try {
@@ -21,31 +21,43 @@ export default async function handler(req, res) {
         return res.status(404).json({ error: "Course not found." });
       }
 
-      const lessonResult = await pool.query(
-        "INSERT INTO lessons (course_id, lesson_name) VALUES ($1, $2) RETURNING lesson_id",
-        [courseId, lessonName]
-      );
-      const lessonId = lessonResult.rows[0].lesson_id;
+      await pool.query("BEGIN");
 
-      const subLessonPromises = subLessonData.map(async (subLesson) => {
-        const { subLessonName, videoUrl } = subLesson;
-        if (!subLessonName || !videoUrl) {
-          throw new Error("Sub-lesson name and video URL are required.");
+      for (const lesson of lessons) {
+        const { lessonName, subLessonData } = lesson;
+
+        if (!lessonName || !subLessonData || subLessonData.length === 0) {
+          throw new Error("Lesson Name and Sub-Lessons are required for each lesson.");
         }
 
-        await pool.query(
-          "INSERT INTO sub_lessons (lesson_id, sub_lesson_name, video) VALUES ($1, $2, $3)",
-          [lessonId, subLessonName, videoUrl]
+        const lessonResult = await pool.query(
+          "INSERT INTO lessons (course_id, lesson_name) VALUES ($1, $2) RETURNING lesson_id",
+          [courseId, lessonName]
         );
-      });
+        const lessonId = lessonResult.rows[0].lesson_id;
 
-      await Promise.all(subLessonPromises);
+        const subLessonValues = subLessonData.map(subLesson => {
+          const { subLessonName, videoUrl } = subLesson;
+          if (!subLessonName || !videoUrl) {
+            throw new Error("Sub-lesson name and video URL are required.");
+          }
+          return `(${lessonId}, '${subLessonName}', '${videoUrl}')`;
+        });
 
-      res
-        .status(201)
-        .json({ message: "Lesson created successfully", lessonId });
+        const subLessonQuery = `
+          INSERT INTO sub_lessons (lesson_id, sub_lesson_name, video)
+          VALUES ${subLessonValues.join(", ")}
+        `;
+
+        await pool.query(subLessonQuery);
+      }
+
+      await pool.query("COMMIT");
+
+      res.status(201).json({ message: "All lessons and sub-lessons created successfully." });
     } catch (error) {
       console.error(error);
+      await pool.query("ROLLBACK");
       res.status(500).json({ error: "Internal server error." });
     }
   } else {

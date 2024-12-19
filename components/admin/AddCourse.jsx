@@ -1,42 +1,40 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import Image from "next/image";
 import loadingIcon from "../../assets/icons/admin_icon/loading_icon.gif";
 import { useRouter } from "next/router";
+import { useCourse } from "@/contexts/CourseContext";
+import { useLesson } from "@/contexts/LessonContext";
+import {
+  DragIcon,
+  TrashIcon,
+  EditIcon,
+  DisabledTrashIcon,
+  ModalXIcon,
+} from "@/assets/icons/admin_icon/adminIcon";
 
 export const AddCourse = () => {
   const router = useRouter();
-  const cloudinaryUrl = "https://api.cloudinary.com/v1_1/dlw0fxyfj/upload";
-  const cloudinaryPresets = {
-    image: "course_image",
-    video: "course_video",
-    file: "course_file",
-  };
   const [isLoading, setIsLoading] = useState(false);
-  const [courseData, setCourseData] = useState({
-    courseName: "",
-    price: "",
-    totalTime: "",
-    summary: "",
-    detail: "",
-    image: null,
-    videoTrailer: null,
-    file: null,
-    created_by: 2,
-  });
-  const [previewData, setPreviewData] = useState({
-    image: null,
-    videoTrailer: null,
-    file: null,
-  });
-  const [fileName, setFileName] = useState("");
+  const {
+    courseData,
+    previewData,
+    setCourseData,
+    setPreviewData,
+    handleResetAll,
+  } = useCourse();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isShaking, setIsShaking] = useState(false);
+  const [lessonToDelete, setLessonToDelete] = useState([]);
+  const { lessonData, deleteLesson, addLessonIdToEdit } = useLesson();
+
+  const handleAddLesson = () => {
+    router.push("/admin/add_course_add_lesson");
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setCourseData({
-      ...courseData,
-      [name]: value,
-    });
+    setCourseData(name, value);
   };
 
   const handleClickUploadImage = () => {
@@ -55,14 +53,9 @@ export const AddCourse = () => {
     const file = e.target.files[0];
     if (file) {
       if (file.size <= 5 * 1024 * 1024) {
-        setCourseData((prev) => ({
-          ...prev,
-          image: file,
-        }));
-        setPreviewData((prev) => ({
-          ...prev,
-          image: URL.createObjectURL(file),
-        }));
+        setCourseData("image", file);
+        setPreviewData("image", URL.createObjectURL(file));
+        setPreviewData("imageName", file.name);
       } else {
         alert("File size exceeds 5 MB");
       }
@@ -70,24 +63,18 @@ export const AddCourse = () => {
   };
 
   const handleRemoveImage = () => {
-    setCourseData((prev) => ({
-      ...prev,
-      image: null,
-    }));
+    setCourseData("image", null);
+    setPreviewData("image", null);
+    setPreviewData("imageName", "");
   };
 
   const handleVideoFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       if (file.size <= 20 * 1024 * 1024) {
-        setCourseData((prev) => ({
-          ...prev,
-          videoTrailer: file,
-        }));
-        setPreviewData((prev) => ({
-          ...prev,
-          videoTrailer: URL.createObjectURL(file),
-        }));
+        setCourseData("videoTrailer", file);
+        setPreviewData("videoTrailer", URL.createObjectURL(file));
+        setPreviewData("videoTrailerName", file.name);
       } else {
         alert("File size exceeds 20 MB");
       }
@@ -95,25 +82,18 @@ export const AddCourse = () => {
   };
 
   const handleRemoveVideo = () => {
-    setCourseData((prev) => ({
-      ...prev,
-      videoTrailer: null,
-    }));
+    setCourseData("videoTrailer", null);
+    setPreviewData("videoTrailer", null);
+    setPreviewData("videoTrailerName", "");
   };
 
   const handleOptionalFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       if (file.size <= 10 * 1024 * 1024) {
-        setCourseData({
-          ...courseData,
-          file: file,
-        });
-        setPreviewData((prev) => ({
-          ...prev,
-          file: URL.createObjectURL(file),
-        }));
-        setFileName(file.name);
+        setCourseData("file", file);
+        setPreviewData("file", URL.createObjectURL(file));
+        setPreviewData("fileName", file.name);
       } else {
         alert("File size exceeds 10 MB");
       }
@@ -121,14 +101,13 @@ export const AddCourse = () => {
   };
 
   const handleRemoveFile = () => {
-    setCourseData({
-      ...courseData,
-      file: null,
-    });
-    setFileName("");
+    setCourseData("file", null);
+    setPreviewData("file", null);
+    setPreviewData("fileName", "");
   };
 
-  const uploadToCloudinary = async (file, preset) => {
+  const uploadToCloudinary = async (file, preset = "unSigned") => {
+    const cloudinaryUrl = "https://api.cloudinary.com/v1_1/dxjamlkhi/upload";
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", preset);
@@ -141,8 +120,8 @@ export const AddCourse = () => {
       });
       return response.data.secure_url;
     } catch (error) {
-      alert("Error uploading file. Please try again.");
       console.error("Cloudinary upload error:", error);
+      throw new Error("Failed to upload to Cloudinary");
     }
   };
 
@@ -162,16 +141,13 @@ export const AddCourse = () => {
       }
 
       let imageUrl = courseData.image
-        ? await uploadToCloudinary(courseData.image, cloudinaryPresets.image)
+        ? await uploadToCloudinary(courseData.image)
         : null;
       let videoUrl = courseData.videoTrailer
-        ? await uploadToCloudinary(
-            courseData.videoTrailer,
-            cloudinaryPresets.video
-          )
+        ? await uploadToCloudinary(courseData.videoTrailer)
         : null;
       let fileUrl = courseData.file
-        ? await uploadToCloudinary(courseData.file, cloudinaryPresets.file)
+        ? await uploadToCloudinary(courseData.file)
         : null;
       const updatedCourseData = {
         ...courseData,
@@ -179,7 +155,8 @@ export const AddCourse = () => {
         videoTrailer: videoUrl,
         file: fileUrl,
       };
-      const response = await axios.post(
+
+      const courseResponse = await axios.post(
         "/api/admin/create_course",
         updatedCourseData,
         {
@@ -189,6 +166,43 @@ export const AddCourse = () => {
           withCredentials: true,
         }
       );
+
+      const { courseId } = courseResponse.data;
+
+      const updatedLessonsData = await Promise.all(
+        lessonData.map(async (lesson) => {
+          const updatedSubLessonData = await Promise.all(
+            lesson.sub_lesson_data.map(async (subLesson) => {
+              if (subLesson.videoUrl) {
+                const videoCloudinaryUrl = await uploadToCloudinary(
+                  subLesson.videoUrl
+                );
+                return { ...subLesson, videoUrl: videoCloudinaryUrl };
+              }
+              return subLesson;
+            })
+          );
+
+          const updatedLessonData = {
+            lessonName: lesson.lesson_name,
+            subLessonData: updatedSubLessonData,
+          };
+
+          return updatedLessonData;
+        })
+      );
+
+      const subLessonResponse = await axios.post(
+        `/api/admin/create_lesson/${courseId}`,
+        { lessons: updatedLessonsData },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          withCredentials: true,
+        }
+      );
+
       alert("Course created successfully!");
       router.push("/admin/course_list");
     } catch (error) {
@@ -199,7 +213,73 @@ export const AddCourse = () => {
   };
 
   const handleCancel = () => {
+    handleResetAll();
     router.push("/admin/course_list");
+  };
+
+  const handleEditLesson = (LessonId) => {
+    addLessonIdToEdit(LessonId);
+    router.push("/admin/add_course_edit_lesson");
+  };
+
+  const renderTableHeaders = () => {
+    const headers = ["", "", "Lesson name", "Sub-lesson", "Action"];
+    return headers.map((header, index) => (
+      <th key={index} className="p-2 text-[#424C6B] font-normal">
+        {header}
+      </th>
+    ));
+  };
+
+  const handleShakeIcon = () => {
+    setIsShaking(true);
+    setTimeout(() => setIsShaking(false), 500);
+  };
+
+  const renderTableBody = () => {
+    return lessonData.map((lesson, index) => (
+      <tr key={lesson.lesson_id} className="hover:bg-[#F6F7FC]">
+        <td className="pl-4 border-t border-[#F1F2F6]">
+          <DragIcon />
+        </td>
+        <td className="p-2 py-4 border-t border-[#F1F2F6]">{index + 1}</td>
+        <td className="p-2 border-t border-[#F1F2F6]">{lesson.lesson_name}</td>
+        <td className="p-2 px-5 border-t border-[#F1F2F6]">
+          {lesson.sub_lesson_data.length}
+        </td>
+        <td className="p-2 border-t border-[#F1F2F6]">
+          {lessonData.length <= 1 ? (
+            <button
+              type="button"
+              onClick={handleShakeIcon}
+              className={`mr-2 hover:scale-110 ${
+                isShaking ? "animate-shake" : ""
+              }`}
+            >
+              <DisabledTrashIcon />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                setIsModalOpen(true);
+                setLessonToDelete(lesson.lesson_id);
+              }}
+              className="mr-2 hover:scale-110"
+            >
+              <TrashIcon />
+            </button>
+          )}
+          <button
+            onClick={() => handleEditLesson(lesson.lesson_id)}
+            type="button"
+            className="hover:scale-110"
+          >
+            <EditIcon />
+          </button>
+        </td>
+      </tr>
+    ));
   };
 
   return (
@@ -341,6 +421,7 @@ export const AddCourse = () => {
                     className="w-[240px] h-[240px] object-cover rounded-lg"
                   />
                   <button
+                    type="button"
                     onClick={handleRemoveImage}
                     className="absolute top-0 right-0 bg-[#9B2FAC] text-white rounded-full flex items-center justify-center w-8 h-8"
                   >
@@ -386,6 +467,7 @@ export const AddCourse = () => {
                     alt="Uploaded Video Preview"
                   />
                   <button
+                    type="button"
                     onClick={handleRemoveVideo}
                     className="absolute top-0 right-0 bg-[#9B2FAC] text-white rounded-full flex items-center justify-center w-8 h-8"
                   >
@@ -431,11 +513,12 @@ export const AddCourse = () => {
                         rel="noopener noreferrer"
                         className="text-[#5483D0]"
                       >
-                        {fileName}
+                        {previewData.fileName}
                       </a>
                     </div>
                   </div>
                   <button
+                    type="button"
                     onClick={handleRemoveFile}
                     className="absolute top-0 right-0 bg-[#9B2FAC] text-white rounded-full flex items-center justify-center w-8 h-8"
                   >
@@ -447,6 +530,73 @@ export const AddCourse = () => {
           </section>
         </div>
       </main>
+      <section>
+        <div className="flex justify-between items-center mt-10 mx-10">
+          <h1 className="text-2xl">Lesson</h1>
+          <button
+            type="button"
+            disabled={isLoading}
+            onClick={handleAddLesson}
+            className="w-[150px] bg-[#2F5FAC] hover:bg-[#FFFFFF] hover:text-[#2F5FAC] hover:border-[#2F5FAC] text-[#FFFFFF] px-6 py-3 rounded-lg font-semibold border-1 border-transparent"
+          >
+            + Add Lesson
+          </button>
+        </div>
+        <table className="w-[99.3rem] text-left m-8 rounded-lg overflow-hidden shadow-sm">
+          <thead className="bg-[#E4E6ED]">
+            <tr>{renderTableHeaders()}</tr>
+          </thead>
+          <tbody className="bg-[#FFFFFF]">
+            {lessonData.length === 0 ? (
+              <tr>
+                <td colSpan="8" className="text-center text-[#6B7280]">
+                  lesson Not Found !
+                </td>
+              </tr>
+            ) : (
+              renderTableBody()
+            )}
+          </tbody>
+        </table>
+        {isModalOpen && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white rounded-3xl shadow-lg w-[30rem]">
+              <div className="px-6 pt-6 pb-2 border-b flex justify-between">
+                <h3 className="text-xl">Confirmation</h3>
+                <div
+                  className=" cursor-pointer"
+                  onClick={() => setIsModalOpen(false)}
+                >
+                  <ModalXIcon />
+                </div>
+              </div>
+              <div className="p-6">
+                <p>Are you sure you want to delete this lesson?</p>
+                <div className="flex justify-center gap-6 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      deleteLesson(lessonToDelete);
+                      setLessonToDelete([]);
+                      setIsModalOpen(false);
+                    }}
+                    className="font-semibold px-4 py-3 bg-[#FFFFFF] border-1 border-[#F47E20] text-[#F47E20] rounded-xl hover:bg-[#F47E20] hover:text-[#FFFFFF]"
+                  >
+                    Yes, I want to delete this Lesson
+                  </button>
+                  <button
+                    type="button"
+                    className="px-4 py-3 bg-[#2F5FAC] text-[#FFFFFF] rounded-xl hover:bg-[#FFFFFF] hover:text-[#2F5FAC] border-1 border-[#2F5FAC]"
+                    onClick={() => setIsModalOpen(false)}
+                  >
+                    No, keep it
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </section>
     </form>
   );
 };
