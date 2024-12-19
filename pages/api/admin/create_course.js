@@ -86,8 +86,12 @@ export default async function handler(req, res) {
       ];
 
       const { rows } = await pool.query(query, values);
+      const courseId = rows[0].course_id;
 
-      return res.status(201).json({ message: "Course created successfully!" });
+      return res.status(201).json({
+        message: "Course created successfully!",
+        courseId,
+      });
     } catch (error) {
       console.error("Error inserting course:", error);
       return res.status(500).json({
