@@ -3,7 +3,8 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import BackBotton from "@/components/payment/back-button";
 
-export default function Payment() {
+export default function QrPayment() {
+  console.log("Payment re-rendered");
   return (
     <div>
       <nav className="border-b-[1px]">
