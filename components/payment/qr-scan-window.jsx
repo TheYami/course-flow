@@ -6,43 +6,39 @@ import { useRouter } from "next/router";
 import { v4 as uuidv4 } from "uuid";
 import useUserAuth from "@/hooks/useUserAuth";
 import { saveAs } from "file-saver";
+import { useRef } from "react";
+import React from "react";
 
-export default function QrScanWindow() {
+const QrScanWindow = React.memo(function QrScanWindow() {
   //   const { userData, loading } = useUserAuth();
   const [loading, setLoading] = useState(false);
   const [checkoutUrl, setCheckoutUrl] = useState(null);
   const [referenceNumber, setReferenceNumber] = useState("");
+  const hasFetchedRef = useRef(false);
   const [error, setError] = useState(null);
   const [status, setStatus] = useState(null);
   const router = useRouter();
 
-  const { session_id } = router.query;
-  const courseId = 5;
+  const courseId = 14;
   const userId = 3;
-  const amount = 700;
-
-  const generateCustomReferenceNumber = () => {
-    const uuid = uuidv4();
-    return `CF${uuid.slice(0, 10)}`;
-  };
-
+  const amount = 2000;
 
   useEffect(() => {
+    if (hasFetchedRef.current) return;
+    setLoading(true);
+    setError(null);
+    
     const fetchCheckoutUrl = async () => {
-      setLoading(true);
-      setError(null);
-      const refNumber = generateCustomReferenceNumber();
-      setReferenceNumber(refNumber);
+      console.log("Component mounted or re-rendered");
       try {
         const response = await axios.post("/api/payment/createPromptpayUrl", {
           courseId,
           amount,
           userId,
-          referenceNumber,
-          currency: "thb",
         });
         if (response.data.url) {
           setCheckoutUrl(response.data.url);
+          setReferenceNumber(response.data.referenceNumber)
         } else {
           setError("Error creating checkout session");
         }
@@ -51,13 +47,12 @@ export default function QrScanWindow() {
         setError("Error: " + err.message);
       } finally {
         setLoading(false);
+        hasFetchedRef.current = true;
       }
     };
 
     fetchCheckoutUrl();
   }, []);
-
-  console.log(checkoutUrl);
 
   const handleDownload = async () => {
     QRCodeLib.toDataURL(
@@ -96,7 +91,6 @@ export default function QrScanWindow() {
       {checkoutUrl && (
         <a
           href={checkoutUrl}
-          target="_blank"
           rel="noopener noreferrer"
           className="qr-code p-4 w-[200px] h-[200px]"
         >
@@ -112,4 +106,6 @@ export default function QrScanWindow() {
       </div>
     </div>
   );
-}
+});
+
+export default QrScanWindow;

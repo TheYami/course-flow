@@ -46,7 +46,7 @@ export default async function handler(req, res) {
         userId,
         courseId,
         session.id,
-        session.status,
+        "pending",
         referenceNumber,
         new Date(),
       ];
@@ -56,7 +56,8 @@ export default async function handler(req, res) {
 
       res.status(200).json({
         url: session.url,
-        reference_number: insertedOrderId,
+        referenceNumber: insertedOrderId,
+        session: session,
       });
     } catch (error) {
       res.status(500).json({ error: "Internal server error", error });
