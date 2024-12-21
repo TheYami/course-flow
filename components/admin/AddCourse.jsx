@@ -98,6 +98,10 @@ export const AddCourse = () => {
     setCourseData("image", null);
     setPreviewData("image", null);
     setPreviewData("imageName", "");
+    setIsUpload((prevState) => ({
+      ...prevState,
+      image: false,
+    }));
   };
 
   const handleVideoFileChange = (e) => {
@@ -128,6 +132,10 @@ export const AddCourse = () => {
     setCourseData("videoTrailer", null);
     setPreviewData("videoTrailer", null);
     setPreviewData("videoTrailerName", "");
+    setIsUpload((prevState) => ({
+      ...prevState,
+      video: false,
+    }));
   };
 
   const handleOptionalFileChange = (e) => {
