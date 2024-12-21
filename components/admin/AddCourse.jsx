@@ -33,6 +33,10 @@ export const AddCourse = () => {
     video: false,
     file: false,
   });
+  const [isUpload, setIsUpload] = useState({
+    image: false,
+    video: false,
+  });
 
   const handleAddLesson = () => {
     router.push("/admin/add_course_add_lesson");
@@ -63,6 +67,10 @@ export const AddCourse = () => {
           ...prevState,
           image: false,
         }));
+        setIsUpload((prevState) => ({
+          ...prevState,
+          image: true,
+        }));
         setCourseData("image", file);
         setPreviewData("image", URL.createObjectURL(file));
         setPreviewData("imageName", file.name);
@@ -79,6 +87,10 @@ export const AddCourse = () => {
     setCourseData("image", null);
     setPreviewData("image", null);
     setPreviewData("imageName", "");
+    setIsUpload((prevState) => ({
+      ...prevState,
+      image: false,
+    }));
   };
 
   const handleVideoFileChange = (e) => {
@@ -88,6 +100,10 @@ export const AddCourse = () => {
         setUploadError((prevState) => ({
           ...prevState,
           video: false,
+        }));
+        setIsUpload((prevState) => ({
+          ...prevState,
+          video: true,
         }));
         setCourseData("videoTrailer", file);
         setPreviewData("videoTrailer", URL.createObjectURL(file));
@@ -105,6 +121,10 @@ export const AddCourse = () => {
     setCourseData("videoTrailer", null);
     setPreviewData("videoTrailer", null);
     setPreviewData("videoTrailerName", "");
+    setIsUpload((prevState) => ({
+      ...prevState,
+      video: false,
+    }));
   };
 
   const handleOptionalFileChange = (e) => {
@@ -113,7 +133,7 @@ export const AddCourse = () => {
       if (file.size <= 10 * 1024 * 1024) {
         setUploadError((prevState) => ({
           ...prevState,
-          video: false,
+          file: false,
         }));
         setCourseData("file", file);
         setPreviewData("file", URL.createObjectURL(file));
@@ -121,7 +141,7 @@ export const AddCourse = () => {
       } else {
         setUploadError((prevState) => ({
           ...prevState,
-          video: true,
+          file: true,
         }));
       }
     }
@@ -151,6 +171,10 @@ export const AddCourse = () => {
       throw new Error("Failed to upload to Cloudinary");
     }
   };
+
+  const isFormValid = Object.keys(courseData)
+    .filter((key) => key !== "file") // กรองฟิลด์ที่ไม่ต้องการตรวจสอบ
+    .every((key) => courseData[key]); // ตรวจสอบว่าฟิลด์ที่เหลือมีค่า
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -326,8 +350,12 @@ export const AddCourse = () => {
           </button>
           <button
             type="submit"
-            className="create-button w-[120px] h-[60px] px-8 py-[18px] text-[#FFFFFF] bg-[#2F5FAC] font-[700] rounded-[12px] flex justify-center items-center"
-            disabled={isLoading}
+            className={`${
+              isFormValid
+                ? "bg-[#2F5FAC] hover:bg-white hover:text-[#2F5FAC] hover:border hover:border-[#2F5FAC] text-[#FFFFFF]"
+                : "bg-[#D3D8E5] text-[#9AA1B9]"
+            } create-button w-[120px] h-[60px] px-8 py-[18px] font-[700] rounded-[12px] flex justify-center items-center`}
+            disabled={!isFormValid}
           >
             {isLoading ? (
               <Image src={loadingIcon} alt="loading icon" className="w-8 h-8" />
@@ -363,7 +391,7 @@ export const AddCourse = () => {
               </div>
             </div>
             {!courseData.courseName && (
-              <p className="text-[#9B2FAC] text-sm mt-1">
+              <p className="absolute text-[#9B2FAC] text-sm mt-1">
                 Please fill out this field
               </p>
             )}
@@ -393,7 +421,7 @@ export const AddCourse = () => {
                 </div>
               </div>
               {!courseData.price && (
-                <p className="text-[#9B2FAC] text-sm mt-1">
+                <p className="absolute text-[#9B2FAC] text-sm mt-1">
                   Please fill out this field
                 </p>
               )}
@@ -420,7 +448,7 @@ export const AddCourse = () => {
                 </div>
               </div>
               {!courseData.totalTime && (
-                <p className="text-[#9B2FAC] text-sm mt-1">
+                <p className="absolute text-[#9B2FAC] text-sm mt-1">
                   Please fill out this field
                 </p>
               )}
@@ -450,7 +478,7 @@ export const AddCourse = () => {
               </div>
             </div>
             {!courseData.summary && (
-              <p className="text-[#9B2FAC] text-sm mt-1">
+              <p className="absolute text-[#9B2FAC] text-sm mt-1">
                 Please fill out this field
               </p>
             )}
@@ -479,7 +507,7 @@ export const AddCourse = () => {
               </div>
             </div>
             {!courseData.detail && (
-              <p className="text-[#9B2FAC] text-sm mt-1">
+              <p className="absolute text-[#9B2FAC] text-sm mt-1">
                 Please fill out this field
               </p>
             )}
@@ -516,11 +544,16 @@ export const AddCourse = () => {
                     />
                   </button>
                   {uploadError.image && (
-                    <p className="text-[#9B2FAC] text-sm mt-1">
+                    <p className="absolute text-[#9B2FAC] text-sm mt-1">
                       Upload failed. Ensure the file is .jpg, .png, or .jpeg and
                       less than 5 MB.
                     </p>
                   )}
+                  {isUpload.image === false && uploadError.image === false ? (
+                    <p className="absolute text-[#9B2FAC] text-sm mt-1">
+                      Upload the cover image is required.
+                    </p>
+                  ) : null}
                 </>
               ) : (
                 <div className="relative w-[240px] h-[240px]">
@@ -572,11 +605,16 @@ export const AddCourse = () => {
                     />
                   </button>
                   {uploadError.video && (
-                    <p className="text-[#9B2FAC] text-sm mt-1">
+                    <p className="absolute text-[#9B2FAC] text-sm mt-1">
                       Upload failed. Ensure the file is .mp4, .mov, .avi and
                       less than 20 MB.
                     </p>
                   )}
+                  {isUpload.video === false && uploadError.video === false ? (
+                    <p className="absolute text-[#9B2FAC] text-sm mt-1">
+                      Upload the video trailer is required.
+                    </p>
+                  ) : null}
                 </>
               ) : (
                 <div className="relative w-[240px] h-[240px]">
@@ -626,8 +664,8 @@ export const AddCourse = () => {
                       onChange={handleOptionalFileChange}
                     />
                   </button>
-                  {uploadError.video && (
-                    <p className="text-[#9B2FAC] text-sm mt-1">
+                  {uploadError.file && (
+                    <p className=" absolute text-[#9B2FAC] text-sm mt-1">
                       Upload failed. Ensure the file is .pdf, .docx, .xlsx,
                       .txt. and less than 10 MB.
                     </p>
@@ -661,8 +699,8 @@ export const AddCourse = () => {
           </section>
         </div>
       </main>
-      <section>
-        <div className="flex justify-between items-center mt-10 mx-10">
+      <section className="mx-10">
+        <div className="flex justify-between items-center mt-10">
           <h1 className="text-2xl">Lesson</h1>
           <button
             type="button"
@@ -673,7 +711,7 @@ export const AddCourse = () => {
             + Add Lesson
           </button>
         </div>
-        <table className="w-[99.3rem] text-left m-8 rounded-lg overflow-hidden shadow-sm">
+        <table className="w-full text-left my-10 rounded-lg overflow-hidden shadow-sm">
           <thead className="bg-[#E4E6ED]">
             <tr>{renderTableHeaders()}</tr>
           </thead>
