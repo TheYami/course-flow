@@ -1,5 +1,10 @@
 import { useState, useEffect } from "react";
-import { ArrowBack, ModalXIcon,DragIcon } from "@/assets/icons/admin_icon/adminIcon";
+import {
+  ArrowBack,
+  ModalXIcon,
+  DragIcon,
+  AlertIcon,
+} from "@/assets/icons/admin_icon/adminIcon";
 import { useRouter } from "next/router";
 import axios from "axios";
 
@@ -14,6 +19,7 @@ export const EditLesson = ({ lessonId }) => {
   const [loadingData, setLoadingData] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [deletedSubLessons, setDeletedSubLessons] = useState([]);
+  const [videoUploadError, setVideoUploadError] = useState(false);
 
   useEffect(() => {
     const fetchLessonData = async () => {
@@ -83,7 +89,7 @@ export const EditLesson = ({ lessonId }) => {
           )
         );
       } else {
-        alert("File size exceeds 20 MB");
+        setVideoUploadError(true);
       }
     }
   };
@@ -150,6 +156,9 @@ export const EditLesson = ({ lessonId }) => {
     }
   };
 
+  const isFormValid =
+    lessonName && subLessonData.every((subLesson) => subLesson.subLessonName);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoadingData(true);
@@ -204,6 +213,10 @@ export const EditLesson = ({ lessonId }) => {
     }
   };
 
+  const handleCancle = () => {
+    router.push(`/admin/edit_course/${courseId}`);
+  };
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -212,10 +225,7 @@ export const EditLesson = ({ lessonId }) => {
       <header className="top-bar flex justify-between items-center h-[92px] px-10 py-4 bg-white">
         <div className="flex gap-4 items-center">
           <div>
-            <div
-              onClick={() => router.push(`/admin/edit_course/${courseId}`)}
-              className="cursor-pointer"
-            >
+            <div onClick={handleCancle} className="cursor-pointer">
               <ArrowBack />
             </div>
           </div>
@@ -230,14 +240,19 @@ export const EditLesson = ({ lessonId }) => {
         <div className="button flex gap-4">
           <button
             type="button"
-            onClick={() => router.push(`/admin/edit_course/${courseId}`)}
+            onClick={handleCancle}
             className="cancel-button px-8 py-[18px] text-[#F47E20] font-[700] border border-[#F47E20] rounded-[12px]"
           >
             Cancel
           </button>
           <button
             type="submit"
-            className="create-button px-8 py-[18px] font-[700] rounded-[12px] bg-[#2F5FAC] text-[#FFFFFF]"
+            disabled={!isFormValid}
+            className={`edit-button px-8 py-[18px] font-[700] rounded-[12px] ${
+              isFormValid
+                ? "bg-[#2F5FAC] text-[#FFFFFF]"
+                : "bg-[#D3D8E5] text-[#9AA1B9]"
+            }`}
           >
             Edit
           </button>
@@ -253,16 +268,30 @@ export const EditLesson = ({ lessonId }) => {
         <div className="bg-[#FFFFFF] mx-10 my-10 rounded-[16px] px-[100px] pt-[40px] pb-[60px] flex flex-col gap-[40px]">
           <section className="lesson-name">
             <label htmlFor="lessonName">Lesson Name *</label>
-            <input
-              type="text"
-              id="lessonName"
-              name="lessonName"
-              value={lessonName}
-              onChange={handleLessonInput}
-              placeholder="Enter the lesson name"
-              required
-              className="w-full mt-1 px-4 py-3 border border-[#D6D9E4] rounded-[8px]"
-            />
+            <div className="relative">
+              <input
+                type="text"
+                id="lessonName"
+                name="lessonName"
+                value={lessonName}
+                onChange={handleLessonInput}
+                placeholder="Enter the lesson name"
+                required
+                className={`w-full mt-1 px-4 py-3 border-1 rounded-[8px] ${
+                  !lessonName
+                    ? "border-[#9B2FAC] focus:border-[#9B2FAC] focus:outline-none"
+                    : "border-[#D6D9E4] focus:border-[#F47E20] focus:outline-none"
+                } `}
+              />
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#9B2FAC]">
+                {!lessonName && <AlertIcon />}
+              </div>
+            </div>
+            {!lessonName && (
+              <p className="absolute text-[#9B2FAC] text-sm mt-1">
+                Please fill out this field
+              </p>
+            )}
           </section>
 
           <section className="sub-lesson border-t border-[#D6D9E4]">
@@ -274,9 +303,11 @@ export const EditLesson = ({ lessonId }) => {
               {subLessonData.map((subLesson, index) => (
                 <div
                   key={index}
-                  className="sub-lesson-box pt-6 pb-20 px-20 mb-4 bg-[#F6F7FC] border border-[#E4E6ED] rounded-[12px] relative"
+                  className="sub-lesson-box pt-6 pb-16 px-20 mb-4 bg-[#F6F7FC] border border-[#E4E6ED] rounded-[12px] relative"
                 >
-                  <div className=" absolute left-5 top-14"><DragIcon/></div>
+                  <div className=" absolute left-5 top-14">
+                    <DragIcon />
+                  </div>
                   <button
                     type="button"
                     onClick={() => handleDeleteSubLesson(index)}
@@ -291,39 +322,67 @@ export const EditLesson = ({ lessonId }) => {
                   </button>
                   <div className="flex flex-col gap-2">
                     <label>Sub-lesson name *</label>
-                    <input
-                      type="text"
-                      name="subLessonName"
-                      value={subLesson.subLessonName}
-                      onChange={(e) => handleSubLessonInput(index, e)}
-                      placeholder="Enter sub-lesson name"
-                      className="w-2/3 px-4 py-3 border border-[#D6D9E4] rounded-[8px]"
-                      required
-                    />
-                    <label>Video *</label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        name="subLessonName"
+                        value={subLesson.subLessonName}
+                        onChange={(e) => handleSubLessonInput(index, e)}
+                        placeholder="Enter sub-lesson name"
+                        className={`w-9/12 px-4 py-3 border-1 rounded-[8px] ${
+                          !subLesson.subLessonName
+                            ? "border-[#9B2FAC] focus:border-[#9B2FAC] focus:outline-none"
+                            : "border-[#D6D9E4] focus:border-[#F47E20] focus:outline-none"
+                        } `}
+                        required
+                      />
+                      <div className="absolute right-80 top-1/2 transform -translate-y-1/2 text-[#9B2FAC]">
+                        {!subLesson.subLessonName && <AlertIcon />}
+                      </div>
+                      {!subLesson.subLessonName && (
+                        <p className="absolute text-[#9B2FAC] text-sm mt-1">
+                          Please fill out this field
+                        </p>
+                      )}
+                    </div>
+                    <label className=" mt-4">Video *</label>
                     <div>
                       {!subLesson.videoPreview ? (
-                        <button
-                          type="button"
-                          className="border-dashed w-[240px] h-[240px] bg-[#F1F2F6] rounded-[8px] p-6 text-center cursor-pointer"
-                          onClick={() => handleClickUploadVideo(index)}
-                        >
-                          <div className="text-[#5483D0] font-[500] text-[24px]">
-                            +
-                          </div>
-                          <div className="text-[#5483D0] font-[500]">
-                            Upload Video
-                          </div>
-                          <input
-                            type="file"
-                            id={`videoInput-${index}`}
-                            name={`userVideo-${index}`}
-                            className="hidden"
-                            accept="video/*"
-                            onChange={(e) => handleVideoFileChange(index, e)}
-                            required
-                          />
-                        </button>
+                        <>
+                          <button
+                            type="button"
+                            className="border-dashed w-[240px] h-[240px] bg-[#F1F2F6] rounded-[8px] p-6 text-center cursor-pointer"
+                            onClick={() => handleClickUploadVideo(index)}
+                          >
+                            <div className="text-[#5483D0] font-[500] text-[24px]">
+                              +
+                            </div>
+                            <div className="text-[#5483D0] font-[500]">
+                              Upload Video
+                            </div>
+                            <input
+                              type="file"
+                              id={`videoInput-${index}`}
+                              name={`userVideo-${index}`}
+                              className="hidden"
+                              accept="video/*"
+                              onChange={(e) => handleVideoFileChange(index, e)}
+                              required
+                            />
+                          </button>
+                          {videoUploadError && (
+                            <p className="absolute text-[#9B2FAC] text-sm mt-1">
+                              Upload failed. Ensure the file is .mp4, .mov, .avi
+                              and less than 20 MB.
+                            </p>
+                          )}
+                          {!subLesson.videoUrl && videoUploadError === false ? (
+                            <p className="absolute text-[#9B2FAC] text-sm mt-1">
+                              If no video is uploaded, the default video will be
+                              used.
+                            </p>
+                          ) : null}
+                        </>
                       ) : (
                         <div className="relative w-[240px] h-[240px]">
                           <video
