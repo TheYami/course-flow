@@ -9,7 +9,7 @@ import {
 } from "@/assets/icons/admin_icon/adminIcon";
 import { EditCourseLessonTable } from "./EditCourseLessonTable";
 
-const EditCoursePage = () => {
+const EditCourse = () => {
   const router = useRouter();
   const { courseId } = router.query;
   const [courseName, setCourseName] = useState(null);
@@ -754,4 +754,4 @@ const EditCoursePage = () => {
   );
 };
 
-export default EditCoursePage;
+export default EditCourse;
