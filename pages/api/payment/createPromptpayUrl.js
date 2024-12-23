@@ -25,8 +25,8 @@ export default async function handler(req, res) {
           },
         ],
         mode: "payment",
-        success_url: `http://localhost:3000/payment/success-payment`,
-        cancel_url: `http://localhost:3000/payment/failed-payment`,
+        success_url: `http://localhost:3000/payment/success-payment?courseId=${courseId}`,
+        cancel_url: `http://localhost:3000/payment/failed-payment?courseId=${courseId}`,
         metadata: {
           reference_number: referenceNumber,
           user_id: userId,

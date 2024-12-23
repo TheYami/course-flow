@@ -3,14 +3,14 @@ import axios from "axios";
 import QRCode from "react-qr-code";
 import QRCodeLib from "qrcode";
 import { useRouter } from "next/router";
-import { v4 as uuidv4 } from "uuid";
 import useUserAuth from "@/hooks/useUserAuth";
 import { saveAs } from "file-saver";
 import { useRef } from "react";
 import React from "react";
 
 const QrScanWindow = React.memo(function QrScanWindow() {
-  //   const { userData, loading } = useUserAuth();
+  const { userData, loadingUserData } = useUserAuth();
+  const [userId, setUserId] = useState("");
   const [loading, setLoading] = useState(false);
   const [checkoutUrl, setCheckoutUrl] = useState(null);
   const [referenceNumber, setReferenceNumber] = useState("");
@@ -19,9 +19,8 @@ const QrScanWindow = React.memo(function QrScanWindow() {
   const [status, setStatus] = useState(null);
   const router = useRouter();
 
-  const courseId = 13;
-  const userId = 3;
-  const amount = 3000;
+  const { courseId, amount } = router.query;
+  console.log("CourseId from query params:", courseId);
 
   useEffect(() => {
     if (hasFetchedRef.current) return;
@@ -29,30 +28,59 @@ const QrScanWindow = React.memo(function QrScanWindow() {
     setError(null);
 
     const fetchCheckoutUrl = async () => {
-      console.log("Component mounted or re-rendered");
-      try {
-        const response = await axios.post("/api/payment/createPromptpayUrl", {
-          courseId,
-          amount,
-          userId,
-        });
-        if (response.data.url) {
-          setCheckoutUrl(response.data.url);
-          setReferenceNumber(response.data.referenceNumber);
-        } else {
-          setError("Error creating checkout session");
+      if (!checkoutUrl) {
+        try {
+          if (userData) {
+            setUserId(userData.id);
+          }
+          const response = await axios.post("/api/payment/createPromptpayUrl", {
+            courseId,
+            amount,
+            userId,
+          });
+          if (response.data.url) {
+            setCheckoutUrl(response.data.url);
+            setReferenceNumber(response.data.referenceNumber);
+          } else {
+            setError("Error creating checkout session");
+          }
+        } catch (err) {
+          console.error(err);
+          setError("Error: " + err.message);
+        } finally {
+          setLoading(false);
+          hasFetchedRef.current = true;
         }
-      } catch (err) {
-        console.error(err);
-        setError("Error: " + err.message);
-      } finally {
-        setLoading(false);
-        hasFetchedRef.current = true;
+      }
+    };
+    fetchCheckoutUrl();
+  }, [userData]);
+
+  useEffect(() => {
+    const eventSource = new EventSource("/api/payment/sse");
+
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      console.log("Received SSE data:", data);
+      setStatus(data.status);
+      setReferenceNumber(data.referenceNumber);
+
+      if (data.status === "complete") {
+        router.push(`/payment/success-payment?courseId=${courseId}`);
+      } else if (data.status === "failed"){
+        router.push(`/payment/failed-payment?courseId=${courseId}`);
       }
     };
 
-    fetchCheckoutUrl();
-  }, []);
+    eventSource.onerror = (error) => {
+      console.error("Error with SSE connection:", error);
+      eventSource.close();
+    };
+
+    return () => {
+      eventSource.close();
+    };
+  }, [router]);
 
   const handleDownload = async () => {
     QRCodeLib.toDataURL(
@@ -69,13 +97,6 @@ const QrScanWindow = React.memo(function QrScanWindow() {
       }
     );
   };
-
-  //   useEffect(() => {
-  //     if (userData && !refNumber) {
-  //       const newRefNumber = generateReferenceNumber(userData.id, courseId);
-  //       setRefNumber(newRefNumber);
-  //     }
-  //   }, [userData, courseId]);
 
   return (
     <div className="qr-code flex flex-col items-center rounded-[8px] gap-2 p-10 shadow">

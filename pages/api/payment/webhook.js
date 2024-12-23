@@ -6,7 +6,7 @@ const endpointSecret = process.env.STRIPE_ENDPOINT_SECRET;
 
 export const config = {
   api: {
-    bodyParser: false, 
+    bodyParser: false,
   },
 };
 
@@ -47,39 +47,77 @@ export default async function handler(req, res) {
       }
 
       try {
-        const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+        const paymentIntent = await stripe.paymentIntents.retrieve(
+          paymentIntentId
+        );
+        const orderStatus =
+          paymentIntent.status === "succeeded" ? "complete" : "failed";
+        const referenceNumber = session.metadata.reference_number;
 
-        if (paymentIntent.status === "succeeded") {
-          const orderStatus = "complete";
+        await connectionPool.query(
+          "UPDATE orders SET status = $1 WHERE reference_number = $2",
+          [orderStatus, referenceNumber]
+        );
+        console.log(`Order updated with status: ${orderStatus}`);
 
-          const referenceNumber = session.metadata.reference_number;
-
-          const result = await connectionPool.query(
-            "UPDATE orders SET status = $1 WHERE reference_number = $2",
-            [orderStatus, referenceNumber]
-          );
-          console.log(`Order updated with status: ${orderStatus}`);
-        } else {
-          const orderStatus = "failed";
-
-          const referenceNumber = session.metadata.reference_number;
-
-          const result = await connectionPool.query(
-            "UPDATE orders SET status = $1 WHERE reference_number = $2",
-            [orderStatus, referenceNumber]
-          );
-          console.log(`Order updated with status: ${orderStatus}`);
-        }
+        sendSSEUpdate({ status: orderStatus, referenceNumber });
       } catch (err) {
         console.error("Error fetching payment intent or updating order:", err);
         res.status(500).send("Error processing the payment.");
         return;
       }
       break;
+    case "payment_intent.requires_action":
+      // Handle requires_action event
+      console.log("Payment Intent requires action.");
+      // Send SSE update for 'requires_action'
+      sendSSEUpdate({
+        status: "requires_action",
+        referenceNumber: event.data.object.metadata.reference_number,
+      });
+      break;
+
+    case "payment_intent.created":
+      console.log("Payment Intent created.");
+      // Optionally send SSE update here if needed
+      break;
+
+    case "payment_intent.succeeded":
+      console.log("Payment Intent succeeded.");
+      // Optionally send SSE update here if needed
+      break;
+
+    case "charge.succeeded":
+      console.log("Charge succeeded.");
+      // Optionally send SSE update here if needed
+      break;
+
+    case "charge.updated":
+      console.log("Charge updated.");
+      // Optionally send SSE update here if needed
+      break;
+
+    case "payment_intent.payment_failed":
+      sendSSEUpdate({
+        status: "failed",
+      });
 
     default:
       console.log(`Unhandled event type: ${event.type}`);
   }
 
   res.status(200).send("Webhook received successfully.");
+}
+
+function sendSSEUpdate(data) {
+  if (!global.sseClients) return;
+  console.log("Sending SSE update:", data);
+  global.sseClients.forEach((client) => {
+    try {
+      client.write(`data: ${JSON.stringify(data)}\n\n`);
+      client.flush();
+    } catch (err) {
+      console.error("Error sending SSE message", err);
+    }
+  });
 }
