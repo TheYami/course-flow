@@ -1,7 +1,7 @@
-import EditCourse from "@/components/admin/editCourse";
+import EditCourse from "@/components/admin/EditCourse";
 import useAdminAuth from "@/hooks/useAdminAuth";
 
-const AddCoursePage = () => {
+const EditCoursePage = () => {
   const { loading } = useAdminAuth();
 
   if (loading) {
@@ -11,4 +11,4 @@ const AddCoursePage = () => {
   return <EditCourse />;
 };
 
-export default AddCoursePage;
+export default EditCoursePage;
