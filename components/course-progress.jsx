@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import React, { useState, useRef, useEffect } from "react";
 import supabase from "../lib/supabase";
 import Image from "next/image";
@@ -199,184 +198,6 @@ export default function CourseProgress({slug}) {
   //     }))
   //   );
   // };
-=======
-import React, { useState, useRef } from "react";
-import Image from "next/image";
-import CollapsiblePanel from "./collapsible-panel";
-
-function AssignmentForm({ onComplete }) {
-  const [answer, setAnswer] = useState("");
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    alert(`Your answer: ${answer}`);
-    setAnswer("");
-    if (onComplete) onComplete();
-  };
-
-  return (
-    <div className="bg-[#E5ECF8] border rounded-lg p-4 mt-6 w-[343px] lg:w-[739px] lg:ml-4 lg:mt-20">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold text-gray-800">Assignment</h2>
-        <span className="px-2 py-1 text-sm font-medium text-yellow-700 bg-yellow-100 rounded">
-          Pending
-        </span>
-      </div>
-      <p className="text-gray-600 mb-4">
-        What are the 4 elements of service design?
-      </p>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <textarea
-          value={answer}
-          onChange={(e) => setAnswer(e.target.value)}
-          placeholder="Answer..."
-          className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-          rows="4"
-        ></textarea>
-        <button
-          type="submit"
-          className="w-full px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
-        >
-          Send Assignment
-        </button>
-      </form>
-      <p className="mt-4 text-sm text-gray-500">Assign within 2 days</p>
-    </div>
-  );
-}
-
-export default function CourseProgress() {
-  const [progress, setProgress] = useState(0);
-
-  const [selectedLesson, setSelectedLesson] = useState(null);
-
-  const [selectedLessonIndex, setSelectedLessonIndex] = useState(null); // เก็บตำแหน่งของ selectedLesson
-
-  const learningSectionRef = useRef(null);
-
-  //mockup data
-  const [sections, setSections] = useState([
-    {
-      id: 1,
-      title: "Introduction",
-      lessons: [
-        {
-          subtitle: "4 Levels of Service Design in an Organization",
-          imgurl: "/assets/icon/none.png",
-          videourl: "/assets/image/mockupvideo.png",
-          status: "Pending", // เพิ่มสถานะเริ่มต้น
-          answer: "", // เก็บคำตอบของแต่ละ lesson
-        },
-        {
-          subtitle: "5 Levels of Service Design in an Organization",
-          imgurl: "/assets/icon/complete.png",
-          videourl: "/assets/image/mockupvideo.png",
-          status: "Pending",
-          answer: "",
-        },
-        {
-          subtitle: "6 Levels of Service Design in an Organization",
-          imgurl: "/assets/icon/ongoing.png",
-          videourl: "/assets/image/mockupvideo.png",
-          status: "Pending",
-          answer: "",
-        },
-      ],
-    },
-    {
-      id: 2,
-      title: "Service Design Theories and Principles",
-      lessons: [
-        {
-          subtitle: "7 Levels of Service Design in an Organization",
-          imgurl: "/assets/icon/ongoing.png",
-          videourl: "/assets/image/mockupvideo.png",
-          status: "Pending",
-          answer: "",
-        },
-      ],
-    },
-    {
-      id: 3,
-      title: "Understanding Users and Finding Opportunities",
-      lessons: [
-        {
-          subtitle: "8 Levels of Service Design in an Organization",
-          imgurl: "/assets/icon/none.png",
-          videourl: "/assets/image/mockupvideo.png",
-          status: "Pending",
-          answer: "",
-        },
-        {
-          subtitle: "9 Levels of Service Design in an Organization",
-          imgurl: "/assets/icon/complete.png",
-          videourl: "/assets/image/mockupvideo.png",
-          status: "Pending",
-          answer: "",
-        },
-      ],
-    },
-    {
-      id: 4,
-      title: "Identifying and Validating Opportunities for Design",
-      lessons: [
-        {
-          subtitle: "10 Levels of Service Design in an Organization",
-          imgurl: "/assets/icon/ongoing.png",
-          videourl: "/assets/image/mockupvideo.png",
-          status: "Pending",
-          answer: "",
-        },
-      ],
-    },
-    {
-      id: 5,
-      title: "Prototyping",
-      lessons: [
-        {
-          subtitle: "11 Levels of Service Design in an Organization",
-          imgurl: "/assets/icon/ongoing.png",
-          videourl: "/assets/image/mockupvideo.png",
-          status: "Pending",
-          answer: "",
-        },
-      ],
-    },
-    {
-      id: 6,
-      title: "Course Summary",
-      lessons: [
-        {
-          subtitle: "12 Levels of Service Design in an Organization",
-          imgurl: "/assets/icon/ongoing.png",
-          videourl: "/assets/image/mockupvideo.png",
-          status: "Pending",
-          answer: "",
-        },
-      ],
-    },
-  ]);
-
-  const handleLessonClick = (lesson, index) => {
-    setSelectedLesson(lesson);
-    setSelectedLessonIndex(index);
-
-    if (learningSectionRef.current) {
-      learningSectionRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
-  const handleLessonUpdate = (updatedLesson) => {
-    setSections((prevSections) =>
-      prevSections.map((section) => ({
-        ...section,
-        lessons: section.lessons.map((lesson) =>
-          lesson.subtitle === updatedLesson.subtitle ? updatedLesson : lesson
-        ),
-      }))
-    );
-  };
->>>>>>> df25095c5461ee7fd9debb189218980f0a66e071
 
   const handlePreviousLesson = () => {
     if (selectedLessonIndex > 0) {
@@ -400,15 +221,12 @@ export default function CourseProgress() {
       setSelectedLessonIndex(selectedLessonIndex + 1);
     }
   };
-<<<<<<< HEAD
-=======
 
   //update progress
   const handleCompleteAssignment = () => {
     setProgress((prev) => Math.min(prev + 10, 100));
   };
 
->>>>>>> df25095c5461ee7fd9debb189218980f0a66e071
   //auto scroll to learning section
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
@@ -417,18 +235,9 @@ export default function CourseProgress() {
     }
   };
 
-<<<<<<< HEAD
-  //update progress
-  const handleCompleteAssignment = () => {
-    setProgress((prev) => Math.min(prev + 10, 100));
-  };
-  return <>
-  <div className="flex flex-col items-center md:flex-row md:justify-center md:items-start gap-3">
-=======
   return (
     <>
       <div className="flex flex-col items-center md:flex-row md:justify-center md:items-start gap-3">
->>>>>>> df25095c5461ee7fd9debb189218980f0a66e071
         {/* Left Section */}
         <section className="w-[343px] lg:w-[387px] flex-col mt-4 pt-4 p-4 box-border rounded-md ml-4 shadow-md xl:ml-8">
           <h1 className="text-xs font-normal mb-4 text-[#F47E20]">Course</h1>
@@ -457,11 +266,7 @@ export default function CourseProgress() {
           {/* Course Sections */}
           <div className="flex flex-col items-center">
             {/* Course Sections */}
-<<<<<<< HEAD
             {/* {subcribeCoursesData.map((section) => (
-=======
-            {sections.map((section) => (
->>>>>>> df25095c5461ee7fd9debb189218980f0a66e071
               <div key={section.id} className="mb-4 w-full">
                 <CollapsiblePanel
                   title={
@@ -501,11 +306,7 @@ export default function CourseProgress() {
                   )}
                 </CollapsiblePanel>
               </div>
-<<<<<<< HEAD
             ))} */}
-=======
-            ))}
->>>>>>> df25095c5461ee7fd9debb189218980f0a66e071
           </div>
         </section>
         {/*Right section */}
@@ -541,20 +342,11 @@ export default function CourseProgress() {
           onClick={handleNextLesson}
           disabled={
             selectedLessonIndex ===
-<<<<<<< HEAD
             subcribeCoursesData.flatMap((section) => section.lessons).length - 1
-=======
-            sections.flatMap((section) => section.lessons).length - 1
->>>>>>> df25095c5461ee7fd9debb189218980f0a66e071
           }
         >
           Next Lesson
         </button>
       </div>
-<<<<<<< HEAD
   </>;
-=======
-    </>
-  );
->>>>>>> df25095c5461ee7fd9debb189218980f0a66e071
 }
