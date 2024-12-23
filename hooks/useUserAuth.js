@@ -39,18 +39,6 @@ const useUserAuth = () => {
     checkSession();
   }, [router]);
 
-  useEffect(() => {
-    if (userData) {
-      if (userData.role !== "user") {
-        router.push("/login");
-      } else {
-        setLoading(false);
-      }
-    } else {
-      router.push("/login");
-    }
-  }, [userData, router]);
-
   return { userData, loading };
 };
 
