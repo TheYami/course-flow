@@ -14,7 +14,7 @@ export default function AssignmentForm({ onComplete }) {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold text-gray-800">Assignment</h2>
         <span className="px-2 py-1 text-sm font-medium text-yellow-700 bg-yellow-100 rounded">
-          In-Progress
+          Pending
         </span>
       </div>
       <p className="text-gray-600 mb-4">
@@ -35,6 +35,7 @@ export default function AssignmentForm({ onComplete }) {
           Send Assignment
         </button>
       </form>
+      <p className="mt-4 text-sm text-gray-500">Assign within 2 days</p>
     </div>
   );
 }
