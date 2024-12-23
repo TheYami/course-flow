@@ -6,7 +6,7 @@ import AssignmentForm from "./mycourse/assignment-form";
 import axios from "axios";
 import { useRouter } from "next/router";
 
-export default function CourseProgress({ slug }) {
+export default function CourseProgress({slug}) {
   const [progress, setProgress] = useState(0);
   //fetch from suapbase
   const [subcribeCoursesData, setSubscribeCoursesData] = useState([]);
@@ -362,10 +362,5 @@ export default function CourseProgress({ slug }) {
           Next Lesson
         </button>
       </div>
-    </>
-  ) : (
-    <div className="flex items-center justify-center h-full">
-      <p className="text-sm text-gray-500">Loading course information...</p>
-    </div>
-  );
+  </>;
 }
