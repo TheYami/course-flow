@@ -5,7 +5,8 @@ import clockIcon from "@/assets/icons/mycourse-icon/clock.svg";
 
 export default function MyCourseCard({course}) {
   return (
-    <div className="mycourse-card shadow-md rounded-[8px] overflow-hidden w-[357px] xl:w-[365px] xl:h-[475px] flex flex-col justify-between">
+    <Link href={`/mycourse/${course.course_id}`} passHref className="no-underline">
+    <div className="mycourse-card shadow-md rounded-[8px] overflow-hidden w-[357px] xl:w-[365px] cursor-pointer">
       <img
         src={course.image_file}
         alt={course.course_name}
@@ -31,5 +32,6 @@ export default function MyCourseCard({course}) {
         </div>
       </div>
     </div>
+    </Link>
   );
 }
