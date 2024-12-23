@@ -30,7 +30,7 @@ export default async function handler(req, res) {
         price: result.rows[0].price,
         summary: result.rows[0].summary,
         video_file: result.rows[0].video_file,
-        document_file: result.rows[0].document_file,
+        document_file: result.rows[0].document_file || null,
         lessons: [],
       };
 

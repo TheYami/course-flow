@@ -71,6 +71,7 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
   // Add-Remove to wishlist
   const handleRemoveFromWishlist = async () => {
     if (!isLoggedIn) {
+      alert("Please Login");
       router.push("/login");
     } else {
       setLoading(true);
@@ -96,6 +97,7 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
 
   const handlSubscription = () => {
     if (!isLoggedIn) {
+      alert("Please Login");
       router.push("/login");
     } else {
       setAction("subscribe");
@@ -108,8 +110,8 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
   };
 
   const handleModalClose = (wishlist) => {
-    // ทำอะไรบางอย่างเมื่อ Modal ปิดหรือส่งค่ากลับ
-    setInWishlist(true);
+
+    setInWishlist(wishlist);
     setIsModalOpen(false); // ปิด Modal
   };
 
@@ -221,11 +223,16 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
             <button
               className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-white border border-orange-500 text-orange-500 shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-0 flex-grow"
               onClick={() => {
+                if(!user){
+                  alert("Please Login");
+                  router.push("/login");
+                }
+                else {
                 if (!inWishlist) {
                   setIsModalOpen(true);
                   setAction("add")
                 } else {handleRemoveFromWishlist();}
-              }}
+              }}}
             >
               {inWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
             </button>

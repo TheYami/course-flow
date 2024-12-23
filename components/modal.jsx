@@ -9,20 +9,18 @@ export default function Modal({ course, action, onClose, user }) {
 
   const handleClose = (inWishlist) => {
     setIsModalOpen(false);
-    onClose(inWishlist); // ส่งค่า inWishlist กลับไปที่ parent
+    onClose(inWishlist);
   };
 
   const handleAddToWishlist = async () => {
-    setInWishlist(true);
-
     // เรียกใช้ API เพื่อเพิ่ม course ใน wishlist
     try {
       await axios.post("/api/addToWishlist", {
         email: user.email,
         course_id: course.course_id,
       });
-      onClose(inWishlist); // ส่งค่า inWishlist กลับไปที่ parent เมื่อทำสำเร็จ
-      setIsModalOpen(false);
+      setInWishlist(true);
+      handleClose(true);
     } catch (error) {
       console.error("Error adding to wishlist:", error);
     }
@@ -37,10 +35,7 @@ export default function Modal({ course, action, onClose, user }) {
   return (
     <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50 z-50">
       {/* Backdrop */}
-      <div
-        className="absolute top-0 left-0 w-full h-full"
-        onClick={handleClose} // คลิกนอก Modal เพื่อปิด
-      ></div>
+      <div className="absolute top-0 left-0 w-full h-full"></div>
 
       {/* Modal Content */}
       <div className="model relative z-10 flex flex-col items-center w-[528px] h-fit bg-white shadow-[2px_2px_12px_rgba(64,50,133,0.12)] rounded-[24px]">
@@ -48,7 +43,9 @@ export default function Modal({ course, action, onClose, user }) {
           <div className="text-xl font-normal">Confirmation</div>
           <button
             className="close-button"
-            onClick={handleClose} // ปิด Modal เมื่อกดปุ่ม
+            onClick={() => {
+              setIsModalOpen(false);
+            }}
           >
             <svg
               width="41"
@@ -76,22 +73,22 @@ export default function Modal({ course, action, onClose, user }) {
           <div className="model-btm-button flex gap-4 h-[60px]">
             <button
               className="bg-white w-1/4 border-[1px] border-[#F47E20] rounded-xl text-[#F47E20] font-bold text-base"
-              onClick={handleClose} // ปิด Modal เมื่อกดปุ่ม
+              onClick={() => handleClose(false)}
             >
               No, I don’t
             </button>
 
             {action === "add" ? (
               <button
-                className="w-1/2 bg-[#2F5FAC] rounded-xl text-white font-normal text-base"
-                onClick={handleAddToWishlist} // เพิ่มใน wishlist เมื่อกดปุ่ม
+                className="w-1/2 bg-[#2F5FAC] rounded-xl text-white font-bold text-base"
+                onClick={handleAddToWishlist}
               >
                 Yes, add to wishlist
               </button>
             ) : (
               <button
-                className="w-1/2 bg-[#2F5FAC] rounded-xl text-white font-normal text-base"
-                onClick={handleSubscribe} // ไปที่หน้าหลักเมื่อกดปุ่ม
+                className="w-1/2 bg-[#2F5FAC] rounded-xl text-white font-bold text-base"
+                onClick={handleSubscribe}
               >
                 Yes, I want to subscribe
               </button>
