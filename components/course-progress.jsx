@@ -214,17 +214,23 @@ export default function CourseProgress({ slug }) {
   console.log(subcribeCoursesData[0]);
 
   const handleNextLesson = () => {
-    const totalSubLessons = subcribeCoursesData[0]?.lessons.sub_lessons.flatMap((lesson) => lesson.sub_lessons).length;
-    
-    if (selectedSubLessonIndex < totalSubLessons - 1) {
-      // คำนวณ sub-lesson ถัดไป
-      const nextSubLesson = subcribeCoursesData[0]?.lessons
-        .flatMap((lesson) => lesson.sub_lessons)
-        [selectedSubLessonIndex + 1]; // หาค่าบทเรียนถัดไปจาก index
-      setSelectedSubLesson(nextSubLesson);
-      setSelectedSubLessonIndex(selectedSubLessonIndex + 1); // อัปเดต index
+    if (
+      selectedLessonIndex <
+      sections.flatMap((section) => section.lessons).length - 1
+    ) {
+      const nextLesson = sections
+        .flatMap((section) => section.lessons)
+        .find((_, index) => index === selectedLessonIndex + 1);
+      setSelectedLesson(nextLesson);
+      setSelectedLessonIndex(selectedLessonIndex + 1);
     }
   };
+
+  //update progress
+  const handleCompleteAssignment = () => {
+    setProgress((prev) => Math.min(prev + 10, 100));
+  };
+
   //auto scroll to learning section
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
@@ -233,12 +239,9 @@ export default function CourseProgress({ slug }) {
     }
   };
 
-  //update progress
-  const handleCompleteAssignment = () => {
-    setProgress((prev) => Math.min(prev + 10, 100));
-  };
-  return <>
-  <div className="flex flex-col items-center md:flex-row md:justify-center md:items-start gap-3">
+  return (
+    <>
+      <div className="flex flex-col items-center md:flex-row md:justify-center md:items-start gap-3">
         {/* Left Section */}
         <section className="w-[343px] lg:w-[387px] flex-col mt-4 pt-4 p-4 box-border rounded-md ml-4 shadow-md xl:ml-8">
           <h1 className="text-xs font-normal mb-4 text-[#F47E20]">Course</h1>
