@@ -286,7 +286,7 @@ export default function CourseProgress({slug}) {
           {/* Course Sections */}
           <div className="flex flex-col items-center">
             {/* Course Sections */}
-            {sections.map((section) => (
+            {/* {subcribeCoursesData.map((section) => (
               <div key={section.id} className="mb-4 w-full">
                 <CollapsiblePanel
                   title={
@@ -326,7 +326,7 @@ export default function CourseProgress({slug}) {
                   )}
                 </CollapsiblePanel>
               </div>
-            ))}
+            ))} */}
           </div>
         </section>
         {/*Right section */}
