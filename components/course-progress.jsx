@@ -8,10 +8,114 @@ import { useRouter } from "next/router";
 
 export default function CourseProgress({ slug }) {
   const [progress, setProgress] = useState(0);
-  const [subscribeCoursesData, setSubscribeCoursesData] = useState([]); //ข้อมูลที่ user subscribe แต่ละคอร์ส
-  const [selectedSubLesson, setSelectedSubLesson] = useState(null); //ข้อมูลของ sub-lesson ที่ถูกเลือก
-  const [selectedSubLessonIndex, setSelectedSubLessonIndex] = useState(null); //เก็บตำแหน่งของ index ของ sub_lesson ที่ถูกเลือก
-  const [selectedLessonIndex, setSelectedLessonIndex] = useState(0);
+  //fetch from suapbase
+  const [subcribeCoursesData, setSubscribeCoursesData] = useState([]);
+  const [lessonsData, setLessonsData] = useState([]);
+  const [subLessonData, setSubLessonData] = useState([]);
+  //mockup data
+  // const [sections, setSections] = useState([
+  //   {
+  //     id: 1,
+  //     title: "Introduction",
+  //     lessons: [
+  //       {
+  //         subtitle: "4 Levels of Service Design in an Organization",
+  //         imgurl: "/assets/icon/none.png",
+  //         videourl: "/assets/image/mockupvideo.png",
+  //         status: "Pending", // เพิ่มสถานะเริ่มต้น
+  //         answer: "", // เก็บคำตอบของแต่ละ lesson
+  //       },
+  //       {
+  //         subtitle: "5 Levels of Service Design in an Organization",
+  //         imgurl: "/assets/icon/complete.png",
+  //         videourl: "/assets/image/mockupvideo.png",
+  //         status: "Pending",
+  //         answer: "",
+  //       },
+  //       {
+  //         subtitle: "6 Levels of Service Design in an Organization",
+  //         imgurl: "/assets/icon/ongoing.png",
+  //         videourl: "/assets/image/mockupvideo.png",
+  //         status: "Pending",
+  //         answer: "",
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     id: 2,
+  //     title: "Service Design Theories and Principles",
+  //     lessons: [
+  //       {
+  //         subtitle: "7 Levels of Service Design in an Organization",
+  //         imgurl: "/assets/icon/ongoing.png",
+  //         videourl: "/assets/image/mockupvideo.png",
+  //         status: "Pending",
+  //         answer: "",
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     id: 3,
+  //     title: "Understanding Users and Finding Opportunities",
+  //     lessons: [
+  //       {
+  //         subtitle: "8 Levels of Service Design in an Organization",
+  //         imgurl: "/assets/icon/none.png",
+  //         videourl: "/assets/image/mockupvideo.png",
+  //         status: "Pending",
+  //         answer: "",
+  //       },
+  //       {
+  //         subtitle: "9 Levels of Service Design in an Organization",
+  //         imgurl: "/assets/icon/complete.png",
+  //         videourl: "/assets/image/mockupvideo.png",
+  //         status: "Pending",
+  //         answer: "",
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     id: 4,
+  //     title: "Identifying and Validating Opportunities for Design",
+  //     lessons: [
+  //       {
+  //         subtitle: "10 Levels of Service Design in an Organization",
+  //         imgurl: "/assets/icon/ongoing.png",
+  //         videourl: "/assets/image/mockupvideo.png",
+  //         status: "Pending",
+  //         answer: "",
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     id: 5,
+  //     title: "Prototyping",
+  //     lessons: [
+  //       {
+  //         subtitle: "11 Levels of Service Design in an Organization",
+  //         imgurl: "/assets/icon/ongoing.png",
+  //         videourl: "/assets/image/mockupvideo.png",
+  //         status: "Pending",
+  //         answer: "",
+  //       },
+  //     ],
+  //   },
+  //   {
+  //     id: 6,
+  //     title: "Course Summary",
+  //     lessons: [
+  //       {
+  //         subtitle: "12 Levels of Service Design in an Organization",
+  //         imgurl: "/assets/icon/ongoing.png",
+  //         videourl: "/assets/image/mockupvideo.png",
+  //         status: "Pending",
+  //         answer: "",
+  //       },
+  //     ],
+  //   },
+  // ]);
+  const [selectedLesson, setSelectedLesson] = useState(null);
+  const [selectedLessonIndex, setSelectedLessonIndex] = useState(null); // เก็บตำแหน่งของ selectedLesson
   const learningSectionRef = useRef(null);
   const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
@@ -101,10 +205,10 @@ export default function CourseProgress({ slug }) {
     setSelectedSubLesson(lesson);
     setSelectedSubLessonIndex(index);
 
-    if (learningSectionRef.current) {
-      learningSectionRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+  //   if (learningSectionRef.current) {
+  //     learningSectionRef.current.scrollIntoView({ behavior: "smooth" });
+  //   }
+  // };
 
   const handleNextLesson = () => {
     if (selectedSubLessonIndex !== null && selectedSubLesson !== null) {
@@ -393,10 +497,5 @@ export default function CourseProgress({ slug }) {
           Next Lesson
         </button>
       </div>
-    </>
-  ) : (
-    <div className="flex items-center justify-center h-full">
-      <p className="text-sm text-gray-500">Loading course information...</p>
-    </div>
-  );
+  </>;
 }
