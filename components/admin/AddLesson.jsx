@@ -16,6 +16,11 @@ export const AddLesson = ({ courseId }) => {
   const router = useRouter();
   const [loadingData, setLoadingData] = useState(false);
   const [videoUploadError, setVideoUploadError] = useState(false);
+  const [isFillForm, setIsFillForm] = useState({
+    lessonName: null,
+    subLessonName: null,
+    videoUrl: null,
+  });
 
   useEffect(() => {
     const fetchCourseData = async () => {
@@ -36,7 +41,12 @@ export const AddLesson = ({ courseId }) => {
   }, [courseId]);
 
   const handleLessonInput = (e) => {
-    setLessonName(e.target.value);
+    const { value } = e.target;
+    setLessonName(value);
+    setIsFillForm((prev) => ({
+      ...prev,
+      lessonName: Boolean(value),
+    }));
   };
 
   const handleSubLessonInput = (index, e) => {
@@ -46,6 +56,10 @@ export const AddLesson = ({ courseId }) => {
         i === index ? { ...subLesson, [name]: value } : subLesson
       )
     );
+    setIsFillForm((prev) => ({
+      ...prev,
+      [name]: Boolean(value),
+    }));
   };
 
   const addSubLesson = () => {
@@ -82,6 +96,10 @@ export const AddLesson = ({ courseId }) => {
               : subLesson
           )
         );
+        setIsFillForm((prev) => ({
+          ...prev,
+          videoUrl: true,
+        }));
       } else {
         setVideoUploadError(true);
       }
@@ -96,13 +114,28 @@ export const AddLesson = ({ courseId }) => {
           : subLesson
       )
     );
+    setIsFillForm((prev) => ({
+      ...prev,
+      videoUrl: false,
+    }));
   };
 
-  const isFormValid =
-    lessonName &&
-    subLessonData.every(
-      (subLesson) => subLesson.subLessonName && subLesson.videoUrl
+  const validateForm = () => {
+    const isLessonNameValid = Boolean(lessonName);
+
+    const isSubLessonValid = subLessonData.every(
+      (subLesson) =>
+        Boolean(subLesson.subLessonName) && Boolean(subLesson.videoUrl)
     );
+
+    setIsFillForm({
+      lessonName: isLessonNameValid,
+      subLessonName: isSubLessonValid,
+      videoUrl: isSubLessonValid,
+    });
+
+    return isLessonNameValid && isSubLessonValid;
+  };
 
   const uploadToCloudinary = async (file, preset = "unSigned") => {
     const cloudinaryUrl = "https://api.cloudinary.com/v1_1/dxjamlkhi/upload";
@@ -126,6 +159,11 @@ export const AddLesson = ({ courseId }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoadingData(true);
+
+    if (!validateForm()) {
+      setLoadingData(false);
+      return;
+    }
 
     try {
       const storedToken = localStorage.getItem(
@@ -206,12 +244,7 @@ export const AddLesson = ({ courseId }) => {
           </button>
           <button
             type="submit"
-            disabled={!isFormValid}
-            className={`create-button px-8 py-[18px] font-[700] rounded-[12px] ${
-              isFormValid
-                ? "bg-[#2F5FAC] text-[#FFFFFF]"
-                : "bg-[#D3D8E5] text-[#9AA1B9]"
-            }`}
+            className="create-button px-8 py-[18px] font-[700] rounded-[12px] bg-[#2F5FAC] text-[#FFFFFF]"
           >
             Create
           </button>
@@ -235,18 +268,17 @@ export const AddLesson = ({ courseId }) => {
                 value={lessonName}
                 onChange={handleLessonInput}
                 placeholder="Enter the lesson name"
-                required
                 className={`w-full mt-1 px-4 py-3 border-1 rounded-[8px] ${
-                  !lessonName
+                  isFillForm.lessonName === false
                     ? "border-[#9B2FAC] focus:border-[#9B2FAC] focus:outline-none"
                     : "border-[#D6D9E4] focus:border-[#F47E20] focus:outline-none"
                 } `}
               />
               <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#9B2FAC]">
-                {!lessonName && <AlertIcon />}
+                {isFillForm.lessonName === false && <AlertIcon />}
               </div>
             </div>
-            {!lessonName && (
+            {isFillForm.lessonName === false && (
               <p className="absolute text-[#9B2FAC] text-sm mt-1">
                 Please fill out this field
               </p>
@@ -289,16 +321,15 @@ export const AddLesson = ({ courseId }) => {
                         onChange={(e) => handleSubLessonInput(index, e)}
                         placeholder="Enter sub-lesson name"
                         className={`w-9/12 px-4 py-3 border-1 rounded-[8px] ${
-                          !subLesson.subLessonName
+                          isFillForm.subLessonName === false
                             ? "border-[#9B2FAC] focus:border-[#9B2FAC] focus:outline-none"
                             : "border-[#D6D9E4] focus:border-[#F47E20] focus:outline-none"
                         } `}
-                        required
                       />
                       <div className="absolute right-80 top-1/2 transform -translate-y-1/2 text-[#9B2FAC]">
-                        {!subLesson.subLessonName && <AlertIcon />}
+                        {isFillForm.subLessonName === false && <AlertIcon />}
                       </div>
-                      {!subLesson.subLessonName && (
+                      {isFillForm.subLessonName === false && (
                         <p className="absolute text-[#9B2FAC] text-sm mt-1">
                           Please fill out this field
                         </p>
@@ -325,7 +356,6 @@ export const AddLesson = ({ courseId }) => {
                               className="hidden"
                               accept="video/*"
                               onChange={(e) => handleVideoFileChange(index, e)}
-                              required
                             />
                           </button>
                           {videoUploadError && (
@@ -334,7 +364,8 @@ export const AddLesson = ({ courseId }) => {
                               and less than 20 MB.
                             </p>
                           )}
-                          {!subLesson.videoUrl && videoUploadError === false ? (
+                          {isFillForm.videoUrl === false &&
+                          videoUploadError === false ? (
                             <p className="absolute text-[#9B2FAC] text-sm mt-1">
                               Upload the video trailer is required.
                             </p>

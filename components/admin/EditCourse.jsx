@@ -541,9 +541,9 @@ const EditCoursePage = () => {
                           )}
                           {isUpload.image === false &&
                           uploadError.image === false ? (
-                            <p className="absolute text-[#9B2FAC] text-sm mt-1">
-                              If no image is uploaded, the default image will be
-                              used.
+                            <p className="absolute text-[#5483D0]  text-sm mt-1">
+                              If no image is uploaded, the previous image will
+                              not be changed.
                             </p>
                           ) : null}
                         </>
@@ -606,9 +606,9 @@ const EditCoursePage = () => {
                           )}
                           {isUpload.video === false &&
                           uploadError.video === false ? (
-                            <p className="absolute text-[#9B2FAC] text-sm mt-1">
-                              If no video is uploaded, the default video will be
-                              used.
+                            <p className="absolute text-[#5483D0]  text-sm mt-1">
+                              If no video is uploaded, the previous video will
+                              not be changed.
                             </p>
                           ) : null}
                         </>

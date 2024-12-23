@@ -30,12 +30,17 @@ export const AddCourse = () => {
   const { lessonData, deleteLesson, addLessonIdToEdit } = useLesson();
   const [uploadError, setUploadError] = useState({
     image: false,
-    video: false,
+    videoTrailer: false,
     file: false,
   });
-  const [isUpload, setIsUpload] = useState({
-    image: false,
-    video: false,
+  const [isFillForm, setIsFillForm] = useState({
+    courseName: null,
+    price: null,
+    totalTime: null,
+    summary: null,
+    detail: null,
+    image: null,
+    videoTrailer: null,
   });
 
   const handleAddLesson = () => {
@@ -45,6 +50,10 @@ export const AddCourse = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setCourseData(name, value);
+    setIsFillForm((prev) => ({
+      ...prev,
+      [name]: Boolean(value), // true ถ้ามีค่า, false ถ้าไม่มีค่า
+    }));
   };
 
   const handleClickUploadImage = () => {
@@ -67,7 +76,7 @@ export const AddCourse = () => {
           ...prevState,
           image: false,
         }));
-        setIsUpload((prevState) => ({
+        setIsFillForm((prevState) => ({
           ...prevState,
           image: true,
         }));
@@ -87,7 +96,7 @@ export const AddCourse = () => {
     setCourseData("image", null);
     setPreviewData("image", null);
     setPreviewData("imageName", "");
-    setIsUpload((prevState) => ({
+    setIsFillForm((prevState) => ({
       ...prevState,
       image: false,
     }));
@@ -99,11 +108,11 @@ export const AddCourse = () => {
       if (file.size <= 20 * 1024 * 1024) {
         setUploadError((prevState) => ({
           ...prevState,
-          video: false,
+          videoTrailer: false,
         }));
-        setIsUpload((prevState) => ({
+        setIsFillForm((prevState) => ({
           ...prevState,
-          video: true,
+          videoTrailer: true,
         }));
         setCourseData("videoTrailer", file);
         setPreviewData("videoTrailer", URL.createObjectURL(file));
@@ -111,7 +120,7 @@ export const AddCourse = () => {
       } else {
         setUploadError((prevState) => ({
           ...prevState,
-          video: true,
+          videoTrailer: true,
         }));
       }
     }
@@ -121,9 +130,9 @@ export const AddCourse = () => {
     setCourseData("videoTrailer", null);
     setPreviewData("videoTrailer", null);
     setPreviewData("videoTrailerName", "");
-    setIsUpload((prevState) => ({
+    setIsFillForm((prevState) => ({
       ...prevState,
-      video: false,
+      videoTrailer: false,
     }));
   };
 
@@ -172,13 +181,28 @@ export const AddCourse = () => {
     }
   };
 
-  const isFormValid = Object.keys(courseData)
-    .filter((key) => key !== "file") // กรองฟิลด์ที่ไม่ต้องการตรวจสอบ
-    .every((key) => courseData[key]); // ตรวจสอบว่าฟิลด์ที่เหลือมีค่า
+  const validateForm = () => {
+    const updatedState = {};
+    Object.keys(courseData).forEach((key) => {
+      if (key !== "file") {
+        updatedState[key] = Boolean(courseData[key]); // true ถ้ามีค่า, false ถ้าไม่มี
+      }
+    });
+    setIsFillForm(updatedState);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+
+    validateForm();
+    const isValid = Object.values(isFillForm).every((value) => value === true);
+
+    if (!isValid) {
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const storedToken = localStorage.getItem(
         "sb-iyzmaaubmvzitbqdicbe-auth-token"
@@ -350,12 +374,7 @@ export const AddCourse = () => {
           </button>
           <button
             type="submit"
-            className={`${
-              isFormValid
-                ? "bg-[#2F5FAC] hover:bg-white hover:text-[#2F5FAC] hover:border hover:border-[#2F5FAC] text-[#FFFFFF]"
-                : "bg-[#D3D8E5] text-[#9AA1B9]"
-            } create-button w-[120px] h-[60px] px-8 py-[18px] font-[700] rounded-[12px] flex justify-center items-center`}
-            disabled={!isFormValid}
+            className="bg-[#2F5FAC] hover:bg-white hover:text-[#2F5FAC] hover:border hover:border-[#2F5FAC] text-[#FFFFFF] create-button w-[120px] h-[60px] px-8 py-[18px] font-[700] rounded-[12px] flex justify-center items-center"
           >
             {isLoading ? (
               <Image src={loadingIcon} alt="loading icon" className="w-8 h-8" />
@@ -379,18 +398,17 @@ export const AddCourse = () => {
                 value={courseData.courseName}
                 onChange={handleInputChange}
                 placeholder="Enter the course name"
-                required
                 className={`w-full mt-1 px-4 py-3 border-1 rounded-[8px] ${
-                  !courseData.courseName
+                  isFillForm.courseName === false
                     ? "border-[#9B2FAC] focus:border-[#9B2FAC] focus:outline-none"
                     : "border-[#D6D9E4] focus:border-[#F47E20] focus:outline-none"
                 } `}
               />
               <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#9B2FAC]">
-                {!courseData.courseName && <AlertIcon />}
+                {isFillForm.courseName === false && <AlertIcon />}
               </div>
             </div>
-            {!courseData.courseName && (
+            {isFillForm.courseName === false && (
               <p className="absolute text-[#9B2FAC] text-sm mt-1">
                 Please fill out this field
               </p>
@@ -409,18 +427,17 @@ export const AddCourse = () => {
                   value={courseData.price}
                   onChange={handleInputChange}
                   placeholder="Enter the price in THB"
-                  required
                   className={`w-full mt-1 px-4 py-3 border-1 rounded-[8px] ${
-                    !courseData.price
+                    isFillForm.price === false
                       ? "border-[#9B2FAC] focus:border-[#9B2FAC] focus:outline-none"
                       : "border-[#D6D9E4] focus:border-[#F47E20] focus:outline-none"
                   }`}
                 />
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#9B2FAC]">
-                  {!courseData.price && <AlertIcon />}
+                  {isFillForm.price === false && <AlertIcon />}
                 </div>
               </div>
-              {!courseData.price && (
+              {isFillForm.price === false && (
                 <p className="absolute text-[#9B2FAC] text-sm mt-1">
                   Please fill out this field
                 </p>
@@ -436,18 +453,17 @@ export const AddCourse = () => {
                   value={courseData.totalTime}
                   onChange={handleInputChange}
                   placeholder="Enter the total learning time in hours"
-                  required
                   className={`w-full mt-1 px-4 py-3 border-1 rounded-[8px] ${
-                    !courseData.totalTime
+                    isFillForm.totalTime === false
                       ? "border-[#9B2FAC] focus:border-[#9B2FAC] focus:outline-none"
                       : "border-[#D6D9E4] focus:border-[#F47E20] focus:outline-none"
                   }`}
                 />
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#9B2FAC]">
-                  {!courseData.totalTime && <AlertIcon />}
+                  {isFillForm.totalTime === false && <AlertIcon />}
                 </div>
               </div>
-              {!courseData.totalTime && (
+              {isFillForm.totalTime === false && (
                 <p className="absolute text-[#9B2FAC] text-sm mt-1">
                   Please fill out this field
                 </p>
@@ -465,19 +481,18 @@ export const AddCourse = () => {
                 value={courseData.summary}
                 onChange={handleInputChange}
                 placeholder="Write a summary of the course"
-                required
                 rows="2"
                 className={`w-full mt-1 px-4 py-3 border-1 rounded-[8px] ${
-                  !courseData.summary
+                  isFillForm.summary === false
                     ? "border-[#9B2FAC] focus:border-[#9B2FAC] focus:outline-none"
                     : "border-[#D6D9E4] focus:border-[#F47E20] focus:outline-none"
                 }`}
               />
               <div className="absolute right-3 top-5 text-[#9B2FAC]">
-                {!courseData.summary && <AlertIcon />}
+                {isFillForm.summary === false && <AlertIcon />}
               </div>
             </div>
-            {!courseData.summary && (
+            {isFillForm.summary === false && (
               <p className="absolute text-[#9B2FAC] text-sm mt-1">
                 Please fill out this field
               </p>
@@ -494,19 +509,18 @@ export const AddCourse = () => {
                 value={courseData.detail}
                 onChange={handleInputChange}
                 placeholder="Enter detailed information about the course"
-                required
                 rows="6"
                 className={`w-full mt-1 px-4 py-3 border-1 rounded-[8px] ${
-                  !courseData.detail
+                  isFillForm.detail === false
                     ? "border-[#9B2FAC] focus:border-[#9B2FAC] focus:outline-none"
                     : "border-[#D6D9E4] focus:border-[#F47E20] focus:outline-none"
                 }`}
               />
               <div className="absolute right-3 top-5 text-[#9B2FAC]">
-                {!courseData.detail && <AlertIcon />}
+                {isFillForm.detail === false && <AlertIcon />}
               </div>
             </div>
-            {!courseData.detail && (
+            {isFillForm.detail === false && (
               <p className="absolute text-[#9B2FAC] text-sm mt-1">
                 Please fill out this field
               </p>
@@ -540,7 +554,6 @@ export const AddCourse = () => {
                       className="hidden"
                       accept="image/*"
                       onChange={handleImageFileChange}
-                      required
                     />
                   </button>
                   {uploadError.image && (
@@ -549,7 +562,7 @@ export const AddCourse = () => {
                       less than 5 MB.
                     </p>
                   )}
-                  {isUpload.image === false && uploadError.image === false ? (
+                  {isFillForm.image === false && uploadError.image === false ? (
                     <p className="absolute text-[#9B2FAC] text-sm mt-1">
                       Upload the cover image is required.
                     </p>
@@ -601,16 +614,16 @@ export const AddCourse = () => {
                       className="hidden"
                       accept="video/*"
                       onChange={handleVideoFileChange}
-                      required
                     />
                   </button>
-                  {uploadError.video && (
+                  {uploadError.videoTrailer && (
                     <p className="absolute text-[#9B2FAC] text-sm mt-1">
                       Upload failed. Ensure the file is .mp4, .mov, .avi and
                       less than 20 MB.
                     </p>
                   )}
-                  {isUpload.video === false && uploadError.video === false ? (
+                  {isFillForm.videoTrailer === false &&
+                  uploadError.videoTrailer === false ? (
                     <p className="absolute text-[#9B2FAC] text-sm mt-1">
                       Upload the video trailer is required.
                     </p>
