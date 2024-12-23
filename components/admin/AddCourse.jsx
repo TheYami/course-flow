@@ -98,7 +98,7 @@ export const AddCourse = () => {
     setCourseData("image", null);
     setPreviewData("image", null);
     setPreviewData("imageName", "");
-    setIsUpload((prevState) => ({
+    setIsFillForm((prevState) => ({
       ...prevState,
       image: false,
     }));
@@ -132,9 +132,9 @@ export const AddCourse = () => {
     setCourseData("videoTrailer", null);
     setPreviewData("videoTrailer", null);
     setPreviewData("videoTrailerName", "");
-    setIsUpload((prevState) => ({
+    setIsFillForm((prevState) => ({
       ...prevState,
-      video: false,
+      videoTrailer: false,
     }));
   };
 
