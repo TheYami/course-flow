@@ -8,13 +8,14 @@ export default async function handler(req, res) {
       `SELECT 
           c.course_id, 
           c.course_name, 
-          c.summary,
+          c.summary, 
           (SELECT COUNT(*) FROM lessons l WHERE l.course_id = c.course_id) AS lessons_count,
           c.total_time,
-          c.image_file
-          FROM courses c
-          JOIN subscriptions s ON s.course_id = c.course_id
-          WHERE s.user_id = $1`,
+          c.image_file,
+          p.progress_status
+       FROM courses c
+       JOIN progress p ON p.course_id = c.course_id
+       WHERE p.user_id = $1`,
       [user_id]
     );
     res.status(200).json(result.rows);
