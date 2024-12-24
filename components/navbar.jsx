@@ -130,7 +130,9 @@ export default function Navbar() {
               {boxMenu && (
                 <div ref={menuRef} className="rounded-lg absolute top-16 left-[-106px] lg:top-12 md:left-[-95px] lg:left-[45px] z-50 pt-2 bg-white w-[198px] shadow-lg">
                   <ul className="flex flex-col gap-2 py-2 px-3.5">
-                    <li className="cursor-pointer hover:bg-gray-300 p-1 rounded-md" onClick={() => router.push('/profile')}>
+                    <li 
+                      className="cursor-pointer hover:bg-gray-300 p-1 rounded-md" 
+                      onClick={() => router.push('/profile')}>
                       <div className="flex gap-3 items-center">
                         <svg width="12" height="15" viewBox="0 0 12 15" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M8.50031 3.5C8.50031 4.16304 8.23692 4.79893 7.76808 5.26777C7.29924 5.73661 6.66335 6 6.00031 6C5.33727 6 4.70138 5.73661 4.23254 5.26777C3.7637 4.79893 3.50031 4.16304 3.50031 3.5C3.50031 2.83696 3.7637 2.20107 4.23254 1.73223C4.70138 1.26339 5.33727 1 6.00031 1C6.66335 1 7.29924 1.26339 7.76808 1.73223C8.23692 2.20107 8.50031 2.83696 8.50031 3.5V3.5ZM1.00098 12.912C1.0224 11.6002 1.55854 10.3494 2.49376 9.42936C3.42899 8.50929 4.68837 7.99365 6.00031 7.99365C7.31225 7.99365 8.57163 8.50929 9.50686 9.42936C10.4421 10.3494 10.9782 11.6002 10.9996 12.912C9.43124 13.6312 7.72574 14.0023 6.00031 14C4.21631 14 2.52298 13.6107 1.00098 12.912Z" stroke="#8DADE0" stroke-linecap="round" stroke-linejoin="round"/>
@@ -140,7 +142,9 @@ export default function Navbar() {
                       </div>
                     </li>
 
-                    <li className="cursor-pointer hover:bg-gray-300 p-1 rounded-md">
+                    <li 
+                      onClick={()=> router.push('/mycourse')}
+                      className="cursor-pointer hover:bg-gray-300 p-1 rounded-md">
                       <div className="flex gap-3 items-center">
                         <svg width="14" height="13" viewBox="0 0 14 13" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M7 2.52801C5.90107 1.54224 4.47626 0.997968 3 1.00001C2.29867 1.00001 1.62533 1.12001 1 1.34134V10.8413C1.64241 10.6147 2.31878 10.4993 3 10.5C4.53667 10.5 5.93867 11.078 7 12.028M7 2.52801C8.09889 1.54219 9.52372 0.997905 11 1.00001C11.7013 1.00001 12.3747 1.12001 13 1.34134V10.8413C12.3576 10.6147 11.6812 10.4993 11 10.5C9.52374 10.498 8.09893 11.0422 7 12.028M7 2.52801V12.028" stroke="#8DADE0" stroke-linecap="round" stroke-linejoin="round"/>
