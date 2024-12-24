@@ -23,6 +23,13 @@ const QrScanWindow = React.memo(function QrScanWindow() {
 
   useEffect(() => {
     if (hasFetchedRef.current) return;
+    
+    if (!userData) {
+      setError("User data not available yet");
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -35,7 +42,7 @@ const QrScanWindow = React.memo(function QrScanWindow() {
           const response = await axios.post("/api/payment/createPromptpayUrl", {
             courseId,
             amount,
-            userId,
+            userId:userData.id,
           });
           if (response.data.url) {
             setCheckoutUrl(response.data.url);
