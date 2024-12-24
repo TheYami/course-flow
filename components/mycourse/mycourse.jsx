@@ -14,7 +14,6 @@ export default function MyCourse() {
   const [allCourses, setAllCourses] = useState([]);
   const [inProgressCourses, setInProgressCourses] = useState([]);
   const [completedCourses, setCompletedCourses] = useState([]);
-  console.log(allCourses);
 
   useEffect(() => {
     if (userData) {
@@ -45,6 +44,10 @@ export default function MyCourse() {
       fetchCourses();
     }
   }, [userData]);
+
+  console.log("all",allCourses)
+  console.log("in progress", inProgressCourses)
+  console.log("complete", completedCourses)
 
   useEffect(() => {
     if (selectedTab === "all" ) {
@@ -111,7 +114,7 @@ export default function MyCourse() {
           {/* Cards Layout - Flexbox to adapt to screen size */}
           <div className="w-full xl:w-2/3 flex flex-wrap justify-center xl:justify-start xl:grid xl:grid-cols-2 xl:place-items-end gap-y-8 gap-x-6 xl:gap-y-10">
             {courses.map((course) => (
-              <MyCourseCard key={course.course_id} course={course} />
+              <MyCourseCard course={course} />
             ))}
           </div>
         </div>
