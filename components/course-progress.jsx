@@ -7,6 +7,7 @@ import axios from "axios";
 import { useRouter } from "next/router";
 
 export default function CourseProgress({ slug }) {
+export default function CourseProgress({ slug }) {
   const [progress, setProgress] = useState(0);
   //fetch from suapbase
   const [subcribeCoursesData, setSubscribeCoursesData] = useState([]);
