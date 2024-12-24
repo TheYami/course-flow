@@ -6,7 +6,7 @@ import AssignmentForm from "./mycourse/assignment-form";
 import axios from "axios";
 import { useRouter } from "next/router";
 
-export default function CourseProgress({slug}) {
+export default function CourseProgress({ slug }) {
   const [progress, setProgress] = useState(0);
   //fetch from suapbase
   const [subcribeCoursesData, setSubscribeCoursesData] = useState([]);
@@ -102,9 +102,6 @@ export default function CourseProgress({slug}) {
   const handleLessonClick = (lesson, index) => {
     setSelectedSubLesson(lesson);
     setSelectedSubLessonIndex(index);
-  const handleLessonClick = (lesson, index) => {
-    setSelectedSubLesson(lesson);
-    setSelectedSubLessonIndex(index);
 
     if (learningSectionRef.current) {
       learningSectionRef.current.scrollIntoView({ behavior: "smooth" });
@@ -165,8 +162,9 @@ export default function CourseProgress({slug}) {
       element.scrollIntoView({ behavior: "smooth" });
     }
   };
+  console.log(slug);
 
-  return (
+  return subcribeCoursesData && subcribeCoursesData.length > 0 ? (
     <>
       <div className="flex flex-col items-center md:flex-row md:justify-center md:items-start gap-3">
         {/* Left Section */}
@@ -366,5 +364,10 @@ export default function CourseProgress({slug}) {
           Next Lesson
         </button>
       </div>
-  </>;
+    </>
+  ) : (
+    <div className="flex items-center justify-center h-full">
+      <p className="text-sm text-gray-500">Loading course information...</p>
+    </div>
+  );
 }
