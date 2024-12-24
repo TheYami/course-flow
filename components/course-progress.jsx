@@ -12,110 +12,8 @@ export default function CourseProgress({ slug }) {
   const [subcribeCoursesData, setSubscribeCoursesData] = useState([]);
   const [lessonsData, setLessonsData] = useState([]);
   const [subLessonData, setSubLessonData] = useState([]);
-  //mockup data
-  // const [sections, setSections] = useState([
-  //   {
-  //     id: 1,
-  //     title: "Introduction",
-  //     lessons: [
-  //       {
-  //         subtitle: "4 Levels of Service Design in an Organization",
-  //         imgurl: "/assets/icon/none.png",
-  //         videourl: "/assets/image/mockupvideo.png",
-  //         status: "Pending", // เพิ่มสถานะเริ่มต้น
-  //         answer: "", // เก็บคำตอบของแต่ละ lesson
-  //       },
-  //       {
-  //         subtitle: "5 Levels of Service Design in an Organization",
-  //         imgurl: "/assets/icon/complete.png",
-  //         videourl: "/assets/image/mockupvideo.png",
-  //         status: "Pending",
-  //         answer: "",
-  //       },
-  //       {
-  //         subtitle: "6 Levels of Service Design in an Organization",
-  //         imgurl: "/assets/icon/ongoing.png",
-  //         videourl: "/assets/image/mockupvideo.png",
-  //         status: "Pending",
-  //         answer: "",
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "Service Design Theories and Principles",
-  //     lessons: [
-  //       {
-  //         subtitle: "7 Levels of Service Design in an Organization",
-  //         imgurl: "/assets/icon/ongoing.png",
-  //         videourl: "/assets/image/mockupvideo.png",
-  //         status: "Pending",
-  //         answer: "",
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     id: 3,
-  //     title: "Understanding Users and Finding Opportunities",
-  //     lessons: [
-  //       {
-  //         subtitle: "8 Levels of Service Design in an Organization",
-  //         imgurl: "/assets/icon/none.png",
-  //         videourl: "/assets/image/mockupvideo.png",
-  //         status: "Pending",
-  //         answer: "",
-  //       },
-  //       {
-  //         subtitle: "9 Levels of Service Design in an Organization",
-  //         imgurl: "/assets/icon/complete.png",
-  //         videourl: "/assets/image/mockupvideo.png",
-  //         status: "Pending",
-  //         answer: "",
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     id: 4,
-  //     title: "Identifying and Validating Opportunities for Design",
-  //     lessons: [
-  //       {
-  //         subtitle: "10 Levels of Service Design in an Organization",
-  //         imgurl: "/assets/icon/ongoing.png",
-  //         videourl: "/assets/image/mockupvideo.png",
-  //         status: "Pending",
-  //         answer: "",
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     id: 5,
-  //     title: "Prototyping",
-  //     lessons: [
-  //       {
-  //         subtitle: "11 Levels of Service Design in an Organization",
-  //         imgurl: "/assets/icon/ongoing.png",
-  //         videourl: "/assets/image/mockupvideo.png",
-  //         status: "Pending",
-  //         answer: "",
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     id: 6,
-  //     title: "Course Summary",
-  //     lessons: [
-  //       {
-  //         subtitle: "12 Levels of Service Design in an Organization",
-  //         imgurl: "/assets/icon/ongoing.png",
-  //         videourl: "/assets/image/mockupvideo.png",
-  //         status: "Pending",
-  //         answer: "",
-  //       },
-  //     ],
-  //   },
-  // ]);
-  const [selectedLesson, setSelectedLesson] = useState(null);
-  const [selectedLessonIndex, setSelectedLessonIndex] = useState(null); // เก็บตำแหน่งของ selectedLesson
+  const [selectedSubLesson, setSelectedSubLesson] = useState(null);
+  const [selectedSubLessonIndex, setSelectedSubLessonIndex] = useState(null); // เก็บตำแหน่งของ selectedLesson
   const learningSectionRef = useRef(null);
   const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
@@ -204,86 +102,40 @@ export default function CourseProgress({ slug }) {
   const handleLessonClick = (lesson, index) => {
     setSelectedSubLesson(lesson);
     setSelectedSubLessonIndex(index);
+  const handleLessonClick = (lesson, index) => {
+    setSelectedSubLesson(lesson);
+    setSelectedSubLessonIndex(index);
 
-  //   if (learningSectionRef.current) {
-  //     learningSectionRef.current.scrollIntoView({ behavior: "smooth" });
-  //   }
-  // };
-
-  const handleNextLesson = () => {
-    if (selectedSubLessonIndex !== null && selectedSubLesson !== null) {
-      const currentCourse = subscribeCoursesData.find((course) =>
-        course.lessons.some((lesson) =>
-          lesson.sub_lessons.includes(selectedSubLesson)
-        )
-      );
-
-      if (currentCourse) {
-        const currentLesson = currentCourse.lessons.find((lesson) =>
-          lesson.sub_lessons.includes(selectedSubLesson)
-        );
-
-        const nextIndex = selectedSubLessonIndex + 1;
-
-        if (currentLesson && nextIndex < currentLesson.sub_lessons.length) {
-          setSelectedSubLesson(currentLesson.sub_lessons[nextIndex]);
-          setSelectedSubLessonIndex(nextIndex);
-        } else {
-          const currentLessonIndex =
-            currentCourse.lessons.indexOf(currentLesson);
-          if (currentLessonIndex + 1 < currentCourse.lessons.length) {
-            const nextLesson = currentCourse.lessons[currentLessonIndex + 1];
-            setSelectedSubLesson(nextLesson.sub_lessons[0]);
-            setSelectedSubLessonIndex(0);
-          }
-        }
-      }
+    if (learningSectionRef.current) {
+      learningSectionRef.current.scrollIntoView({ behavior: "smooth" });
     }
   };
 
   const handlePreviousLesson = () => {
-    if (selectedSubLessonIndex !== null && selectedSubLesson !== null) {
-      const currentCourse = subscribeCoursesData.find((course) =>
-        course.lessons.some((lesson) =>
-          lesson.sub_lessons.includes(selectedSubLesson)
-        )
-      );
-
-      if (currentCourse) {
-        const currentLesson = currentCourse.lessons.find((lesson) =>
-          lesson.sub_lessons.includes(selectedSubLesson)
-        );
-
-        const previousIndex = selectedSubLessonIndex - 1;
-
-        if (currentLesson && previousIndex >= 0) {
-          setSelectedSubLesson(currentLesson.sub_lessons[previousIndex]);
-          setSelectedSubLessonIndex(previousIndex);
-        } else {
-          const currentLessonIndex =
-            currentCourse.lessons.indexOf(currentLesson);
-          if (currentLessonIndex - 1 >= 0) {
-            const previousLesson =
-              currentCourse.lessons[currentLessonIndex - 1];
-            setSelectedSubLesson(
-              previousLesson.sub_lessons[previousLesson.sub_lessons.length - 1]
-            );
-            setSelectedSubLessonIndex(previousLesson.sub_lessons.length - 1);
-          }
-        }
-      }
+    if (selectedSubLessonIndex > 0) {
+      const previousLesson = selectedSubLesson
+        .flatMap((section) => section.lessons)
+        .find((_, index) => index === selectedSubLessonIndex - 1);
+      setSelectedSubLesson(previousLesson);
+      setSelectedSubLessonIndex(selectedSubLessonIndex - 1);
     }
   };
+  console.log(selectedSubLesson);
+  console.log(subcribeCoursesData);
+  console.log(subcribeCoursesData[0]);
 
-  console.log(subscribeCoursesData); //ข้อมูลที่ user subscribe แต่ละคอร์ส
-  console.log(selectedSubLesson); //ข้อมูลของ sub-lesson ที่ถูกเลือก
-  console.log(selectedSubLessonIndex); //เก็บตำแหน่งของ index ของ sub_lesson ที่ถูกเลือก
-
-  //update progress
-  const handleCompleteAssignment = () => {
-    setProgress((prev) => Math.min(prev + 10, 100));
+  const handleNextLesson = () => {
+    const totalSubLessons = subcribeCoursesData[0]?.lessons.sub_lessons.flatMap((lesson) => lesson.sub_lessons).length;
+    
+    if (selectedSubLessonIndex < totalSubLessons - 1) {
+      // คำนวณ sub-lesson ถัดไป
+      const nextSubLesson = subcribeCoursesData[0]?.lessons
+        .flatMap((lesson) => lesson.sub_lessons)
+        [selectedSubLessonIndex + 1]; // หาค่าบทเรียนถัดไปจาก index
+      setSelectedSubLesson(nextSubLesson);
+      setSelectedSubLessonIndex(selectedSubLessonIndex + 1); // อัปเดต index
+    }
   };
-
   //auto scroll to learning section
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
@@ -304,8 +156,9 @@ export default function CourseProgress({ slug }) {
       element.scrollIntoView({ behavior: "smooth" });
     }
   };
+  console.log(slug);
 
-  return (
+  return subcribeCoursesData && subcribeCoursesData.length > 0 ? (
     <>
       <div className="flex flex-col items-center md:flex-row md:justify-center md:items-start gap-3">
         {/* Left Section */}
@@ -318,7 +171,7 @@ export default function CourseProgress({ slug }) {
               {subscribeCoursesData[0]?.course_name || "No Course Name"}
             </h1>
             <h2 className="text-xs font-normal">
-              {subscribeCoursesData[0]?.summary || "No Summary Available"}
+              {subcribeCoursesData[0]?.summary || "No Summary Available"}
             </h2>
           </div>
 
@@ -337,8 +190,8 @@ export default function CourseProgress({ slug }) {
 
           {/* Course Sections */}
           <div className="flex flex-col items-center">
-            {subscribeCoursesData[0]?.lessons?.length > 0 ? (
-              subscribeCoursesData[0].lessons.map((lesson, lessonIndex) => (
+            {subcribeCoursesData[0]?.lessons?.length > 0 ? (
+              subcribeCoursesData[0].lessons.map((lesson, lessonIndex) => (
                 <div
                   key={lesson.lesson_id || lessonIndex}
                   className="mb-4 w-full"
@@ -457,8 +310,9 @@ export default function CourseProgress({ slug }) {
                 <video
                   className="w-[343px] lg:w-[739px]"
                   controls
+                  autoPlay
+                  loop
                   muted
-                  onEnded={handleVideoEnd} // เรียกฟังก์ชันเมื่อวิดีโอเล่นจบ
                 >
                   <source src={selectedSubLesson.video} type="video/mp4" />
                   Your browser does not support the video tag.
@@ -489,17 +343,25 @@ export default function CourseProgress({ slug }) {
         <button
           className="text-[#2F5FAC] font-semibold xl:ml-10 2xl:ml-64"
           onClick={handlePreviousLesson}
-          disabled={!selectedSubLesson}
+          disabled={selectedSubLessonIndex === 0}
         >
           Previous Lesson
         </button>
         <button
           className="bg-[#2F5FAC] w-[161px] h-[60px] rounded-xl text-white font-semibold mt-3 2xl:mr-52"
           onClick={handleNextLesson}
-          disabled={!selectedSubLesson}
+          disabled={
+            selectedSubLessonIndex ===
+            subcribeCoursesData.flatMap((section) => section.lessons).length - 1
+          }
         >
           Next Lesson
         </button>
       </div>
-  </>;
+    </>
+  ) : (
+    <div className="flex items-center justify-center h-full">
+      <p className="text-sm text-gray-500">Loading course information...</p>
+    </div>
+  );
 }
