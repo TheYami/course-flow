@@ -1,7 +1,17 @@
 import Image from "next/image";
 import failedIcon from "@/assets/icons/payment-icons/payment-failed-icon.svg";
+import { useRouter } from "next/router";
 
 export default function PaymentFailedCard() {
+  const router = useRouter();
+  const {courseId} = router.query
+
+  const handleBackToPayment = () => {
+    if (courseId) {
+      router.push(`/course/${courseId}`);
+    }
+  };
+
   return (
     <div className="payment-successfull-card flex flex-col items-center rounded-[8px] gap-8 p-10 shadow-[4px_4px_24px_0px_rgba(0,0,0,0.08)] xl:w-[739px]">
       <div className="alert-part flex flex-col gap-6 items-center justify-center">
@@ -19,6 +29,7 @@ export default function PaymentFailedCard() {
         <div
           className="w-full text-center text-white bg-[#2F5FAC] font-[500] px-8 py-[18px] rounded-[12px]"
           type="button"
+          onClick={handleBackToPayment}
         >
           Back to Payment
         </div>

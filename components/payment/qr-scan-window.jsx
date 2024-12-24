@@ -20,7 +20,6 @@ const QrScanWindow = React.memo(function QrScanWindow() {
   const router = useRouter();
 
   const { courseId, amount } = router.query;
-  console.log("CourseId from query params:", courseId);
 
   useEffect(() => {
     if (hasFetchedRef.current) return;
