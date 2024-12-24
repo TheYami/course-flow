@@ -1,12 +1,18 @@
-import { useState } from "react";
+import { useState,useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from 'next/router'
 
 export default function SubscriptionFloat({ course }) {
+
+  const router = useRouter()
+  
+  const {slug} = router.query
+
   const [showButton, setShowButton] = useState(false);
   
    const formatPrice = (price) => {
      return price.toLocaleString("en-US");
    };
-
 
   // ตรวจสอบว่า course มีค่าหรือไม่
   if (!course) {
@@ -17,6 +23,7 @@ export default function SubscriptionFloat({ course }) {
     );
   }
 
+  console.log("slug float is: ", slug);
   return (
     <div className="subscription-float  w-full lg:w-[357px] px-4 lg:px-6 flex flex-col gap-2 py-3 bg-white">
       {/* course label */}
@@ -110,9 +117,9 @@ export default function SubscriptionFloat({ course }) {
         <button className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-white border border-orange-500 text-orange-500 shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-0 flex-grow">
           Add to Wishlist
         </button>
-        <button className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-[#2F5FAC] text-white shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-1 flex-grow">
+        <Link href={`/course/${slug}/payment`}  className="box-border no-underline lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-[#2F5FAC] text-white shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-1 flex-grow">
           Subscribe This Course
-        </button>
+        </Link>
       </div>
     </div>
   );

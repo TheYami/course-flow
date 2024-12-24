@@ -170,7 +170,7 @@ export default function CourseDetail() {
         <CourseList />
       </div>
       <div className="sub-float-mobile sticky bottom-0 lg:hidden">
-        <SubscritonFloat course={course} />
+          <SubscritonFloat course={course} slug={slug}/>
       </div>
       <div className="">
         <Checkout />
