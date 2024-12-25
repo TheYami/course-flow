@@ -115,14 +115,6 @@ export default function CourseProgress({ slug }) {
       setSelectedSubLessonIndex(selectedSubLessonIndex + 1); // อัปเดต index
     }
   };
-  //auto scroll to learning section
-  const scrollToSection = (id) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-  };
-
   //update progress
   const handleCompleteAssignment = () => {
     setProgress((prev) => Math.min(prev + 10, 100));
