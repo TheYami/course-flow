@@ -22,10 +22,8 @@ export default function App({ Component, pageProps }) {
     <CourseProvider>
       <LessonProvider>
         <Elements stripe={stripePromise}>
-          (
           <Component {...pageProps} />
         </Elements>
-        )
       </LessonProvider>
     </CourseProvider>
   );
