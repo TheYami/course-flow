@@ -27,7 +27,8 @@ export const AddCourse = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
   const [lessonToDelete, setLessonToDelete] = useState([]);
-  const { lessonData, deleteLesson, addLessonIdToEdit } = useLesson();
+  const { lessonData, deleteLesson, addLessonIdToEdit, resetLessonData } =
+    useLesson();
   const [uploadError, setUploadError] = useState({
     image: false,
     videoTrailer: false,
@@ -41,6 +42,7 @@ export const AddCourse = () => {
     detail: null,
     image: null,
     videoTrailer: null,
+    lessonData: null,
   });
 
   const handleAddLesson = () => {
@@ -52,7 +54,7 @@ export const AddCourse = () => {
     setCourseData(name, value);
     setIsFillForm((prev) => ({
       ...prev,
-      [name]: Boolean(value), // true ถ้ามีค่า, false ถ้าไม่มีค่า
+      [name]: true,
     }));
   };
 
@@ -96,10 +98,6 @@ export const AddCourse = () => {
     setCourseData("image", null);
     setPreviewData("image", null);
     setPreviewData("imageName", "");
-    setIsFillForm((prevState) => ({
-      ...prevState,
-      image: false,
-    }));
   };
 
   const handleVideoFileChange = (e) => {
@@ -130,10 +128,6 @@ export const AddCourse = () => {
     setCourseData("videoTrailer", null);
     setPreviewData("videoTrailer", null);
     setPreviewData("videoTrailerName", "");
-    setIsFillForm((prevState) => ({
-      ...prevState,
-      videoTrailer: false,
-    }));
   };
 
   const handleOptionalFileChange = (e) => {
@@ -185,9 +179,11 @@ export const AddCourse = () => {
     const updatedState = {};
     Object.keys(courseData).forEach((key) => {
       if (key !== "file") {
-        updatedState[key] = Boolean(courseData[key]); // true ถ้ามีค่า, false ถ้าไม่มี
+        updatedState[key] = Boolean(courseData[key]);
       }
     });
+    updatedState.lessonData = lessonData && lessonData.length >= 1;
+
     setIsFillForm(updatedState);
   };
 
@@ -289,6 +285,7 @@ export const AddCourse = () => {
 
   const handleCancel = () => {
     handleResetAll();
+    resetLessonData();
     router.push("/admin/course_list");
   };
 
@@ -729,10 +726,10 @@ export const AddCourse = () => {
             <tr>{renderTableHeaders()}</tr>
           </thead>
           <tbody className="bg-[#FFFFFF]">
-            {lessonData.length === 0 ? (
-              <tr>
-                <td colSpan="8" className="text-center text-[#6B7280]">
-                  lesson Not Found !
+            {isFillForm.lessonData === false ? (
+              <tr className="border-1 border-[#9B2FAC]">
+                <td colSpan="8" className="text-center text-[#9B2FAC]">
+                  You must have at least one lesson. !
                 </td>
               </tr>
             ) : (

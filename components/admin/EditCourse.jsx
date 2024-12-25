@@ -486,7 +486,6 @@ const EditCourse = () => {
                         placeholder="Enter detailed information about the course"
                         required
                         rows="6"
-                        c
                         className={`w-full mt-1 px-4 py-3 border-1 rounded-[8px] ${
                           !formValues.detail
                             ? "border-[#9B2FAC] focus:border-[#9B2FAC] focus:outline-none"
