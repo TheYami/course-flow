@@ -219,6 +219,9 @@ export const EditLesson = ({ lessonId }) => {
   };
   
 
+  const isFormValid =
+    lessonName && subLessonData.every((subLesson) => subLesson.subLessonName);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoadingData(true);

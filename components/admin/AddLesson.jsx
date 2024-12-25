@@ -4,6 +4,11 @@ import {
   DragIcon,
   AlertIcon,
 } from "@/assets/icons/admin_icon/adminIcon";
+import {
+  ArrowBack,
+  DragIcon,
+  AlertIcon,
+} from "@/assets/icons/admin_icon/adminIcon";
 import { useRouter } from "next/router";
 import axios from "axios";
 
@@ -116,6 +121,7 @@ export const AddLesson = ({ courseId }) => {
           ),
         }));
       } else {
+        setVideoUploadError(true);
         setVideoUploadError(true);
       }
     }
