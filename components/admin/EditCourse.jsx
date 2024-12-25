@@ -9,7 +9,7 @@ import {
 } from "@/assets/icons/admin_icon/adminIcon";
 import { EditCourseLessonTable } from "./EditCourseLessonTable";
 
-const EditCourse = () => {
+const EditCoursePage = () => {
   const router = useRouter();
   const { courseId } = router.query;
   const [courseName, setCourseName] = useState(null);
@@ -20,7 +20,6 @@ const EditCourse = () => {
     summary: "",
     detail: "",
     price: 0,
-    totalTime: 0,
     image: "",
     video: "",
     document: "",
@@ -38,6 +37,12 @@ const EditCourse = () => {
   const [isUpload, setIsUpload] = useState({
     image: false,
     video: false,
+  });
+  const [isFillForm, setIsFillForm] = useState({
+    course_name: null,
+    summary: null,
+    detail: null,
+    price: null,
   });
 
   useEffect(() => {
@@ -83,16 +88,21 @@ const EditCourse = () => {
     }
   };
 
-  const isFormValid =
-    formValues.course_name &&
-    formValues.summary &&
-    formValues.detail &&
-    formValues.price &&
-    formValues.totalTime;
+  const validateForm = () => {
+    const updatedState = {};
+    Object.keys(formValues).forEach((key) => {
+      updatedState[key] = Boolean(formValues[key]);
+    });
+    setIsFillForm(updatedState);
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormValues((prev) => ({ ...prev, [name]: value }));
+    setIsFillForm((prev) => ({
+      ...prev,
+      [name]: true,
+    }));
   };
 
   const handleClickUploadImage = () => {
@@ -263,6 +273,15 @@ const EditCourse = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoadingData(true);
+
+    validateForm();
+    const isValid = Object.values(isFillForm).every((value) => value === true);
+
+    if (!isValid) {
+      setLoadingData(false);
+      return;
+    }
+
     try {
       const storedToken = localStorage.getItem(
         "sb-iyzmaaubmvzitbqdicbe-auth-token"
@@ -342,12 +361,7 @@ const EditCourse = () => {
             <button
               type="submit"
               onClick={handleSubmit}
-              disabled={!isFormValid}
-              className={`${
-                isFormValid
-                  ? "bg-[#2F5FAC] hover:bg-white hover:text-[#2F5FAC] hover:border hover:border-[#2F5FAC] text-[#FFFFFF]"
-                  : "bg-[#D3D8E5] text-[#9AA1B9]"
-              } px-6 py-3 rounded-lg font-semibold`}
+              className="bg-[#2F5FAC] hover:bg-white hover:text-[#2F5FAC] hover:border hover:border-[#2F5FAC] text-[#FFFFFF] px-6 py-3 rounded-lg font-semibold"
             >
               Edit
             </button>
@@ -377,16 +391,16 @@ const EditCourse = () => {
                         placeholder="Enter the course name"
                         required
                         className={`w-full mt-1 px-4 py-3 border-1 rounded-[8px] ${
-                          !formValues.course_name
+                          isFillForm.course_name === false
                             ? "border-[#9B2FAC] focus:border-[#9B2FAC] focus:outline-none"
                             : "border-[#D6D9E4] focus:border-[#F47E20] focus:outline-none"
                         }`}
                       />
                       <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#9B2FAC]">
-                        {!formValues.course_name && <AlertIcon />}
+                        {isFillForm.course_name === false && <AlertIcon />}
                       </div>
                     </div>
-                    {!formValues.course_name && (
+                    {isFillForm.course_name === false && (
                       <p className="absolute text-[#9B2FAC] text-sm mt-1">
                         Please fill out this field
                       </p>
@@ -405,16 +419,16 @@ const EditCourse = () => {
                           placeholder="Enter the price in THB"
                           required
                           className={`w-full mt-1 px-4 py-3 border-1 rounded-[8px] ${
-                            !formValues.price
+                            isFillForm.price === false
                               ? "border-[#9B2FAC] focus:border-[#9B2FAC] focus:outline-none"
                               : "border-[#D6D9E4] focus:border-[#F47E20] focus:outline-none"
                           }`}
                         />
                         <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#9B2FAC]">
-                          {!formValues.price && <AlertIcon />}
+                          {isFillForm.price === false && <AlertIcon />}
                         </div>
                       </div>
-                      {!formValues.price && (
+                      {isFillForm.price === false && (
                         <p className="absolute text-[#9B2FAC] text-sm mt-1">
                           Please fill out this field
                         </p>
@@ -432,15 +446,15 @@ const EditCourse = () => {
                           placeholder="Enter the total learning time in hours"
                           required
                           className={`w-full mt-1 px-4 py-3 border-1 rounded-[8px] ${
-                            !formValues.totalTime
+                            isFillForm.totalTime === false
                               ? "border-[#9B2FAC] focus:border-[#9B2FAC] focus:outline-none"
                               : "border-[#D6D9E4] focus:border-[#F47E20] focus:outline-none"
                           }`}
                         />
                         <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#9B2FAC]">
-                          {!formValues.totalTime && <AlertIcon />}
+                          {isFillForm.totalTime === false && <AlertIcon />}
                         </div>
-                        {!formValues.totalTime && (
+                        {isFillForm.totalTime === false && (
                           <p className="absolute text-[#9B2FAC] text-sm mt-1">
                             Please fill out this field
                           </p>
@@ -460,16 +474,16 @@ const EditCourse = () => {
                         required
                         rows="2"
                         className={`w-full mt-1 px-4 py-3 border-1 rounded-[8px] ${
-                          !formValues.summary
+                          isFillForm.summary === false
                             ? "border-[#9B2FAC] focus:border-[#9B2FAC] focus:outline-none"
                             : "border-[#D6D9E4] focus:border-[#F47E20] focus:outline-none"
                         }`}
                       />
                       <div className="absolute right-3 top-5 text-[#9B2FAC]">
-                        {!formValues.summary && <AlertIcon />}
+                        {isFillForm.summary === false && <AlertIcon />}
                       </div>
                     </div>
-                    {!formValues.summary && (
+                    {isFillForm.summary === false && (
                       <p className="absolute text-[#9B2FAC] text-sm mt-1">
                         Please fill out this field
                       </p>
@@ -487,16 +501,16 @@ const EditCourse = () => {
                         required
                         rows="6"
                         className={`w-full mt-1 px-4 py-3 border-1 rounded-[8px] ${
-                          !formValues.detail
+                          isFillForm.detail === false
                             ? "border-[#9B2FAC] focus:border-[#9B2FAC] focus:outline-none"
                             : "border-[#D6D9E4] focus:border-[#F47E20] focus:outline-none"
                         }`}
                       />
                       <div className="absolute right-3 top-5 text-[#9B2FAC]">
-                        {!formValues.detail && <AlertIcon />}
+                        {isFillForm.detail === false && <AlertIcon />}
                       </div>
                     </div>
-                    {!formValues.detail && (
+                    {isFillForm.detail === false && (
                       <p className="absolute text-[#9B2FAC] text-sm mt-1">
                         Please fill out this field
                       </p>
@@ -753,4 +767,4 @@ const EditCourse = () => {
   );
 };
 
-export default EditCourse;
+export default EditCoursePage;
