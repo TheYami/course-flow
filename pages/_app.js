@@ -5,7 +5,6 @@ import "@/styles/globals.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import { useEffect } from "react";
 import { LessonProvider } from "@/contexts/LessonContext";
 import { CourseProvider } from "@/contexts/CourseContext";
 
