@@ -70,7 +70,7 @@ export const EditLesson = ({ lessonId }) => {
     const { name, value } = e.target;
     setSubLessonData((prev) =>
       prev.map((subLesson, i) =>
-        i === index ? { ...subLesson, [name]: true } : subLesson
+        i === index ? { ...subLesson, [name]: value } : subLesson
       )
     );
   

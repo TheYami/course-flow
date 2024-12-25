@@ -22,6 +22,7 @@ export default async function handler(req, res) {
         FROM lessons AS l
         LEFT JOIN courses AS c ON l.course_id = c.course_id
         WHERE l.course_id = $1
+        ORDER BY l.created_at ASC
       `;
       const values = [courseId];
 

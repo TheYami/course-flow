@@ -38,6 +38,7 @@ export default async function handler(req, res) {
             ) AS lesson_count
           FROM courses AS c
           WHERE c.course_id = $1
+          ORDER BY c.created_at ASC
         `;
         values = [courseId];
       } else {
