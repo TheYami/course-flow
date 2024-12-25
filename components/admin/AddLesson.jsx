@@ -18,8 +18,10 @@ export const AddLesson = ({ courseId }) => {
   const [videoUploadError, setVideoUploadError] = useState(false);
   const [isFillForm, setIsFillForm] = useState({
     lessonName: null,
-    subLessonName: null,
-    videoUrl: null,
+    subLessons: subLessonData.map(() => ({
+      subLessonName: null,
+      videoUrl: null,
+    })),
   });
 
   useEffect(() => {
@@ -45,7 +47,7 @@ export const AddLesson = ({ courseId }) => {
     setLessonName(value);
     setIsFillForm((prev) => ({
       ...prev,
-      lessonName: Boolean(value),
+      lessonName: true,
     }));
   };
 
@@ -58,7 +60,9 @@ export const AddLesson = ({ courseId }) => {
     );
     setIsFillForm((prev) => ({
       ...prev,
-      [name]: Boolean(value),
+      subLessons: prev.subLessons.map((subLesson, i) =>
+        i === index ? { ...subLesson, [name]: true } : subLesson
+      ),
     }));
   };
 
@@ -67,11 +71,20 @@ export const AddLesson = ({ courseId }) => {
       ...prev,
       { subLessonName: "", videoUrl: "", videoPreview: "" },
     ]);
+
+    setIsFillForm((prev) => ({
+      ...prev,
+      subLessons: [...prev.subLessons, { subLessonName: null, videoUrl: null }],
+    }));
   };
 
   const deleteSubLesson = (index) => {
     if (subLessonData.length > 1) {
       setSubLessonData((prev) => prev.filter((_, i) => i !== index));
+      setIsFillForm((prev) => ({
+        ...prev,
+        subLessons: prev.subLessons.filter((_, idx) => idx !== index),
+      }));
     } else {
       alert("You must have at least one sub-lesson.");
     }
@@ -98,7 +111,9 @@ export const AddLesson = ({ courseId }) => {
         );
         setIsFillForm((prev) => ({
           ...prev,
-          videoUrl: true,
+          subLessons: prev.subLessons.map((subLesson, i) =>
+            i === index ? { ...subLesson, videoUrl: true } : subLesson
+          ),
         }));
       } else {
         setVideoUploadError(true);
@@ -114,27 +129,33 @@ export const AddLesson = ({ courseId }) => {
           : subLesson
       )
     );
+
     setIsFillForm((prev) => ({
       ...prev,
-      videoUrl: false,
+      subLessons: prev.subLessons.map((subLesson, i) =>
+        i === index ? { ...subLesson, videoUrl: null } : subLesson
+      ),
     }));
   };
 
   const validateForm = () => {
     const isLessonNameValid = Boolean(lessonName);
-
-    const isSubLessonValid = subLessonData.every(
-      (subLesson) =>
-        Boolean(subLesson.subLessonName) && Boolean(subLesson.videoUrl)
-    );
-
+  
+    const updatedSubLessons = subLessonData.map((subLesson) => ({
+      subLessonName: Boolean(subLesson.subLessonName),
+      videoUrl: Boolean(subLesson.videoPreview),
+    }));
+  
     setIsFillForm({
       lessonName: isLessonNameValid,
-      subLessonName: isSubLessonValid,
-      videoUrl: isSubLessonValid,
+      subLessons: updatedSubLessons,
     });
-
-    return isLessonNameValid && isSubLessonValid;
+  
+    const isSubLessonsValid = updatedSubLessons.every(
+      (subLesson) => subLesson.subLessonName && subLesson.videoUrl
+    );
+  
+    return isLessonNameValid && isSubLessonsValid;
   };
 
   const uploadToCloudinary = async (file, preset = "unSigned") => {
@@ -321,15 +342,15 @@ export const AddLesson = ({ courseId }) => {
                         onChange={(e) => handleSubLessonInput(index, e)}
                         placeholder="Enter sub-lesson name"
                         className={`w-9/12 px-4 py-3 border-1 rounded-[8px] ${
-                          isFillForm.subLessonName === false
+                          isFillForm.subLessons[index]?.subLessonName === false
                             ? "border-[#9B2FAC] focus:border-[#9B2FAC] focus:outline-none"
                             : "border-[#D6D9E4] focus:border-[#F47E20] focus:outline-none"
                         } `}
                       />
                       <div className="absolute right-80 top-1/2 transform -translate-y-1/2 text-[#9B2FAC]">
-                        {isFillForm.subLessonName === false && <AlertIcon />}
+                        {isFillForm.subLessons[index]?.subLessonName === false && <AlertIcon />}
                       </div>
-                      {isFillForm.subLessonName === false && (
+                      {isFillForm.subLessons[index]?.subLessonName === false && (
                         <p className="absolute text-[#9B2FAC] text-sm mt-1">
                           Please fill out this field
                         </p>
@@ -364,7 +385,7 @@ export const AddLesson = ({ courseId }) => {
                               and less than 20 MB.
                             </p>
                           )}
-                          {isFillForm.videoUrl === false &&
+                          {isFillForm.subLessons[index]?.videoUrl === false &&
                           videoUploadError === false ? (
                             <p className="absolute text-[#9B2FAC] text-sm mt-1">
                               Upload the video trailer is required.
