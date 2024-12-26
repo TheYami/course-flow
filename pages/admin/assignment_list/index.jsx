@@ -131,7 +131,7 @@ const AdminPanelAssignments = () => {
         <AdminHeaderbar
           title="Assignments"
           buttonLabel="+ Add Assignment"
-          apiEndpoint="/api/assignments"
+          navigatePath="/admin/add_assignment"
           onSearch={handleSearch}
         />
         <div className="p-6">

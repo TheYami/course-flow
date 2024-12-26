@@ -1,18 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import arrowDropdown from "../../assets/icons/admin_icon/arrow_dropdown.svg";
 
-const Dropdown = ({ options, label, placeholder, onSelect, value, idKey, nameKey }) => {
+const Dropdown = ({
+  datas,
+  label,
+  placeholder,
+  onSelect,
+  value,
+  idKey,
+  nameKey,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState(value || "");
 
+  useEffect(() => {
+    if (value && typeof value === "object" && value[idKey]) {
+      setSelected(value);
+    } else {
+      setSelected(value || "");
+    }
+  }, [value, idKey]);
+
   const toggleDropdown = () => setIsOpen(!isOpen);
 
-  const handleSelect = (optionValue) => {
-    setSelected(optionValue);
+  const handleSelect = (dataValue) => {
+    setSelected(dataValue);
     setIsOpen(false);
     if (onSelect) {
-      onSelect(optionValue);
+      onSelect(dataValue);
     }
   };
 
@@ -25,23 +41,23 @@ const Dropdown = ({ options, label, placeholder, onSelect, value, idKey, nameKey
         className="cursor-pointer border-[1px] border-[#D6D9E4] pr-4 pl-3 py-3 rounded-[8px] mt-1 bg-white text-[#9AA1B9] flex items-center justify-between"
         onClick={toggleDropdown}
       >
-        <span>{selected || placeholder}</span>
+        <span>{selected[nameKey] || placeholder}</span>
         <Image src={arrowDropdown} alt="dropdown arrow" />
       </div>
 
       {isOpen && (
         <div
-          className="absolute w-full bg-white border rounded-md shadow-md mt-1 z-10"
+          className="absolute w-full bg-white border rounded-md shadow-md mt-1 z-10 max-h-[200px] overflow-y-auto"
           role="listbox"
         >
-          {options.map((option) => (
+          {datas.map((data) => (
             <div
-              key={option[idKey]}  
+              key={data[idKey]}
               className="cursor-pointer p-2 hover:bg-gray-100"
-              onClick={() => handleSelect(option[idKey])}  
-              role="option"
+              onClick={() => handleSelect(data)}
+              role="data"
             >
-              {option[nameKey]}  
+              {data[nameKey]}
             </div>
           ))}
         </div>

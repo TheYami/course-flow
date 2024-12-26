@@ -1,43 +1,34 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Dropdown from "./Dropdown";
 import axios from "axios";
-import Image from "next/image";
-import loadingIcon from "../../assets/icons/admin_icon/loading_icon.gif";
 import { useRouter } from "next/router";
 
 const AddAssignment = () => {
+  const router = useRouter()
+
   const [selectedCourse, setSelectedCourse] = useState("");
   const [selectedLesson, setSelectedLesson] = useState("");
   const [selectedSubLesson, setSelectedSubLesson] = useState("");
   const [assignment, setAssignment] = useState("");
 
-  const courses = [
-    { value: "course1", label: "Course 1" },
-    { value: "course2", label: "Course 2" },
-    { value: "course3", label: "Course 3" },
-    { value: "course4", label: "Course 4" },
-  ];
+  const [courses, setCourses] = useState([]);
+  const [lessons, setLessons] = useState([]);
+  const [subLessons, setSubLessons] = useState([]);
 
-  const lessons = [
-    { value: "lesson1", label: "lesson 1" },
-    { value: "lesson2", label: "lesson 2" },
-    { value: "lesson3", label: "lesson 3" },
-    { value: "lesson4", label: "lesson 4" },
-  ];
-
-  const subLessons = [
-    { value: "sub-lesson1", label: "sub-lesson 1" },
-    { value: "sub-lesson2", label: "sub-lesson 2" },
-    { value: "sub-lesson3", label: "sub-lesson 3" },
-    { value: "sub-lesson4", label: "sub-lesson 4" },
-  ];
+  const [loadingCourses, setLoadingCourses] = useState(true);
+  const [loadingLessons, setLoadingLessons] = useState(false);
+  const [loadingSubLessons, setLoadingSubLessons] = useState(false);
+  const [createLoading, setCreateLoading] = useState(false)
 
   const handleCourseSelect = (courseValue) => {
     setSelectedCourse(courseValue);
+    setSelectedLesson("");
+    setSelectedSubLesson("");
   };
 
   const handleLessonSelect = (lessonValue) => {
     setSelectedLesson(lessonValue);
+    setSelectedSubLesson("");
   };
 
   const handleSubLessonSelect = (subLessonValue) => {
@@ -48,16 +39,89 @@ const AddAssignment = () => {
     setAssignment(e.target.value);
   };
 
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const response = await axios.get("/api/admin/fetch_course_name"); 
+        setCourses(response.data); 
+        setLoadingCourses(false);
+      } catch (error) {
+        console.error("Failed to fetch courses:", error);
+        setLoadingCourses(false);
+      }
+    };
+    fetchCourses();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedCourse) return; 
+    const fetchLessons = async () => {
+      setLoadingLessons(true);
+      try {
+        const response = await axios.get(`/api/admin/fetch_lesson_name_with_courseId?courseId=${selectedCourse.course_id}`);
+        setLessons(response.data); 
+        setLoadingLessons(false);
+      } catch (error) {
+        console.error("Failed to fetch lessons:", error);
+        setLoadingLessons(false);
+      }
+    };
+    fetchLessons();
+  }, [selectedCourse]);
+
+  useEffect(() => {
+    if (!selectedLesson) return; 
+
+    const fetchSubLessons = async () => {
+      setLoadingSubLessons(true);
+      try {
+        const response = await axios.get(`/api/admin/fetch_subLesson_name_with_lessonId?lessonId=${selectedLesson.lesson_id}`);
+        setSubLessons(response.data);
+        setLoadingSubLessons(false);
+      } catch (error) {
+        console.error("Failed to fetch sub-lessons:", error);
+        setLoadingSubLessons(false);
+      }
+    };
+
+    fetchSubLessons();
+  }, [selectedLesson]);
+  
+  const handleSubmit = async (e) => {
+    e.preventDefault(); 
+    setCreateLoading(true); 
+
+    const data = {
+      subLessonId: selectedSubLesson.sub_lesson_id,
+      assignment: assignment
+    };
+
+    try {
+      const response = await axios.post("/api/admin/post_assignment", data);  
+      if (response.status === 200) {
+        setCreateLoading(false); 
+        router.push("/admin/assignment_list");
+      }
+    } catch (error) {
+      console.error("Error creating assignment:", error);
+      setCreateLoading(false);
+    }
+  };
+
+  const handleCancel = () => {
+    router.push("/admin/assignment_list");
+  };
+
   return (
     <form
       className="add-course-page bg-[#F6F7FC] w-full"
-      // onSubmit={}
+      onSubmit={handleSubmit}
     >
       <header className="top-bar flex justify-between items-center h-[92px] px-10 py-4 bg-white border-b-[1px] border-[#D6D9E4]">
         <h1 className="text-[24px] font-[500]">Add Assignment</h1>
         <div className="button flex gap-4">
           <button
-            // onClick={}
+            onClick={handleCancel}
             type="button"
             className="cancel-button w-[120px] h-[60px] px-8 py-[18px] text-[#F47E20] font-[700] border border-[#F47E20] rounded-[12px]"
           >
@@ -66,25 +130,28 @@ const AddAssignment = () => {
           <button
             type="submit"
             className="create-button w-[120px] h-[60px] px-8 py-[18px] text-[#FFFFFF] bg-[#2F5FAC] font-[700] rounded-[12px] flex justify-center items-center"
-            // disabled={isLoading}
           >
             Create
           </button>
         </div>
       </header>
-
+      {createLoading ? (
+            <div className="absolute inset-0 bg-[#FFFFFF] bg-opacity-80 flex items-center justify-center z-10">
+              <div className="loader border-t-4 border-[#2F5FAC] w-12 h-12 rounded-full animate-spin"></div>
+            </div>
+          ) : (
       <div className="main-card bg-white px-[100px] pt-[40px] pb-[60px] m-10 border-[1px] border-[#E6E7EB] rounded-[16px]">
         <div className="course-selected-part flex flex-col gap-10 border-b-[1px] border-[#D6D9E4] pb-10">
           <div className="flex flex-rol gap-10 justify-between items-center">
             <div className="w-full">
               <Dropdown
                 label="Course"
-                options={courses}
+                datas={courses}
                 placeholder="Please select a course"
                 value={selectedCourse}
                 onSelect={handleCourseSelect}
-                idKey="value" 
-                nameKey="label"
+                idKey="course_id" 
+                nameKey="course_name"
               />
             </div>
             <div className="w-full"></div>
@@ -93,23 +160,23 @@ const AddAssignment = () => {
             <div className="w-full">
               <Dropdown
                 label="Lesson"
-                options={lessons}
+                datas={lessons}
                 placeholder="Please select a lesson"
                 value={selectedLesson}
                 onSelect={handleLessonSelect}
-                idKey="value" 
-                nameKey="label"
+                idKey="lesson_id" 
+                nameKey="lesson_name"
               />
             </div>
             <div className="w-full">
               <Dropdown
                 label="Sub-lesson"
-                options={subLessons}
+                datas={subLessons}
                 placeholder="Please select a sub-lesson"
                 value={selectedSubLesson}
                 onSelect={handleSubLessonSelect}
-                idKey="value" 
-                nameKey="label"
+                idKey="sub_lesson_id" 
+                nameKey="sub_lesson_name"
               />
             </div>
           </div>
@@ -131,7 +198,7 @@ const AddAssignment = () => {
             />
           </div>
         </div>
-      </div>
+      </div>)}
     </form>
   );
 };
