@@ -83,6 +83,8 @@ const AddAssignment = () => {
                 placeholder="Please select a course"
                 value={selectedCourse}
                 onSelect={handleCourseSelect}
+                idKey="value" 
+                nameKey="label"
               />
             </div>
             <div className="w-full"></div>
@@ -95,6 +97,8 @@ const AddAssignment = () => {
                 placeholder="Please select a lesson"
                 value={selectedLesson}
                 onSelect={handleLessonSelect}
+                idKey="value" 
+                nameKey="label"
               />
             </div>
             <div className="w-full">
@@ -104,6 +108,8 @@ const AddAssignment = () => {
                 placeholder="Please select a sub-lesson"
                 value={selectedSubLesson}
                 onSelect={handleSubLessonSelect}
+                idKey="value" 
+                nameKey="label"
               />
             </div>
           </div>
@@ -115,9 +121,7 @@ const AddAssignment = () => {
           </div>
 
           <div className="flex flex-col gap-1 justify-center">
-            <label htmlFor="assignmentInput">
-              Assignment *
-            </label>
+            <label htmlFor="assignmentInput">Assignment *</label>
             <input
               id="assignmentInput"
               value={assignment}
