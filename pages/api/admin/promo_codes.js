@@ -28,7 +28,7 @@ export default async function handler(req, res) {
         FROM promo_codes AS pmc
         LEFT JOIN courses AS c ON pmc.course_id = c.course_id
         ${code ? "WHERE pmc.code ILIKE $1" : ""}
-        ORDER BY pmc.promo_code_id
+        ORDER BY created_at ASC
         LIMIT $${code ? 2 : 1} OFFSET $${code ? 3 : 2};
       `;
       const values = code
