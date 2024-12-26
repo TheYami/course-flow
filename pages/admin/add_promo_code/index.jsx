@@ -204,7 +204,7 @@ const AdminPanelAddPromoCode = () => {
                   {course.course_name}
                 </li>
               ))}
-            </ul>
+            </>
           )}
         </div>
       )}
