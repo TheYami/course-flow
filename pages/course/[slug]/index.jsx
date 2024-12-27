@@ -130,7 +130,7 @@ export default function CourseDetail() {
                         {course.detail}
                       </p>
                     </div>
-                    <div className="attach-file flex flex-col gap-6 w-5/6 md:w-2/3 mt-2">
+                    {isSubscribe?  <div className="attach-file flex flex-col gap-6 w-5/6 md:w-2/3 mt-2">
                       <h2 className="text-2xl lg:text-4xl m-0">Attach File</h2>
                       <div className="file flex gap-3 bg-[#E5ECF8] rounded-lg py-4 px-4">
                         <div className="file-left">
@@ -164,7 +164,8 @@ export default function CourseDetail() {
                           <FileSizeDisplay fileUrl={course.document_file} />
                         </div>
                       </div>
-                    </div>
+                    </div>: null}
+                   
 
                     {/* accordion */}
                     <div className="accordion w-full h-fit mt-8  lg:mb-9 pb-4 ">
