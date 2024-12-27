@@ -50,10 +50,8 @@ const AdminPanelAddPromoCode = () => {
   const handleToggleCourse = (course) => {
     if (course.course_name === "All courses") {
       if (isAllCourseSelected) {
-        // Unselect "All courses" and clear selected courses
         setSelectedCourses([]);
       } else {
-        // Select "All courses" and clear other selected courses
         setSelectedCourses([
           {
             course_id: allCourses[0].course_id,
@@ -63,22 +61,16 @@ const AdminPanelAddPromoCode = () => {
       }
       setIsAllCourseSelected(!isAllCourseSelected);
     } else {
-      // Handle selection of other courses
       setSelectedCourses((prevSelectedCourses) => {
-        // If course is already selected, unselect it
         if (prevSelectedCourses.some((c) => c.course_id === course.course_id)) {
           return prevSelectedCourses.filter(
             (c) => c.course_id !== course.course_id
           );
         } else {
-          // If course is not selected, select it
           const updatedCourses = [...prevSelectedCourses, course];
-
-          // Remove "All courses" if it's selected
           return updatedCourses.filter((c) => c.course_name !== "All courses");
         }
       });
-      // If "All courses" is selected, unselect it
       if (isAllCourseSelected) {
         setIsAllCourseSelected(false);
       }
@@ -107,7 +99,7 @@ const AdminPanelAddPromoCode = () => {
     disabled,
   }) => (
     <div className="flex flex-col">
-      <label className="mb-2 font-medium text-[#424C6B]">{label}</label>
+      <label className="mb-2 font-medium">{label}</label>
       <input
         type={type}
         placeholder={placeholder}
@@ -146,7 +138,7 @@ const AdminPanelAddPromoCode = () => {
           ) : (
             selectedCourses.map((course) =>
               isAllCourseSelected ? (
-                <div className="text-[#000000]">All courses</div>
+                <div>All courses</div>
               ) : (
                 <div
                   key={course.course_id}
@@ -237,24 +229,42 @@ const AdminPanelAddPromoCode = () => {
               ))}
             </div>
 
-            <div className="grid grid-cols-2 gap-x-12 items-center mb-8">
-              {["fixed", "percent"].map((type) => (
-                <FormField
-                  key={type}
-                  label={
-                    type === "fixed" ? "Fixed amount (THB)" : "Percent (%)"
-                  }
-                  placeholder={type === "fixed" ? "THB" : "Percent"}
-                  type="number"
-                  value={type === "fixed" ? fixedAmount : percent}
-                  onChange={(e) =>
-                    type === "fixed"
-                      ? setFixedAmount(e.target.value)
-                      : setPercent(e.target.value)
-                  }
-                  disabled={discountType !== type}
-                />
-              ))}
+            <div className="flex flex-col gap-y-2 mb-8">
+              <label className="font-medium ">
+                Select discount type
+              </label>
+              <div className="flex items-center gap-x-96">
+                {["fixed", "percent"].map((type) => (
+                  <div key={type} className="flex items-center gap-x-2 text-[#424C6B]">
+                    <input
+                      type="radio"
+                      id={`discount-${type}`}
+                      name="discountType"
+                      checked={discountType === type}
+                      onChange={() => setDiscountType(type)}
+                      className="h-4 w-4 cursor-pointer"
+                    />
+                    <label
+                      htmlFor={`discount-${type}`}
+                      className="text-sm font-medium"
+                    >
+                      {type === "fixed" ? "Fixed amount (THB)" : "Percent (%)"}
+                    </label>
+                    <input
+                      type="number"
+                      placeholder={type === "fixed" ? "THB" : "Percent"}
+                      value={type === "fixed" ? fixedAmount : percent}
+                      onChange={(e) =>
+                        type === "fixed"
+                          ? setFixedAmount(e.target.value)
+                          : setPercent(e.target.value)
+                      }
+                      disabled={discountType !== type}
+                      className="border border-gray-300 rounded px-2 py-1 w-24 disabled:bg-gray-100"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
 
             <CourseDropdown
