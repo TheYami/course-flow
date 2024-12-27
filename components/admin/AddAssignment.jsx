@@ -4,7 +4,7 @@ import axios from "axios";
 import { useRouter } from "next/router";
 
 const AddAssignment = () => {
-  const router = useRouter()
+  const router = useRouter();
 
   const [selectedCourse, setSelectedCourse] = useState("");
   const [selectedLesson, setSelectedLesson] = useState("");
@@ -18,7 +18,7 @@ const AddAssignment = () => {
   const [loadingCourses, setLoadingCourses] = useState(true);
   const [loadingLessons, setLoadingLessons] = useState(false);
   const [loadingSubLessons, setLoadingSubLessons] = useState(false);
-  const [createLoading, setCreateLoading] = useState(false)
+  const [createLoading, setCreateLoading] = useState(false);
 
   const handleCourseSelect = (courseValue) => {
     setSelectedCourse(courseValue);
@@ -42,8 +42,8 @@ const AddAssignment = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await axios.get("/api/admin/fetch_course_name"); 
-        setCourses(response.data); 
+        const response = await axios.get("/api/admin/fetch_course_name");
+        setCourses(response.data);
         setLoadingCourses(false);
       } catch (error) {
         console.error("Failed to fetch courses:", error);
@@ -54,12 +54,14 @@ const AddAssignment = () => {
   }, []);
 
   useEffect(() => {
-    if (!selectedCourse) return; 
+    if (!selectedCourse) return;
     const fetchLessons = async () => {
       setLoadingLessons(true);
       try {
-        const response = await axios.get(`/api/admin/fetch_lesson_name_with_courseId?courseId=${selectedCourse.course_id}`);
-        setLessons(response.data); 
+        const response = await axios.get(
+          `/api/admin/fetch_lesson_name_with_courseId?courseId=${selectedCourse.course_id}`
+        );
+        setLessons(response.data);
         setLoadingLessons(false);
       } catch (error) {
         console.error("Failed to fetch lessons:", error);
@@ -70,12 +72,14 @@ const AddAssignment = () => {
   }, [selectedCourse]);
 
   useEffect(() => {
-    if (!selectedLesson) return; 
+    if (!selectedLesson) return;
 
     const fetchSubLessons = async () => {
       setLoadingSubLessons(true);
       try {
-        const response = await axios.get(`/api/admin/fetch_subLesson_name_with_lessonId?lessonId=${selectedLesson.lesson_id}`);
+        const response = await axios.get(
+          `/api/admin/fetch_subLesson_name_with_lessonId?lessonId=${selectedLesson.lesson_id}`
+        );
         setSubLessons(response.data);
         setLoadingSubLessons(false);
       } catch (error) {
@@ -86,20 +90,20 @@ const AddAssignment = () => {
 
     fetchSubLessons();
   }, [selectedLesson]);
-  
+
   const handleSubmit = async (e) => {
-    e.preventDefault(); 
-    setCreateLoading(true); 
+    e.preventDefault();
+    setCreateLoading(true);
 
     const data = {
       subLessonId: selectedSubLesson.sub_lesson_id,
-      assignment: assignment
+      assignment: assignment,
     };
 
     try {
-      const response = await axios.post("/api/admin/post_assignment", data);  
+      const response = await axios.post("/api/admin/post_assignment", data);
       if (response.status === 200) {
-        setCreateLoading(false); 
+        setCreateLoading(false);
         router.push("/admin/assignment_list");
       }
     } catch (error) {
@@ -136,69 +140,70 @@ const AddAssignment = () => {
         </div>
       </header>
       {createLoading ? (
-            <div className="absolute inset-0 bg-[#FFFFFF] bg-opacity-80 flex items-center justify-center z-10">
-              <div className="loader border-t-4 border-[#2F5FAC] w-12 h-12 rounded-full animate-spin"></div>
+        <div className="absolute inset-0 bg-[#FFFFFF] bg-opacity-80 flex items-center justify-center z-10">
+          <div className="loader border-t-4 border-[#2F5FAC] w-12 h-12 rounded-full animate-spin"></div>
+        </div>
+      ) : (
+        <div className="main-card bg-white px-[100px] pt-[40px] pb-[60px] m-10 border-[1px] border-[#E6E7EB] rounded-[16px]">
+          <div className="course-selected-part flex flex-col gap-10 border-b-[1px] border-[#D6D9E4] pb-10">
+            <div className="flex flex-rol gap-10 justify-between items-center">
+              <div className="w-full">
+                <Dropdown
+                  label="Course"
+                  datas={courses}
+                  placeholder="Please select a course"
+                  value={selectedCourse}
+                  onSelect={handleCourseSelect}
+                  idKey="course_id"
+                  nameKey="course_name"
+                />
+              </div>
+              <div className="w-full"></div>
             </div>
-          ) : (
-      <div className="main-card bg-white px-[100px] pt-[40px] pb-[60px] m-10 border-[1px] border-[#E6E7EB] rounded-[16px]">
-        <div className="course-selected-part flex flex-col gap-10 border-b-[1px] border-[#D6D9E4] pb-10">
-          <div className="flex flex-rol gap-10 justify-between items-center">
-            <div className="w-full">
-              <Dropdown
-                label="Course"
-                datas={courses}
-                placeholder="Please select a course"
-                value={selectedCourse}
-                onSelect={handleCourseSelect}
-                idKey="course_id" 
-                nameKey="course_name"
-              />
+            <div className="flex flex-rol gap-10 justify-between items-center">
+              <div className="w-full">
+                <Dropdown
+                  label="Lesson"
+                  datas={lessons}
+                  placeholder="Please select a lesson"
+                  value={selectedLesson}
+                  onSelect={handleLessonSelect}
+                  idKey="lesson_id"
+                  nameKey="lesson_name"
+                />
+              </div>
+              <div className="w-full">
+                <Dropdown
+                  label="Sub-lesson"
+                  datas={subLessons}
+                  placeholder="Please select a sub-lesson"
+                  value={selectedSubLesson}
+                  onSelect={handleSubLessonSelect}
+                  idKey="sub_lesson_id"
+                  nameKey="sub_lesson_name"
+                />
+              </div>
             </div>
-            <div className="w-full"></div>
           </div>
-          <div className="flex flex-rol gap-10 justify-between items-center">
-            <div className="w-full">
-              <Dropdown
-                label="Lesson"
-                datas={lessons}
-                placeholder="Please select a lesson"
-                value={selectedLesson}
-                onSelect={handleLessonSelect}
-                idKey="lesson_id" 
-                nameKey="lesson_name"
-              />
+
+          <div className="assignment-part flex flex-col gap-10">
+            <div className="text-[#646D89] text-[20px] font-[600] mt-10">
+              Assignment detail
             </div>
-            <div className="w-full">
-              <Dropdown
-                label="Sub-lesson"
-                datas={subLessons}
-                placeholder="Please select a sub-lesson"
-                value={selectedSubLesson}
-                onSelect={handleSubLessonSelect}
-                idKey="sub_lesson_id" 
-                nameKey="sub_lesson_name"
+
+            <div className="flex flex-col gap-1 justify-center">
+              <label htmlFor="assignmentInput">Assignment *</label>
+              <input
+                id="assignmentInput"
+                value={assignment}
+                onChange={handleAssignmentChange}
+                placeholder=""
+                className="border-[1px] border-[#D6D9E4] rounded-[8px] py-3 pr-4 pl-3"
               />
             </div>
           </div>
         </div>
-
-        <div className="assignment-part flex flex-col gap-10">
-          <div className="text-[#646D89] text-[20px] font-[600] mt-10">
-            Assignment detail
-          </div>
-
-          <div className="flex flex-col gap-1 justify-center">
-            <label htmlFor="assignmentInput">Assignment *</label>
-            <input
-              id="assignmentInput"
-              value={assignment}
-              onChange={handleAssignmentChange}
-              placeholder=""
-              className="border-[1px] border-[#D6D9E4] rounded-[8px] py-3 pr-4 pl-3"
-            />
-          </div>
-        </div>
-      </div>)}
+      )}
     </form>
   );
 };

@@ -41,7 +41,7 @@ const Dropdown = ({
         className="cursor-pointer border-[1px] border-[#D6D9E4] pr-4 pl-3 py-3 rounded-[8px] mt-1 bg-white text-[#9AA1B9] flex items-center justify-between"
         onClick={toggleDropdown}
       >
-        <span>{selected[nameKey] || placeholder}</span>
+        <span className={`${selected ? 'text-black' : ''}`}>{selected[nameKey] || placeholder}</span>
         <Image src={arrowDropdown} alt="dropdown arrow" />
       </div>
 
