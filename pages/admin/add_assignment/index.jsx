@@ -15,7 +15,7 @@ const AddAssignmentPage = () => {
 
   return (
     <div className="flex">
-      {/* <Sidebar /> */}
+      <Sidebar />
       <AddAssignment />
     </div>
   );

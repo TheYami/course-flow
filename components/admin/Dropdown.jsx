@@ -10,6 +10,9 @@ const Dropdown = ({
   value,
   idKey,
   nameKey,
+  borderColor,
+  disabled,
+  errorMessage,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState(value || "");
@@ -34,18 +37,24 @@ const Dropdown = ({
 
   return (
     <div className="relative">
-      {/* Label */}
       <label className="block mb-1">{label}</label>
 
       <div
-        className="cursor-pointer border-[1px] border-[#D6D9E4] pr-4 pl-3 py-3 rounded-[8px] mt-1 bg-white text-[#9AA1B9] flex items-center justify-between"
+        className={`cursor-pointer border-[1px] pr-4 pl-3 py-3 rounded-[8px] mt-1 bg-white text-[#9AA1B9] flex items-center justify-between 
+          ${borderColor ? `border-[${borderColor}]` : "border-[#D6D9E4]"}`}
         onClick={toggleDropdown}
       >
-        <span className={`${selected ? 'text-black' : ''}`}>{selected[nameKey] || placeholder}</span>
+        <span className={`${selected ? "text-black" : ""} `}>
+          {selected[nameKey] || placeholder}
+        </span>
         <Image src={arrowDropdown} alt="dropdown arrow" />
       </div>
 
-      {isOpen && (
+      {errorMessage && (
+        <div className="text-[#9B2FAC] text-sm mt-1">{errorMessage}</div>
+      )}
+
+      {isOpen && !disabled && (
         <div
           className="absolute w-full bg-white border rounded-md shadow-md mt-1 z-10 max-h-[200px] overflow-y-auto"
           role="listbox"

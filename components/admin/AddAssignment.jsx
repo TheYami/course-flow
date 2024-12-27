@@ -20,19 +20,50 @@ const AddAssignment = () => {
   const [loadingSubLessons, setLoadingSubLessons] = useState(false);
   const [createLoading, setCreateLoading] = useState(false);
 
+  const [courseError, setCourseError] = useState("");
+  const [lessonError, setLessonError] = useState("");
+  const [subLessonError, setSubLessonError] = useState("");
+  const [assignmentError, setAssignmentError] = useState("");
+
   const handleCourseSelect = (courseValue) => {
     setSelectedCourse(courseValue);
     setSelectedLesson("");
     setSelectedSubLesson("");
+    setCourseError("");
   };
 
   const handleLessonSelect = (lessonValue) => {
     setSelectedLesson(lessonValue);
     setSelectedSubLesson("");
+    setLessonError("");
   };
 
   const handleSubLessonSelect = (subLessonValue) => {
     setSelectedSubLesson(subLessonValue);
+    setSubLessonError("");
+  };
+
+  const handleLessonClick = () => {
+    if (!selectedCourse) {
+      setCourseError("!! Please select a course");
+      setLessonError("");
+      return;
+    }
+  };
+
+  const handleSubLessonClick = () => {
+    if (!selectedCourse) {
+      setCourseError("!! Please select a course");
+      setLessonError("");
+      setSubLessonError("");
+      return;
+    }
+    if (!selectedLesson) {
+      setLessonError("!! Please select a lesson");
+      setSubLessonError("");
+      setCourseError("");
+      return;
+    }
   };
 
   const handleAssignmentChange = (e) => {
@@ -95,19 +126,44 @@ const AddAssignment = () => {
     e.preventDefault();
     setCreateLoading(true);
 
-    const data = {
-      subLessonId: selectedSubLesson.sub_lesson_id,
-      assignment: assignment,
-    };
+    if (!selectedCourse) {
+      setCourseError("!! Please select a course");
+      setLessonError("!! Please select a lesson");
+      setSubLessonError("!! Please select a sub-lesson");
+    }
+    if (selectedCourse && !selectedLesson) {
+      setLessonError("!! Please select a lesson");
+      setSubLessonError("!! Please select a sub-lesson");
+    }
+    if (selectedCourse && selectedLesson && !selectedSubLesson) {
+      setSubLessonError("!! Please select a sub-lesson");
+    }
+    if (!assignment) {
+      setAssignmentError("!! Please fill an assignment");
+    }
 
-    try {
-      const response = await axios.post("/api/admin/post_assignment", data);
-      if (response.status === 200) {
+    if (
+      selectedCourse &&
+      selectedLesson &&
+      selectedSubLesson &&
+      assignment !== ""
+    ) {
+      const data = {
+        subLessonId: selectedSubLesson.sub_lesson_id,
+        assignment: assignment,
+      };
+
+      try {
+        const response = await axios.post("/api/admin/post_assignment", data);
+        if (response.status === 200) {
+          setCreateLoading(false);
+          router.push("/admin/assignment_list");
+        }
+      } catch (error) {
+        console.error("Error creating assignment:", error);
         setCreateLoading(false);
-        router.push("/admin/assignment_list");
       }
-    } catch (error) {
-      console.error("Error creating assignment:", error);
+    } else {
       setCreateLoading(false);
     }
   };
@@ -115,6 +171,9 @@ const AddAssignment = () => {
   const handleCancel = () => {
     router.push("/admin/assignment_list");
   };
+  console.log("course error", courseError);
+  console.log("lesson error", lessonError);
+  console.log("sub-lesson error", subLessonError);
 
   return (
     <form
@@ -156,11 +215,13 @@ const AddAssignment = () => {
                   onSelect={handleCourseSelect}
                   idKey="course_id"
                   nameKey="course_name"
+                  borderColor={courseError ? "#9B2FAC" : ""}
+                  errorMessage={courseError}
                 />
               </div>
               <div className="w-full"></div>
             </div>
-            <div className="flex flex-rol gap-10 justify-between items-center">
+            <div className="flex flex-rol gap-10 justify-between" onClick={handleLessonClick}>
               <div className="w-full">
                 <Dropdown
                   label="Lesson"
@@ -170,9 +231,13 @@ const AddAssignment = () => {
                   onSelect={handleLessonSelect}
                   idKey="lesson_id"
                   nameKey="lesson_name"
+                  borderColor={lessonError ? "#9B2FAC" : ""}
+                  errorMessage={lessonError}
+                  disabled={!selectedCourse}
                 />
               </div>
-              <div className="w-full">
+
+              <div className="w-full" onClick={handleSubLessonClick}>
                 <Dropdown
                   label="Sub-lesson"
                   datas={subLessons}
@@ -181,6 +246,9 @@ const AddAssignment = () => {
                   onSelect={handleSubLessonSelect}
                   idKey="sub_lesson_id"
                   nameKey="sub_lesson_name"
+                  borderColor={subLessonError ? "#9B2FAC" : ""}
+                  errorMessage={subLessonError}
+                  disabled={!selectedLesson}
                 />
               </div>
             </div>
@@ -198,8 +266,12 @@ const AddAssignment = () => {
                 value={assignment}
                 onChange={handleAssignmentChange}
                 placeholder=""
-                className="border-[1px] border-[#D6D9E4] rounded-[8px] py-3 pr-4 pl-3"
+                className={`border-[1px]  rounded-[8px] py-3 pr-4 pl-3
+                  ${assignmentError ? "border-[#9B2FAC]" : "border-[#D6D9E4]"}`}
               />
+              {assignmentError && (
+                <div className="text-[#9B2FAC]">{assignmentError}</div>
+              )}
             </div>
           </div>
         </div>
