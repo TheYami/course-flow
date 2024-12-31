@@ -166,7 +166,7 @@ const AdminPanelAddPromoCode = () => {
           ) : error ? (
             <div className="p-4 text-[#ff2e2e]">{error}</div>
           ) : (
-            <>
+            <ul className=" max-h-60 overflow-y-auto">
               {allCourses.map((course, index) => (
                 <li
                   key={index}
@@ -183,7 +183,7 @@ const AdminPanelAddPromoCode = () => {
                   {course.course_name}
                 </li>
               ))}
-            </>
+            </ul>
           )}
         </div>
       )}
