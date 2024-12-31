@@ -19,6 +19,14 @@ const AdminPanelAddPromoCode = () => {
   const { loading } = useAdminAuth();
   const [isAllCourseSelected, setIsAllCourseSelected] = useState(false);
   const router = useRouter();
+  const [formData, setFormData] = useState({
+    promoCode: "",
+    minimumPurchase: "",
+    discountType: "fixed",
+    fixedAmount: "",
+    percent: "",
+  });
+  
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -46,6 +54,15 @@ const AdminPanelAddPromoCode = () => {
     };
     fetchCourses();
   }, [loading]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
+  
 
   const handleToggleCourse = (course) => {
     if (course.course_name === "All courses") {
@@ -190,6 +207,26 @@ const AdminPanelAddPromoCode = () => {
     </div>
   );
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const payload = {
+      promoCode: formData.promoCode,
+      minimumPurchase: formData.minimumPurchase,
+      discountType: formData.discountType,
+      discountValue:
+        formData.discountType === "fixed"
+          ? formData.fixedAmount
+          : formData.percent,
+      selectedCourses: selectedCourses.map((course) => course.course_id),
+    };
+  }
+
+
+
+
+
+  
+
   const handleCancle = () => {
     router.push("/admin/promo_code");
   };
@@ -217,66 +254,63 @@ const AdminPanelAddPromoCode = () => {
           </div>
         </div>
         <div className="pt-4">
-          <form className="bg-[#FFFFFF] shadow-md rounded-xl py-10 px-32 mx-20">
-            <div className="grid grid-cols-2 gap-x-12 mb-8">
-              {formFields.map((field, index) => (
-                <FormField
-                  key={index}
-                  label={field.label}
-                  placeholder={field.placeholder}
-                  type={field.type}
-                />
-              ))}
-            </div>
+        <form onSubmit={handleSubmit} className="bg-[#FFFFFF] shadow-md rounded-xl py-10 px-32 mx-20">
+  <div className="grid grid-cols-2 gap-x-12 mb-8">
+    {formFields.map((field, index) => (
+      <FormField
+        key={index}
+        label={field.label}
+        placeholder={field.placeholder}
+        type={field.type}
+        value={formData[field.name]}
+        onChange={handleInputChange}
+        name={field.name}
+      />
+    ))}
+  </div>
 
-            <div className="flex flex-col gap-y-2 mb-8">
-              <label className="font-medium ">
-                Select discount type
-              </label>
-              <div className="flex items-center gap-x-96">
-                {["fixed", "percent"].map((type) => (
-                  <div key={type} className="flex items-center gap-x-2 text-[#424C6B]">
-                    <input
-                      type="radio"
-                      id={`discount-${type}`}
-                      name="discountType"
-                      checked={discountType === type}
-                      onChange={() => setDiscountType(type)}
-                      className="h-4 w-4 cursor-pointer"
-                    />
-                    <label
-                      htmlFor={`discount-${type}`}
-                      className="text-sm font-medium"
-                    >
-                      {type === "fixed" ? "Fixed amount (THB)" : "Percent (%)"}
-                    </label>
-                    <input
-                      type="number"
-                      placeholder={type === "fixed" ? "THB" : "Percent"}
-                      value={type === "fixed" ? fixedAmount : percent}
-                      onChange={(e) =>
-                        type === "fixed"
-                          ? setFixedAmount(e.target.value)
-                          : setPercent(e.target.value)
-                      }
-                      disabled={discountType !== type}
-                      className="border border-gray-300 rounded px-2 py-1 w-24 disabled:bg-gray-100"
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
+  <div className="flex flex-col gap-y-2 mb-8">
+    <label className="font-medium">Select discount type</label>
+    <div className="flex items-center gap-x-96">
+      {["fixed", "percent"].map((type) => (
+        <div key={type} className="flex items-center gap-x-2 text-[#424C6B]">
+          <input
+            type="radio"
+            id={`discount-${type}`}
+            name="discountType"
+            checked={formData.discountType === type}
+            onChange={() =>
+              setFormData((prev) => ({ ...prev, discountType: type }))
+            }
+            className="h-4 w-4 cursor-pointer"
+          />
+          <label htmlFor={`discount-${type}`} className="text-sm font-medium">
+            {type === "fixed" ? "Fixed amount (THB)" : "Percent (%)"}
+          </label>
+          <input
+            type="number"
+            placeholder={type === "fixed" ? "THB" : "Percent"}
+            value={formData[type === "fixed" ? "fixedAmount" : "percent"]}
+            onChange={handleInputChange}
+            name={type === "fixed" ? "fixedAmount" : "percent"}
+            disabled={formData.discountType !== type}
+            className="border border-gray-300 rounded px-2 py-1 w-24 disabled:bg-gray-100"
+          />
+        </div>
+      ))}
+    </div>
+  </div>
 
-            <CourseDropdown
-              allCourses={allCourses}
-              selectedCourses={selectedCourses}
-              isDropdownOpen={isDropdownOpen}
-              toggleDropdown={() => setIsDropdownOpen((prev) => !prev)}
-              handleToggleCourse={handleToggleCourse}
-              handleRemoveCourse={handleRemoveCourse}
-              isLoading={isLoading}
-              error={error}
-            />
+  <CourseDropdown
+    allCourses={allCourses}
+    selectedCourses={selectedCourses}
+    isDropdownOpen={isDropdownOpen}
+    toggleDropdown={() => setIsDropdownOpen((prev) => !prev)}
+    handleToggleCourse={handleToggleCourse}
+    handleRemoveCourse={handleRemoveCourse}
+    isLoading={isLoading}
+    error={error}
+  />
           </form>
         </div>
       </div>
