@@ -270,7 +270,7 @@ const AddAssignment = () => {
                   ${assignmentError ? "border-[#9B2FAC]" : "border-[#D6D9E4]"}`}
               />
               {assignmentError && (
-                <div className="text-[#9B2FAC]">{assignmentError}</div>
+                <div className="text-[#9B2FAC] text-sm">{assignmentError}</div>
               )}
             </div>
           </div>
