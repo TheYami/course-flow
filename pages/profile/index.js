@@ -167,9 +167,9 @@ export default function Profile() {
       }else {
         setUserData(prevState => ({
           ...prevState,
-          profile_picture: null,  // รีเซ็ตค่าภาพโปรไฟล์
+          profile_picture: null,
         }));
-        setPreviewImage({ image: null });  // ลบพรีวิวภาพ
+        setPreviewImage({ image: null }); 
       }
 
     } catch (error) {
