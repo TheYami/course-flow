@@ -127,6 +127,7 @@ export default function Profile() {
 
       }else{
         let imageUrl = await uploadToCloudinary(profileImage.image, cloudinaryPresets.image);
+
         const {data,error} = await supabase
           .from('users')
           .update({
@@ -166,9 +167,9 @@ export default function Profile() {
       }else {
         setUserData(prevState => ({
           ...prevState,
-          profile_picture: null,  // รีเซ็ตค่าภาพโปรไฟล์
+          profile_picture: null,
         }));
-        setPreviewImage({ image: null });  // ลบพรีวิวภาพ
+        setPreviewImage({ image: null }); 
       }
 
     } catch (error) {
@@ -181,6 +182,7 @@ export default function Profile() {
   const deletePreviewImage = () => {
     setPreviewImage({ image: null });
     setProfileImage({ image: null });
+    document.getElementById("file-upload").value = "";
     console.log("หลังกด x :",userData.profile_picture);
   };
 
@@ -235,8 +237,13 @@ export default function Profile() {
           <div className='flex flex-col items-center justify-center gap-4'>
            {!profileImage ? (
             <div className='flex flex-col items-center justify-center gap-4'>
-              <Image src={userData.profile_picture === null ? profilePic : userData.profile_picture}
-                      alt='user profile' width={358} height={358} className='rounded-2xl object-cover'/>
+              <Image 
+                src={previewImage.image === null ? userData.profile_picture || profilePic : previewImage.image}
+                alt="preview profile" 
+                width={358} 
+                height={358} 
+                className="rounded-2xl object-cover" 
+              />
 
                 <input 
                     type="file" 
@@ -254,7 +261,11 @@ export default function Profile() {
                 </div>):(
                   <div className='relative flex flex-col items-center justify-center gap-4'>
                     <Image src={previewImage.image === null ? userData.profile_picture || profilePic : previewImage.image}
-                       alt='preview profile' width={358} height={358} className='rounded-2xl'/>
+                       alt='preview profile' 
+                       width={358} 
+                       height={358} 
+                       className='rounded-2xl'
+                    />
 
                     <input 
                         type="file" 
@@ -274,8 +285,9 @@ export default function Profile() {
                       <div 
                         onClick={deletePreviewImage}
                         className='absolute top-[-5px] right-[-5px] w-[20px] h-[20px] 
-                            rounded-full flex items-center justify-center bg-[#9B2FAC] text-white font-bold cursor-pointer'>
-                              x
+                        rounded-full flex items-center justify-center bg-[#9B2FAC] text-white font-bold cursor-pointer 
+                        text-[12px] leading-[20px]'>
+                            x
                       </div>
                     )}
 
