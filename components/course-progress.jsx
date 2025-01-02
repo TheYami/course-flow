@@ -8,17 +8,19 @@ import { useRouter } from "next/router";
 
 export default function CourseProgress({ slug }) {
   const [progress, setProgress] = useState(0);
-  //fetch from suapbase
-  const [subcribeCoursesData, setSubscribeCoursesData] = useState([]);
-  const [lessonsData, setLessonsData] = useState([]);
-  const [subLessonData, setSubLessonData] = useState([]);
-  const [selectedSubLesson, setSelectedSubLesson] = useState(null);
-  const [selectedSubLessonIndex, setSelectedSubLessonIndex] = useState(null); // เก็บตำแหน่งของ selectedLesson
+  const [subscribeCoursesData, setSubscribeCoursesData] = useState([]); //ข้อมูลที่ user subscribe แต่ละคอร์ส
+  const [selectedSubLesson, setSelectedSubLesson] = useState(null); //ข้อมูลของ sub-lesson ที่ถูกเลือก
+  const [selectedSubLessonIndex, setSelectedSubLessonIndex] = useState(null); //เก็บตำแหน่งของ index ของ sub_lesson ที่ถูกเลือก
+  const [selectedLessonIndex, setSelectedLessonIndex] = useState(0);
   const learningSectionRef = useRef(null);
   const [user, setUser] = useState(null);
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const [isVideoEnded, setIsVideoEnded] = useState(false);
+  const handleVideoEnd = () => {
+    setIsVideoEnded(true);
+  };
 
   // ฟังก์ชันตรวจสอบเซสชันจาก Supabase
   const checkSession = async () => {
@@ -74,8 +76,22 @@ export default function CourseProgress({ slug }) {
   }, [userData]);
 
   useEffect(() => {
-    console.log(subcribeCoursesData);
-  }, [subcribeCoursesData]);
+    console.log(subscribeCoursesData);
+  }, [subscribeCoursesData]);
+
+  useEffect(() => {
+    // ตรวจสอบว่ามีข้อมูลคอร์สที่ subscribe หรือไม่
+    if (
+      subscribeCoursesData.length > 0 &&
+      subscribeCoursesData[0].lessons?.length > 0 &&
+      subscribeCoursesData[0].lessons[0].sub_lessons?.length > 0
+    ) {
+      const firstSubLesson = subscribeCoursesData[0].lessons[0].sub_lessons[0];
+      setSelectedSubLesson(firstSubLesson); // ตั้งค่า sub_lesson แรก
+      setSelectedSubLessonIndex(0); // index ของ sub_lesson แรก
+      setSelectedLessonIndex(0); // index ของ lesson แรก
+    }
+  }, [subscribeCoursesData]);
 
   if (loading) {
     return <div>Loading...</div>; // แสดงเมื่อยังโหลดข้อมูล
@@ -90,40 +106,75 @@ export default function CourseProgress({ slug }) {
     }
   };
 
-  const handlePreviousLesson = () => {
-    if (selectedSubLessonIndex > 0) {
-      const previousLesson = selectedSubLesson
-        .flatMap((section) => section.lessons)
-        .find((_, index) => index === selectedSubLessonIndex - 1);
-      setSelectedSubLesson(previousLesson);
-      setSelectedSubLessonIndex(selectedSubLessonIndex - 1);
-    }
-  };
-  console.log(selectedSubLesson);
-  console.log(subcribeCoursesData);
-  console.log(subcribeCoursesData[0]);
-
   const handleNextLesson = () => {
-    const totalSubLessons = subcribeCoursesData[0]?.lessons.sub_lessons.flatMap(
-      (lesson) => lesson.sub_lessons
-    ).length;
+    if (selectedSubLessonIndex !== null && selectedSubLesson !== null) {
+      const currentCourse = subscribeCoursesData.find((course) =>
+        course.lessons.some((lesson) =>
+          lesson.sub_lessons.includes(selectedSubLesson)
+        )
+      );
 
-    if (selectedSubLessonIndex < totalSubLessons - 1) {
-      // คำนวณ sub-lesson ถัดไป
-      const nextSubLesson = subcribeCoursesData[0]?.lessons.flatMap(
-        (lesson) => lesson.sub_lessons
-      )[selectedSubLessonIndex + 1]; // หาค่าบทเรียนถัดไปจาก index
-      setSelectedSubLesson(nextSubLesson);
-      setSelectedSubLessonIndex(selectedSubLessonIndex + 1); // อัปเดต index
+      if (currentCourse) {
+        const currentLesson = currentCourse.lessons.find((lesson) =>
+          lesson.sub_lessons.includes(selectedSubLesson)
+        );
+
+        const nextIndex = selectedSubLessonIndex + 1;
+
+        if (currentLesson && nextIndex < currentLesson.sub_lessons.length) {
+          setSelectedSubLesson(currentLesson.sub_lessons[nextIndex]);
+          setSelectedSubLessonIndex(nextIndex);
+        } else {
+          const currentLessonIndex =
+            currentCourse.lessons.indexOf(currentLesson);
+          if (currentLessonIndex + 1 < currentCourse.lessons.length) {
+            const nextLesson = currentCourse.lessons[currentLessonIndex + 1];
+            setSelectedSubLesson(nextLesson.sub_lessons[0]);
+            setSelectedSubLessonIndex(0);
+          }
+        }
+      }
     }
   };
-  //auto scroll to learning section
-  const scrollToSection = (id) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+
+  const handlePreviousLesson = () => {
+    if (selectedSubLessonIndex !== null && selectedSubLesson !== null) {
+      const currentCourse = subscribeCoursesData.find((course) =>
+        course.lessons.some((lesson) =>
+          lesson.sub_lessons.includes(selectedSubLesson)
+        )
+      );
+
+      if (currentCourse) {
+        const currentLesson = currentCourse.lessons.find((lesson) =>
+          lesson.sub_lessons.includes(selectedSubLesson)
+        );
+
+        const previousIndex = selectedSubLessonIndex - 1;
+
+        if (currentLesson && previousIndex >= 0) {
+          setSelectedSubLesson(currentLesson.sub_lessons[previousIndex]);
+          setSelectedSubLessonIndex(previousIndex);
+        } else {
+          const currentLessonIndex =
+            currentCourse.lessons.indexOf(currentLesson);
+          if (currentLessonIndex - 1 >= 0) {
+            const previousLesson =
+              currentCourse.lessons[currentLessonIndex - 1];
+            setSelectedSubLesson(
+              previousLesson.sub_lessons[previousLesson.sub_lessons.length - 1]
+            );
+            setSelectedSubLessonIndex(previousLesson.sub_lessons.length - 1);
+          }
+        }
+      }
     }
   };
+
+  console.log(subscribeCoursesData); //ข้อมูลที่ user subscribe แต่ละคอร์ส
+  console.log(selectedSubLesson); //ข้อมูลของ sub-lesson ที่ถูกเลือก
+  console.log(selectedSubLessonIndex); //เก็บตำแหน่งของ index ของ sub_lesson ที่ถูกเลือก
+
   //update progress
   const handleCompleteAssignment = () => {
     setProgress((prev) => Math.min(prev + 10, 100));
@@ -138,7 +189,7 @@ export default function CourseProgress({ slug }) {
   };
   console.log(slug);
 
-  return subcribeCoursesData && subcribeCoursesData.length > 0 ? (
+  return subscribeCoursesData && subscribeCoursesData.length > 0 ? (
     <>
       <div className="flex flex-col items-center md:flex-row md:justify-center md:items-start gap-3">
         {/* Left Section */}
@@ -151,7 +202,7 @@ export default function CourseProgress({ slug }) {
               {subscribeCoursesData[0]?.course_name || "No Course Name"}
             </h1>
             <h2 className="text-xs font-normal">
-              {subcribeCoursesData[0]?.summary || "No Summary Available"}
+              {subscribeCoursesData[0]?.summary || "No Summary Available"}
             </h2>
           </div>
 
@@ -170,8 +221,8 @@ export default function CourseProgress({ slug }) {
 
           {/* Course Sections */}
           <div className="flex flex-col items-center">
-            {subcribeCoursesData[0]?.lessons?.length > 0 ? (
-              subcribeCoursesData[0].lessons.map((lesson, lessonIndex) => (
+            {subscribeCoursesData[0]?.lessons?.length > 0 ? (
+              subscribeCoursesData[0].lessons.map((lesson, lessonIndex) => (
                 <div
                   key={lesson.lesson_id || lessonIndex}
                   className="mb-4 w-full"
@@ -290,9 +341,8 @@ export default function CourseProgress({ slug }) {
                 <video
                   className="w-[343px] lg:w-[739px]"
                   controls
-                  autoPlay
-                  loop
                   muted
+                  onEnded={handleVideoEnd} // เรียกฟังก์ชันเมื่อวิดีโอเล่นจบ
                 >
                   <source src={selectedSubLesson.video} type="video/mp4" />
                   Your browser does not support the video tag.
@@ -330,10 +380,7 @@ export default function CourseProgress({ slug }) {
         <button
           className="bg-[#2F5FAC] w-[161px] h-[60px] rounded-xl text-white font-semibold mt-3 2xl:mr-52"
           onClick={handleNextLesson}
-          disabled={
-            selectedSubLessonIndex ===
-            subcribeCoursesData.flatMap((section) => section.lessons).length - 1
-          }
+          disabled={!selectedSubLesson}
         >
           Next Lesson
         </button>
