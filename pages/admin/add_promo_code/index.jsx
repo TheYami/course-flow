@@ -63,6 +63,7 @@ const AdminPanelAddPromoCode = () => {
     }));
   };
   
+ 
 
   const handleToggleCourse = (course) => {
     if (course.course_name === "All courses") {
@@ -99,11 +100,12 @@ const AdminPanelAddPromoCode = () => {
   };
 
   const formFields = [
-    { label: "Set promo code*", placeholder: "Enter promo code", type: "text" },
+    { label: "Set promo code*", placeholder: "Enter promo code", type: "text",name: "promoCode" },
     {
       label: "Minimum purchase amount (THB)*",
       placeholder: "Enter amount",
       type: "number",
+      name : "minimumPurchase"
     },
   ];
 
@@ -114,6 +116,7 @@ const AdminPanelAddPromoCode = () => {
     value,
     onChange,
     disabled,
+    name
   }) => (
     <div className="flex flex-col">
       <label className="mb-2 font-medium">{label}</label>
@@ -123,6 +126,7 @@ const AdminPanelAddPromoCode = () => {
         value={value}
         onChange={onChange}
         disabled={disabled}
+        name={name}
         className={`border border-[#D6D9E4] rounded-md p-2 w-full focus:ring-2 focus:ring-[#F47E20] focus:outline-none ${
           disabled ? "bg-[#F6F7FC] cursor-not-allowed" : ""
         }`}
@@ -220,12 +224,6 @@ const AdminPanelAddPromoCode = () => {
       selectedCourses: selectedCourses.map((course) => course.course_id),
     };
   }
-
-
-
-
-
-  
 
   const handleCancle = () => {
     router.push("/admin/promo_code");
