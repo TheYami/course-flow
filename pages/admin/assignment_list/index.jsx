@@ -113,7 +113,9 @@ const AdminPanelAssignments = () => {
           {formatDate(assignment.created_at)}
         </td>
         <td className="p-4 border-t border-[#F1F2F6]">
-          <button className="hover:scale-110">
+          <button
+            onClick={handleDeleteAssignments} 
+            className="hover:scale-110">
             <TrashIcon />
           </button>
           <button className="hover:scale-110">
@@ -123,6 +125,25 @@ const AdminPanelAssignments = () => {
       </tr>
     ));
   };
+
+  const handleDeleteAssignments = async () =>{
+    if (!oldAssignment.assignment_id) return;
+    const { assignmentId } = router.query;
+    try {
+      setEditLoading(true);
+      const response = await axios.delete(
+        `/api/admin/delete_assignment/${assignmentId}`
+      );
+
+      if (response.status === 200) {
+        setEditLoading(false);
+        router.push("/admin/assignment_list");
+      }
+    } catch (error) {
+      console.error("Error deleting assignment:", error);
+      setEditLoading(false);
+    }
+  }
 
   return (
     <div className="flex">
