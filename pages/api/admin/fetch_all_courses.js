@@ -8,7 +8,7 @@ export default async function handler(req, res) {
           c.course_id, 
           c.course_name
         FROM courses AS c
-        ORDER BY c.created_at ASC
+        ORDER BY c.course_id ASC
       `);
 
       if (rows.length === 0) {
