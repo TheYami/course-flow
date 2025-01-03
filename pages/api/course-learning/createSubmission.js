@@ -5,24 +5,37 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { lessons, user } = req.body;
-
-  if (!Array.isArray(lessons) || lessons.length === 0) {
-    return res.status(400).json({ error: "Invalid lessons data" });
-  }
+  const { user } = req.body;
+  const { courseId } = req.query;
 
   try {
-    // Map subLesson to get sub_lesson_id
-    const subLessonIds = lessons.flatMap((lesson) =>
-      lesson.sub_lessons.map((subLesson) => subLesson.sub_lesson_id)
+    //ดึง sub_lesson_id จาก course_id ที่ทำการ subscription สำเร็จแล้ว
+    const result = await connectionPool.query(
+      `SELECT l.course_id,l.lesson_id,sl.sub_lesson_id
+FROM lessons AS l
+JOIN sub_lessons AS sl
+ON l.lesson_id =sl.lesson_id
+      WHERE l.course_id = $1`,
+      [courseId]
     );
 
+    const lessons = result.rows;
+    const subLessonIds = lessons.flatMap(
+      (subLesson) => subLesson.sub_lesson_id
+    );
+
+        if (subLessonIds.length === 0) {
+          return res
+            .status(404)
+            .json({ error: "No sub_lessons found for the provided course" });
+        }
+        
     const assignmentQuery = `
   SELECT sub_lesson_id, assignment_id
   FROM assignments
   WHERE sub_lesson_id IN (${subLessonIds.join(", ")});
 `;
-
+    //ดึง assignment_id จาก sub_lesson_id
     const subLessonsWithAssignments = await connectionPool.query(
       assignmentQuery
     );
@@ -34,18 +47,15 @@ export default async function handler(req, res) {
       )
       .join(", ");
 
-    // สร้าง query สำหรับ INSERT
     const query = `
       INSERT INTO submissions (assignment_id, user_id, answer, submission_date, status)
       VALUES ${values};
     `;
-
-    // Execute the query
+    //สร้าง submissions จาก assignment_id สำหร้บ user แต่ละคน
     await connectionPool.query(query);
 
     res.status(200).json({
       message: "Submissions are successfully created",
-      values: values,
     });
   } catch (error) {
     console.error("Error inserting data:", error);
