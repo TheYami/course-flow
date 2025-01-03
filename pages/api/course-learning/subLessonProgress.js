@@ -23,7 +23,6 @@ export default async function handler(req, res) {
       .join(", ");
 
     const query = `INSERT INTO sub_lesson_progress (sub_lesson_id, progress_status, user_id) VALUES ${values};`;
-    const query2 = `INSERT INTO ssubmission (sub_lesson_id, progress_status, user_id) VALUES ${values};`;
 
     await connectionPool.query(query);
 
@@ -35,3 +34,4 @@ export default async function handler(req, res) {
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
+  
