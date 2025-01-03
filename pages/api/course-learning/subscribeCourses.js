@@ -26,6 +26,7 @@ export default async function handler(req, res) {
       courses.summary,
       lessons.lesson_id,
       lessons.lesson_name,
+      sub_lesson_id,
       sub_lessons.sub_lesson_name,
       sub_lessons.complete_status,
       sub_lessons.video
