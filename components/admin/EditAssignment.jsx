@@ -3,6 +3,7 @@ import Dropdown from "./Dropdown";
 import axios from "axios";
 import { useRouter } from "next/router";
 import Modal from "./Modal";
+import { ArrowBack } from "@/assets/icons/admin_icon/adminIcon";
 
 const EditAssignment = () => {
   const router = useRouter();
@@ -264,11 +265,20 @@ const EditAssignment = () => {
       onSubmit={handleSubmit}
     >
       <header className="top-bar flex justify-between items-center h-[92px] px-10 py-4 bg-white border-b-[1px] border-[#D6D9E4]">
-        {oldAssignment && (
-          <h1 className="text-[24px] font-[500]">
-            {oldAssignment.description}
-          </h1>
-        )}
+        <div className="flex dlex-row gap-4 items-center">
+          <div
+            onClick={handleCancel}
+            className=" cursor-pointer"
+          >
+            <ArrowBack />
+          </div>
+          <h1 className="text-[#9AA1B9] font-[500] text-[24px]">Assignment</h1>
+          {oldAssignment && (
+            <h1 className="text-[24px] font-[500]">
+              {oldAssignment.description}
+            </h1>
+          )}
+        </div>
 
         <div className="button flex gap-4">
           <button
