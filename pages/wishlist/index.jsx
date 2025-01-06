@@ -14,19 +14,20 @@ export default function Profile() {
   const [error, setError] = useState("");
   const [wishlist, setWishlist] = useState([]);
   const { isLoggedIn, user, userData } = useAuth();
+  const [wishlist, setWishlist] = useState([]);
+  const { isLoggedIn, user, userData } = useAuth();
 
   // Load wishlist
   useEffect(() => {
     const fetchWishlist = async () => {
       if (!userData) return;
-      setLoading(false);
+      setLoading(true);
 
       try {
         const wishListResult = await axios.get(
           `/api/wishlist?user_id=${userData.id}`
         );
         setWishlist(wishListResult.data.data || []);
-        
       } catch (err) {
         console.error("Error fetching course:", err);
         setError(err.response?.data?.message || "Error fetching course");
@@ -55,6 +56,7 @@ export default function Profile() {
       </button>
     </div>;
   }
+
 
   return (
     <>

@@ -104,8 +104,6 @@ export default function SubscriptionFloat({ course }) {
     return price.toLocaleString("en-US");
   };
 
-
-
   // ตรวจสอบว่า course มีค่าหรือไม่
   if (!course) {
     return (

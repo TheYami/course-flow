@@ -12,6 +12,7 @@ const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
 );
 import { AuthProvider } from "@/contexts/useUserAuth";
+import { AuthProvider } from "@/contexts/useUserAuth";
 
 export default function App({ Component, pageProps }) {
   useEffect(() => {
