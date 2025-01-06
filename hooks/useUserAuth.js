@@ -16,7 +16,9 @@ const useUserAuth = () => {
 
       if (!session) {
         setUser(null);
+        setUserData(null);
         setLoading(false);
+        router.push("/login");
         return;
       }
 
@@ -38,18 +40,6 @@ const useUserAuth = () => {
 
     checkSession();
   }, [router]);
-
-  useEffect(() => {
-    if (userData) {
-      if (userData.role !== "user") {
-        router.push("/login");
-      } else {
-        setLoading(false);
-      }
-    } else {
-      router.push("/login");
-    }
-  }, [userData, router]);
 
   return { userData, loading };
 };
