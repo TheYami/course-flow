@@ -19,13 +19,14 @@ export default function Profile() {
   useEffect(() => {
     const fetchWishlist = async () => {
       if (!userData) return;
-      setLoading(true);
+      setLoading(false);
 
       try {
         const wishListResult = await axios.get(
           `/api/wishlist?user_id=${userData.id}`
         );
         setWishlist(wishListResult.data.data || []);
+        
       } catch (err) {
         console.error("Error fetching course:", err);
         setError(err.response?.data?.message || "Error fetching course");
