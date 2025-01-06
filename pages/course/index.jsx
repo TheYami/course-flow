@@ -8,7 +8,6 @@ import CourseCards from "@/components/course-cards";
 export default function Course() {
   const [inputName, setInputName] = useState("");
   const [courses, setCourses] = useState([]);
-  const router = useRouter();
 
   const getCourse = async (query) => {
     try {

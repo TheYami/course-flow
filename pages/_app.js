@@ -11,18 +11,21 @@ import { CourseProvider } from "@/contexts/CourseContext";
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
 );
+import { AuthProvider } from "@/contexts/useUserAuth";
 
 export default function App({ Component, pageProps }) {
   useEffect(() => {
     // ถ้าคุณต้องการโหลด JavaScript ของ Bootstrap
     import("bootstrap/dist/js/bootstrap.bundle.min.js");
   }, []);
-
+ 
   return (
     <CourseProvider>
       <LessonProvider>
         <Elements stripe={stripePromise}>
-          <Component {...pageProps} />
+          <AuthProvider>
+            <Component {...pageProps} />
+          </AuthProvider>
         </Elements>
       </LessonProvider>
     </CourseProvider>
