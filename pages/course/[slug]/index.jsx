@@ -42,7 +42,7 @@ export default function CourseDetail() {
     try {
       const response = await axios.get(`/api/courseById?slug=${slug}`);
       setCourse(response.data.data);
-      
+
       setLoading(false);
     } catch (err) {
       console.error("Error fetching course:", err);
@@ -134,7 +134,8 @@ export default function CourseDetail() {
                       <h2 className="text-2xl lg:text-4xl m-0">Attach File</h2>
                       <div className="file flex gap-3 bg-[#E5ECF8] rounded-lg py-4 px-4">
                         <div className="file-left">
-                          <a href={course.document_file}>
+                          <a href={course.document_file}
+                          target="_blank">
                             <svg
                               width="50"
                               height="50"
