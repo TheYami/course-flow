@@ -1,19 +1,16 @@
-import { useEffect, useState,useEffect } from "react";
-import Link from "next/link";
-import { useRouter } from 'next/router'
+import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/useUserAuth";
+import { useRouter } from "next/router";
 import axios from "axios";
 
 export default function SubscriptionFloat({ course }) {
-
-  const router = useRouter()
-  
-  const {slug} = router.query
-
+  const router = useRouter();
+  const [wishlist, setWishlist] = useState([]);
   const [showButton, setShowButton] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [inWishlist, setInWishlist] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { isLoggedIn, loading: authLoading, user, userData } = useAuth();
 
@@ -39,17 +36,29 @@ export default function SubscriptionFloat({ course }) {
     fetchWishlist();
   }, [userData]);
 
-// set InWishlist ถ้าเคยเพิ่มไปแล้ว
-useEffect(() => {
-  if (!wishlist || !course) return; // ดักกรณีที่ wishlist หรือ course ยังไม่มีค่า
+  // set InWishlist ถ้าเคยเพิ่มไปแล้ว
+  useEffect(() => {
+    if (!wishlist || !course) return; // ดักกรณีที่ wishlist หรือ course ยังไม่มีค่า
 
-  const result = wishlist.filter((w) => w.course_id === course.course_id);
-  if (result.length > 0) {
-    setInWishlist(true);
-  } else {
-    setInWishlist(false);
-  }
-}, [wishlist, course]);
+    const result = wishlist.filter((w) => w.course_id === course.course_id);
+    if (result.length > 0) {
+      setInWishlist(true);
+    } else {
+      setInWishlist(false);
+    }
+  }, [wishlist, course]);
+
+  // ล็อคจอ เมื่อแสดงModal
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+    return () => {
+      document.body.style.overflow = "auto"; // Reset เมื่อ component ถูก unmount
+    };
+  }, [isModalOpen]);
 
   const handleAddToWishlist = async () => {
     if (!isLoggedIn) {
@@ -60,8 +69,7 @@ useEffect(() => {
         if (inWishlist) {
           // Remove from wishlist
           await axios.delete("/api/removeFromWishlist", {
-           params: {email: user.email,
-            course_id: course.course_id,}
+            params: { email: user.email, course_id: course.course_id },
           });
           setInWishlist(false);
           console.log("Removed from wishlist");
@@ -87,7 +95,7 @@ useEffect(() => {
     if (!isLoggedIn) {
       router.push("/login");
     } else {
-      console.log("User is logged in, proceed with action");
+      setIsModalOpen(true);
     }
   };
 
@@ -104,7 +112,6 @@ useEffect(() => {
     );
   }
 
-  console.log("slug float is: ", slug);
   return (
     <div className="subscription-float  w-full lg:w-[357px] px-4 lg:px-6 flex flex-col gap-2 py-3 bg-white">
       {/* course label */}
@@ -203,9 +210,67 @@ useEffect(() => {
         >
           {inWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
         </button>
-        <Link href={`/course/${slug}/payment`}  className="box-border no-underline lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-[#2F5FAC] text-white shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-1 flex-grow">
+        <button
+          className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-[#2F5FAC] text-white shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-1 flex-grow"
+          onClick={handlSubscription}
+        >
           Subscribe This Course
-        </Link>
+        </button>
+        {isModalOpen && (
+          <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-50 z-50">
+            {/* Backdrop */}
+            <div
+              className="absolute top-0 left-0 w-full h-full"
+              onClick={() => setIsModalOpen(false)} // คลิกนอก Modal เพื่อปิด
+            ></div>
+
+            {/* Modal Content */}
+            <div className="model relative z-10 flex flex-col items-center w-[528px] h-[212px] bg-white shadow-[2px_2px_12px_rgba(64,50,133,0.12)] rounded-[24px]">
+              <div className="model-top w-full flex justify-between items-center px-6 py-2 border-b-[1px] border-[#E4E6ED]">
+                <div className="text-xl font-normal">Confirmation</div>
+                <div className="close-button">
+                  <svg
+                    width="41"
+                    height="40"
+                    viewBox="0 0 41 40"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M15.5303 24.8483L25.4697 15.1514M15.5303 15.1514L25.4697 24.8483"
+                      stroke="#C8CCDB"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <div className="model-btm w-full flex flex-col gap-6 p-6 ">
+                <p className="text-base font-normal text-[#646D89] m-0">
+                  Do you sure to subscribe {course.course_name} Course?
+                </p>
+                <div className="model-btm-button flex gap-4 h-[60px]">
+                  <button
+                    className="bg-white w-1/4 border-[1px] border-[#F47E20] rounded-xl text-[#F47E20] font-bold text-base"
+                    onClick={() => setIsModalOpen(false)}
+                  >
+                    No, I don’t
+                  </button>
+                  <button
+                    className="w-1/2 bg-[#2F5FAC] rounded-xl text-white font-normal text-base"
+                    onClick={() => {
+                      router.push(`/`);
+                      setIsModalOpen(false);
+                    }}
+                  >
+                    Yes, I want to subscribe
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
