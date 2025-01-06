@@ -1,18 +1,119 @@
-import { useState,useEffect } from "react";
-import Link from "next/link";
-import { useRouter } from 'next/router'
+import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/useUserAuth";
+import { useRouter } from "next/router";
+import axios from "axios";
+import Modal from "./modal";
 
-export default function SubscriptionFloat({ course }) {
-
-  const router = useRouter()
-  
-  const {slug} = router.query
-
+export default function SubscriptionFloat({ course, subscriptionStatus }) {
+  const router = useRouter();
+  const [wishlist, setWishlist] = useState([]);
   const [showButton, setShowButton] = useState(false);
-  
-   const formatPrice = (price) => {
-     return price.toLocaleString("en-US");
-   };
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [inWishlist, setInWishlist] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [action, setAction] = useState(null);
+
+  const {
+    isLoggedIn,
+    loading: authLoading,
+    user,
+    userData,
+    subscriptions,
+  } = useAuth();
+
+  // Load wishlist
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      if (!userData) return;
+      setLoading(true);
+
+      try {
+        const wishListResult = await axios.get(
+          `/api/wishlist?user_id=${userData.id}`
+        );
+        setWishlist(wishListResult.data.data || []);
+      } catch (err) {
+        console.error("Error fetching course:", err);
+        setError(err.response?.data?.message || "Error fetching course");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWishlist();
+  }, [userData]);
+
+  // set InWishlist ถ้าเคยเพิ่มไปในDBแล้ว
+  useEffect(() => {
+    if (!wishlist || !course) return;
+
+    const result = wishlist.filter((w) => w.course_id === course.course_id);
+    if (result.length > 0) {
+      setInWishlist(true);
+    } else {
+      setInWishlist(false);
+    }
+  }, [wishlist, course]);
+
+  // ล็อคจอ เมื่อแสดงModal
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "auto";
+    }
+    return () => {
+      document.body.style.overflow = "auto"; // Reset เมื่อ component ถูก unmount
+    };
+  }, [isModalOpen]);
+
+  // Add-Remove to wishlist
+  const handleRemoveFromWishlist = async () => {
+    if (!isLoggedIn) {
+      alert("Please Login");
+      router.push("/login");
+    } else {
+      setLoading(true);
+      try {
+        if (inWishlist) {
+          await axios.delete("/api/removeFromWishlist", {
+            params: { email: user.email, course_id: course.course_id },
+          });
+          setInWishlist(false);
+        } else {
+          // Add to wishlist
+          setAction("add");
+          setIsModalOpen(true);
+        }
+      } catch (err) {
+        console.error("Error updating wishlist:", err);
+        setError(err.response.data.message || "Error updating wishlist");
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const handlSubscription = () => {
+    if (!isLoggedIn) {
+      alert("Please Login");
+      router.push("/login");
+    } else {
+      setAction("subscribe");
+      setIsModalOpen(true);
+    }
+  };
+
+  const formatPrice = (price) => {
+    return price.toLocaleString("en-US");
+  };
+
+  const handleModalClose = (wishlist) => {
+
+    setInWishlist(wishlist);
+    setIsModalOpen(false); // ปิด Modal
+  };
 
   // ตรวจสอบว่า course มีค่าหรือไม่
   if (!course) {
@@ -23,7 +124,6 @@ export default function SubscriptionFloat({ course }) {
     );
   }
 
-  console.log("slug float is: ", slug);
   return (
     <div className="subscription-float  w-full lg:w-[357px] px-4 lg:px-6 flex flex-col gap-2 py-3 bg-white">
       {/* course label */}
@@ -46,7 +146,9 @@ export default function SubscriptionFloat({ course }) {
               {course.detail}
             </div>
           ) : null}
-          <p className="m-0 text-gray-700 lg:text-2xl">THB {formatPrice(course.price)}</p>
+          <p className="m-0 text-gray-700 lg:text-2xl">
+            THB {formatPrice(course.price)}
+          </p>
         </div>
         {/* ปุ่มซ่อน/แสดง */}
         <div className="header-r lg:hidden">
@@ -54,7 +156,6 @@ export default function SubscriptionFloat({ course }) {
             <button
               onClick={() => {
                 setShowButton(!showButton);
-                console.log(showButton);
               }}
             >
               <svg
@@ -89,7 +190,6 @@ export default function SubscriptionFloat({ course }) {
             <button
               onClick={() => {
                 setShowButton(!showButton);
-                console.log(showButton);
               }}
             >
               <svg
@@ -114,12 +214,39 @@ export default function SubscriptionFloat({ course }) {
         </div>
       </div>
       <div className="action flex lg:flex-col gap-2 text-xs lg:text-base font-bold">
-        <button className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-white border border-orange-500 text-orange-500 shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-0 flex-grow">
-          Add to Wishlist
-        </button>
-        <Link href={`/course/${slug}/payment`}  className="box-border no-underline lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-[#2F5FAC] text-white shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-1 flex-grow">
-          Subscribe This Course
-        </Link>
+        {subscriptionStatus ? (
+          <button className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-[#2F5FAC] text-white shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-1 flex-grow">
+            Start Learning
+          </button>
+        ) : (
+          <>
+            <button
+              className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-white border border-orange-500 text-orange-500 shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-0 flex-grow"
+              onClick={() => {
+                if(!user){
+                  alert("Please Login");
+                  router.push("/login");
+                }
+                else {
+                if (!inWishlist) {
+                  setIsModalOpen(true);
+                  setAction("add")
+                } else {handleRemoveFromWishlist();}
+              }}}
+            >
+              {inWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
+            </button>
+            <button
+              className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-[#2F5FAC] text-white shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-1 flex-grow"
+              onClick={handlSubscription}
+            >
+              Subscribe This Course 
+            </button>
+          </>
+        )}
+        {isModalOpen && (
+          <Modal course={course} action={action} onClose={handleModalClose} user={user} />
+        )}
       </div>
     </div>
   );

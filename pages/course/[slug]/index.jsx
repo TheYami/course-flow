@@ -1,51 +1,70 @@
 //pages\course\[slug]\index.jsx
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/useUserAuth"; // นำเข้า useAuth จาก AuthContext
 import axios from "axios";
 import Navbar from "@/components/navbar";
 import VideoPlayer from "@/components/video-presentation";
 import SubscritonFloat from "@/components/subscription-float";
 import Footer from "@/components/footer";
-import Checkout from "@/components/checkout-course";
 import CourseList from "@/components/course-card";
+import Checkout from "@/components/checkout-course";
+import FileSizeDisplay from "@/utils/fileSize";
 
 export default function CourseDetail() {
   const router = useRouter();
   const { slug } = router.query;
   const [course, setCourse] = useState(null);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true); // ใช้สำหรับแสดงสถานะการโหลด
-  const [openLesson, setOpenLesson] = useState(null); // เก็บ id ของ lesson ที่เปิด
+  const [loading, setLoading] = useState(true);
+  const [openLesson, setOpenLesson] = useState(null);
+  const [isSubscribe, setIsSubscribe] = useState(false);
+
+  // ใช้ useAuth เพื่อเข้าถึงค่า isLoggedIn และ user
+  const {
+    isLoggedIn,
+    loading: authLoading,
+    user,
+    userData,
+    subscriptions,
+  } = useAuth();
+
+  useEffect(() => {
+    if (!course || !subscriptions) return;
+
+    if (subscriptions.find((item) => item.course_id === course.course_id)) {
+      setIsSubscribe(true);
+    }
+  }, [subscriptions, course]);
 
   const getCourseById = async () => {
-    setLoading(true); // เริ่มการโหลด
+    setLoading(true);
     try {
       const response = await axios.get(`/api/courseById?slug=${slug}`);
       setCourse(response.data.data);
-      setLoading(false); // เสร็จสิ้นการโหลด
+
+      setLoading(false);
     } catch (err) {
       console.error("Error fetching course:", err);
       setError(err.response?.data?.message || "Error fetching course");
-      setLoading(false); // เสร็จสิ้นการโหลด
+      setLoading(false);
     }
   };
 
   const toggleAccordion = (id) => {
-    setOpenLesson((prev) => (prev === id ? null : id)); // เปิด/ปิด accordion
+    setOpenLesson((prev) => (prev === id ? null : id));
   };
 
   useEffect(() => {
-    if (slug) {
-      getCourseById(); // เรียกฟังก์ชันที่ต้องการเมื่อ slug มีค่า
-    }
-  }, [slug]); // ตรวจสอบว่า useEffect จะทำงานเมื่อ slug หรือ getCourseById เปลี่ยนแปลง
+    if (slug) getCourseById();
+  }, [slug]);
+
 
   return (
     <div>
       <nav className="border-b-[1px]">
         <Navbar />
       </nav>
-
       <div className="all-content box-border flex flex-col relative items-center px-3">
         {error ? (
           <div className="error-message text-red-500">
@@ -74,7 +93,7 @@ export default function CourseDetail() {
         ) : course ? (
           <>
             <article className="flex flex-col relative lg:flex-row lg:items-start items-center">
-              <div className="article-content lg:w-[740px] bg-white">
+              <div className="article-content lg:w-[740px] ">
                 {/* back to all course */}
                 <button
                   className="back-to-course flex items-center gap-2 mt-4 mb-3 w-fit"
@@ -99,17 +118,57 @@ export default function CourseDetail() {
 
                 {/* video display */}
                 <div className="flex flex-col gap-8 lg:gap-[100px] ">
-                  <VideoPlayer videoSrc={course.video_file} />
-                  <div className="course-header gap-[16px]  lg:gap-[24px] w-full flex flex-col">
-                    <h3 className="font-medium text-2xl lg:text-4xl m-0">
-                      Course Detail
-                    </h3>
-                    <p className="detail m-0 font-normal text-sm lg:text-base text-[#646D89]">
-                      {course.detail}
-                    </p>
+                  <VideoPlayer
+                    videoSrc={course?.video_file || "default-video.mp4"}
+                  />
+                  <div className="course-header gap-[16px] lg:gap-[100px] w-full flex flex-col">
+                    <div className="course-detail flex flex-col gap-4 lg:gap-6">
+                      <h3 className="font-medium text-2xl lg:text-4xl m-0">
+                        Course Detail
+                      </h3>
+                      <p className="detail m-0 font-normal text-sm lg:text-base text-[#646D89]">
+                        {course.detail}
+                      </p>
+                    </div>
+                    {isSubscribe?  <div className="attach-file flex flex-col gap-6 w-5/6 md:w-2/3 mt-2">
+                      <h2 className="text-2xl lg:text-4xl m-0">Attach File</h2>
+                      <div className="file flex gap-3 bg-[#E5ECF8] rounded-lg py-4 px-4">
+                        <div className="file-left">
+                          <a href={course.document_file}
+                          target="_blank">
+                            <svg
+                              width="50"
+                              height="50"
+                              viewBox="0 0 50 50"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <rect
+                                width="50"
+                                height="50"
+                                rx="4"
+                                fill="white"
+                              />
+                              <path
+                                d="M32.5 27.25V24.625C32.5 23.7299 32.1444 22.8715 31.5115 22.2385C30.8786 21.6056 30.0201 21.25 29.125 21.25H27.625C27.3266 21.25 27.0405 21.1315 26.8295 20.9205C26.6185 20.7095 26.5 20.4234 26.5 20.125V18.625C26.5 17.7299 26.1444 16.8714 25.5115 16.2385C24.8785 15.6056 24.0201 15.25 23.125 15.25H21.25M23.5 15.25H18.625C18.004 15.25 17.5 15.754 17.5 16.375V33.625C17.5 34.246 18.004 34.75 18.625 34.75H31.375C31.996 34.75 32.5 34.246 32.5 33.625V24.25C32.5 21.8631 31.5518 19.5739 29.864 17.886C28.1761 16.1982 25.8869 15.25 23.5 15.25V15.25Z"
+                                stroke="#5483D0"
+                                strokeWidth="1.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                          </a>
+                        </div>
+                        <div className="file-right flex flex-col gap-1 w-fit">
+                          <p>{course.course_name}.pdf</p>
+                          <FileSizeDisplay fileUrl={course.document_file} />
+                        </div>
+                      </div>
+                    </div>: null}
+                   
 
                     {/* accordion */}
-                    <div className="accordion w-full h-fit mt-8 lg:mt-[76px] lg:mb-9 pb-4 ">
+                    <div className="accordion w-full h-fit mt-8  lg:mb-9 pb-4 ">
                       <h2 className="font-medium text-2xl lg:text-4xl lg:mb-6">
                         Lesson Samples
                       </h2>
@@ -119,9 +178,9 @@ export default function CourseDetail() {
                             className="accordion-item !border-0 "
                             key={lesson.lesson_id}
                           >
-                            <div className="accordion-header">
+                            <div className="accordion-header ">
                               <button
-                                className="accordion-button bg-white !text-xl lg:!text-2xl !font-normal"
+                                className="accordion-button bg-white !text-xl lg:!text-2xl !font-normal focus:!ring-0"
                                 type="button"
                                 onClick={() =>
                                   toggleAccordion(lesson.lesson_id)
@@ -157,7 +216,10 @@ export default function CourseDetail() {
                 </div>
               </div>
               <div className="hidden lg:grid lg:sticky lg:top-0 mt-10">
-                <SubscritonFloat course={course} />
+                <SubscritonFloat
+                  course={course}
+                  subscriptionStatus={isSubscribe}
+                />
               </div>
             </article>
           </>
@@ -167,10 +229,10 @@ export default function CourseDetail() {
         <p className="other-course-header font-medium text-2xl lg:text-4xl m-0 ">
           Other Interesting Course
         </p>
-        <CourseList />
+        <CourseList currentCourse={course} />
       </div>
       <div className="sub-float-mobile sticky bottom-0 lg:hidden">
-          <SubscritonFloat course={course} slug={slug}/>
+        <SubscritonFloat course={course} subscriptionStatus={isSubscribe} />
       </div>
       <div className="">
         <Checkout />

@@ -7,7 +7,7 @@ export default async function handler(req, res) {
   if (req.method === "GET") {
     const sqlStatement = `
       SELECT
-       c.course_id, c.course_name, c.detail, c.price, c.summary,
+       c.course_id, c.course_name, c.detail, c.price, c.summary,c.video_file,c.document_file,
         l.lesson_id, l.lesson_name, 
         sl.sub_lesson_id, sl.sub_lesson_name
       FROM courses AS c
@@ -27,8 +27,10 @@ export default async function handler(req, res) {
         course_id: result.rows[0].course_id,
         course_name: result.rows[0].course_name,
         detail: result.rows[0].detail,
-        price : result.rows[0].price,
-        summary : result.rows[0].summary,
+        price: result.rows[0].price,
+        summary: result.rows[0].summary,
+        video_file: result.rows[0].video_file,
+        document_file: result.rows[0].document_file || null,
         lessons: [],
       };
 
