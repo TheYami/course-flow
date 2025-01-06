@@ -8,6 +8,7 @@ import SubscritonFloat from "@/components/subscription-float";
 import Footer from "@/components/footer";
 import Checkout from "@/components/checkout-course";
 import CourseList from "@/components/course-card";
+import supabase from "@/lib/supabase";
 
 export default function CourseDetail() {
   const router = useRouter();
@@ -16,6 +17,7 @@ export default function CourseDetail() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true); // ใช้สำหรับแสดงสถานะการโหลด
   const [openLesson, setOpenLesson] = useState(null); // เก็บ id ของ lesson ที่เปิด
+
 
   const getCourseById = async () => {
     setLoading(true); // เริ่มการโหลด
@@ -35,10 +37,33 @@ export default function CourseDetail() {
   };
 
   useEffect(() => {
-    if (slug) {
-      getCourseById(); // เรียกฟังก์ชันที่ต้องการเมื่อ slug มีค่า
-    }
-  }, [slug]); // ตรวจสอบว่า useEffect จะทำงานเมื่อ slug หรือ getCourseById เปลี่ยนแปลง
+    if (slug) getCourseById();
+    const checkSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      setLoading(false);
+
+      if (session) {
+        const { data, error } = await supabase
+          .from("users")
+          .select("*")
+          .eq("email", session.user.email)
+          .single();
+       if (error && error.code === "PGRST116") {
+         console.log("No user found with the given email");
+       } else if (error) {
+         console.error("Unknown error:", error);
+       }
+      }
+    };
+    checkSession();
+  }, [slug]);
+
+
+
+
+
 
   return (
     <div>
@@ -74,7 +99,7 @@ export default function CourseDetail() {
         ) : course ? (
           <>
             <article className="flex flex-col relative lg:flex-row lg:items-start items-center">
-              <div className="article-content lg:w-[740px] bg-white">
+              <div className="article-content lg:w-[740px] ">
                 {/* back to all course */}
                 <button
                   className="back-to-course flex items-center gap-2 mt-4 mb-3 w-fit"
@@ -99,7 +124,9 @@ export default function CourseDetail() {
 
                 {/* video display */}
                 <div className="flex flex-col gap-8 lg:gap-[100px] ">
-                  <VideoPlayer videoSrc={course.video_file} />
+                  <VideoPlayer
+                    videoSrc={course?.video_file || "default-video.mp4"}
+                  />
                   <div className="course-header gap-[16px]  lg:gap-[24px] w-full flex flex-col">
                     <h3 className="font-medium text-2xl lg:text-4xl m-0">
                       Course Detail
@@ -119,9 +146,9 @@ export default function CourseDetail() {
                             className="accordion-item !border-0 "
                             key={lesson.lesson_id}
                           >
-                            <div className="accordion-header">
+                            <div className="accordion-header ">
                               <button
-                                className="accordion-button bg-white !text-xl lg:!text-2xl !font-normal"
+                                className="accordion-button bg-white !text-xl lg:!text-2xl !font-normal focus:!ring-0"
                                 type="button"
                                 onClick={() =>
                                   toggleAccordion(lesson.lesson_id)
@@ -167,7 +194,7 @@ export default function CourseDetail() {
         <p className="other-course-header font-medium text-2xl lg:text-4xl m-0 ">
           Other Interesting Course
         </p>
-        <CourseList />
+        <CourseList currentCourse={course} />
       </div>
       <div className="sub-float-mobile sticky bottom-0 lg:hidden">
           <SubscritonFloat course={course} slug={slug}/>
