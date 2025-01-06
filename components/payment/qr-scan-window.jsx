@@ -21,9 +21,7 @@ const QrScanWindow = React.memo(function QrScanWindow() {
 
   const { courseId, amount } = router.query;
 
-  useEffect(() => {
-    if (hasFetchedRef.current) return;
-    
+  const fetchCheckoutUrl = async () => {
     if (!userData) {
       setError("User data not available yet");
       setLoading(false);
@@ -33,32 +31,55 @@ const QrScanWindow = React.memo(function QrScanWindow() {
     setLoading(true);
     setError(null);
 
-    const fetchCheckoutUrl = async () => {
-      if (!checkoutUrl) {
-        try {
-          if (userData) {
-            setUserId(userData.id);
+    try {
+      console.log("userId", userData.id);
+      const response = await axios.post("/api/payment/checkPaymentStatus", {
+        courseId,
+        userId: userData.id,
+      });
+      if (response.data.exists && response.data.status === "complete") {
+        router.push(`/payment/success-payment?courseId=${courseId}`);
+      } else if (response.data.exists && response.data.status !== "complete") {
+        const stripeSessionResponse = await axios.post(
+          "/api/payment/getStripeUrl",
+          {
+            sessionId: response.data.sessionId,
           }
-          const response = await axios.post("/api/payment/createPromptpayUrl", {
-            courseId,
-            amount,
-            userId:userData.id,
-          });
-          if (response.data.url) {
-            setCheckoutUrl(response.data.url);
-            setReferenceNumber(response.data.referenceNumber);
-          } else {
-            setError("Error creating checkout session");
-          }
-        } catch (err) {
-          console.error(err);
-          setError("Error: " + err.message);
-        } finally {
-          setLoading(false);
-          hasFetchedRef.current = true;
+        );
+
+        if (stripeSessionResponse.data.url) {
+          setCheckoutUrl(stripeSessionResponse.data.url);
+          setReferenceNumber(response.data.referenceNumber);
+        } else {
+          setError("Error fetching Stripe session URL");
         }
       }
-    };
+    } catch (err) {
+      console.error(err);
+      setError("Error: " + err.message);
+      const newCheckoutResponse = await axios.post(
+        "/api/payment/createPromptpayUrl",
+        {
+          courseId,
+          amount,
+          userId: userData.id,
+        }
+      );
+
+      if (newCheckoutResponse.data.url) {
+        setCheckoutUrl(newCheckoutResponse.data.url);
+        setReferenceNumber(newCheckoutResponse.data.referenceNumber);
+      } else {
+        setError("Error creating checkout session");
+      }
+    } finally {
+      setLoading(false);
+      hasFetchedRef.current = true;
+    }
+  };
+
+  useEffect(() => {
+    if (hasFetchedRef.current) return;
     fetchCheckoutUrl();
   }, [userData]);
 
@@ -73,7 +94,7 @@ const QrScanWindow = React.memo(function QrScanWindow() {
 
       if (data.status === "complete") {
         router.push(`/payment/success-payment?courseId=${courseId}`);
-      } else if (data.status === "failed"){
+      } else if (data.status === "failed") {
         router.push(`/payment/failed-payment?courseId=${courseId}`);
       }
     };
