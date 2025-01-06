@@ -19,7 +19,7 @@ export default function App({ Component, pageProps }) {
     // ถ้าคุณต้องการโหลด JavaScript ของ Bootstrap
     import("bootstrap/dist/js/bootstrap.bundle.min.js");
   }, []);
- 
+
   return (
     <CourseProvider>
       <LessonProvider>
