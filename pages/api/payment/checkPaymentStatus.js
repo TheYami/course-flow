@@ -1,46 +1,41 @@
+import connectionPool from "@/utils/db";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export default async function handler(req, res) {
-  const { session_id } = req.query;
+  if (req.method === "POST") {
+    const { courseId, userId } = req.body;
+    console.log(req.body);
 
-  if (!session_id) {
-    return res.status(400).json({ error: "Session ID is required" });
-  }
-
-  try {
-
-    const session = await stripe.checkout.sessions.retrieve(session_id);
-
-    const paymentStatus = session.payment_status || "unknown"; 
-
-    let statusMessage = paymentStatus;
-
-
-    if (paymentStatus === "unpaid") {
-
-      if (session.payment_intent) {
-        const paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent);
-
-        if (paymentIntent.status === "failed") {
-          statusMessage = "Payment failed";
-        } else if (paymentIntent.status === "requires_payment_method") {
-          statusMessage = "Payment pending, awaiting method";
-        } else if (paymentIntent.status === "requires_confirmation") {
-          statusMessage = "Payment pending, awaiting confirmation";
-        } else {
-          statusMessage = "Payment status is unclear";
-        }
-      }
+    if (!courseId || !userId) {
+      return res
+        .status(400)
+        .json({ error: "Course ID and User ID are required" });
     }
 
-    
-    // console.log(session);
+    try {
+      const result = await connectionPool.query(
+        "SELECT * FROM orders WHERE course_id = $1 AND user_id = $2",
+        [courseId, userId]
+      );
 
-    res.status(200).json({ status: statusMessage });
-  } catch (error) {
-    console.error("Error checking payment status:", error);
-    res.status(500).json({ error: "Error checking payment status" });
+      if (result.rows.length > 0) {
+        const order = result.rows[0];
+        return res.status(200).json({
+          exists: true,
+          status: order.status,
+          sessionId: order.session_id,
+          referenceNumber: order.reference_number,
+        });
+      } else {
+        return res.status(404).json({ exists: false });
+      }
+    } catch (error) {
+      console.error("Error checking order status:", error);
+      return res.status(500).json({ error: "Database error" });
+    }
+  } else {
+    res.status(405).json({ error: "Method Not Allowed" });
   }
 }
