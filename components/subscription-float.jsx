@@ -34,6 +34,7 @@ export default function SubscriptionFloat({ course }) {
     };
 
     fetchWishlist();
+    
   }, [userData]);
 
   // set InWishlist ถ้าเคยเพิ่มไปแล้ว
@@ -225,7 +226,7 @@ export default function SubscriptionFloat({ course }) {
             ></div>
 
             {/* Modal Content */}
-            <div className="model relative z-10 flex flex-col items-center w-[528px] h-[212px] bg-white shadow-[2px_2px_12px_rgba(64,50,133,0.12)] rounded-[24px]">
+            <div className="model relative z-10 flex flex-col items-center w-[528px] h-fit bg-white shadow-[2px_2px_12px_rgba(64,50,133,0.12)] rounded-[24px]">
               <div className="model-top w-full flex justify-between items-center px-6 py-2 border-b-[1px] border-[#E4E6ED]">
                 <div className="text-xl font-normal">Confirmation</div>
                 <div className="close-button">
@@ -239,9 +240,9 @@ export default function SubscriptionFloat({ course }) {
                     <path
                       d="M15.5303 24.8483L25.4697 15.1514M15.5303 15.1514L25.4697 24.8483"
                       stroke="#C8CCDB"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
                     />
                   </svg>
                 </div>

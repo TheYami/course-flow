@@ -3,11 +3,14 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Navbar from "@/components/navbar";
 import CourseCards from "@/components/course-cards";
-
+import Footer from "@/components/footer";
+import Checkout from "@/components/checkout-course";
+import { useAuth } from "@/contexts/useUserAuth";
 
 export default function Course() {
   const [inputName, setInputName] = useState("");
   const [courses, setCourses] = useState([]);
+  const { isLoggedIn, user, userData } = useAuth();
 
   const getCourse = async (query) => {
     try {
@@ -15,8 +18,6 @@ export default function Course() {
         params: { keywords: query || "" },
       });
       setCourses(response.data.data);
-    
-      
     } catch (error) {
       console.error("Error fetching courses:", error);
     }
@@ -25,16 +26,16 @@ export default function Course() {
     setInputName(event.target.value);
   };
 
-
-
   useEffect(() => {
     getCourse(inputName);
   }, [inputName]);
 
+ 
+
   return (
     <>
       <Navbar />
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center mb-12 lg:mb-48">
         {/* Our courses */}
         <div className="relative w-full">
           {/* gliter */}
@@ -131,8 +132,10 @@ export default function Course() {
         </div>
 
         {/* course card */}
-        <CourseCards courses={courses}/>
+        <CourseCards courses={courses} />
       </div>
+      <Checkout />
+      <Footer />
     </>
   );
 }

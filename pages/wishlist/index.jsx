@@ -19,13 +19,14 @@ export default function Profile() {
   useEffect(() => {
     const fetchWishlist = async () => {
       if (!userData) return;
-      setLoading(true);
+      setLoading(false);
 
       try {
         const wishListResult = await axios.get(
           `/api/wishlist?user_id=${userData.id}`
         );
         setWishlist(wishListResult.data.data || []);
+        
       } catch (err) {
         console.error("Error fetching course:", err);
         setError(err.response?.data?.message || "Error fetching course");
@@ -42,13 +43,6 @@ export default function Profile() {
     router.push("/profile");
   };
 
-  if (loading) {
-    return (
-      <div className="absolute inset-0 flex items-center justify-center min-h-screen">
-        <Loading />
-      </div>
-    );
-  }
 
   if (error) {
     <div className="error-message text-red-500">
@@ -67,24 +61,6 @@ export default function Profile() {
       {user ? (
         <div className="w-full">
           <Navbar />
-          {/* <div className="flex justify-between items-center">
-            <h1>
-              Welcome back
-              <span className="text-blue-400">{userData?.name || "User"}!</span>
-            </h1>
-            <div className="flex gap-4">
-              <p>Email: {user.email}</p>
-              <p>Date of Birth: {userData?.date_of_birth}</p>
-              <p>Education: {userData?.education_background}</p>
-              <p>Role: {userData?.role}</p>
-            </div>
-            <button
-              onClick={handleLogout}
-              className="bg-red-500 text-white py-2 px-4 rounded"
-            >
-              Log out
-            </button>
-          </div> */}
 
           {/* Wishlist */}
           <div className="wishlist flex flex-col items-center mb-12 lg:mb-48">

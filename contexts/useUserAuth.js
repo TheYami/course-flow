@@ -38,7 +38,6 @@ export const AuthProvider = ({ children }) => {
         console.error("Error fetching user data:", error);
       } else {
         setUserData(data);
-        console.log(data);
       }
 
       setLoading(false);
