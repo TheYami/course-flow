@@ -14,8 +14,6 @@ export default function Profile() {
   const [error, setError] = useState("");
   const [wishlist, setWishlist] = useState([]);
   const { isLoggedIn, user, userData } = useAuth();
-  const [wishlist, setWishlist] = useState([]);
-  const { isLoggedIn, user, userData } = useAuth();
 
   // Load wishlist
   useEffect(() => {
@@ -57,6 +55,17 @@ export default function Profile() {
     </div>;
   }
 
+  if (error) {
+    <div className="error-message text-red-500">
+      <p>{error}</p>
+      <button
+        onClick={() => router.replace(`/course`)}
+        className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-[#2F5FAC] text-white shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-1 flex-grow"
+      >
+        Back to Course
+      </button>
+    </div>;
+  }
 
   return (
     <>

@@ -2,13 +2,11 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/useUserAuth"; // นำเข้า useAuth จาก AuthContext
-import { useAuth } from "@/contexts/useUserAuth"; // นำเข้า useAuth จาก AuthContext
 import axios from "axios";
 import Navbar from "@/components/navbar";
 import VideoPlayer from "@/components/video-presentation";
 import SubscritonFloat from "@/components/subscription-float";
 import Footer from "@/components/footer";
-import CourseList from "@/components/course-card";
 import CourseList from "@/components/course-card";
 import Checkout from "@/components/checkout-course";
 import { AuthProvider } from "@/contexts/useUserAuth"; // นำเข้า AuthProvider
@@ -34,7 +32,6 @@ export default function CourseDetail() {
     } catch (err) {
       console.error("Error fetching course:", err);
       setError(err.response?.data?.message || "Error fetching course");
-      setLoading(false);
       setLoading(false);
     }
   };
@@ -79,24 +76,6 @@ export default function CourseDetail() {
           </div>
         ) : course ? (
           <>
-            {/* <div>
-              {authLoading ? (
-                <p>Loading user data...</p>
-              ) : isLoggedIn ? (
-                <p>Welcome, {user.email}</p> // แสดงชื่อผู้ใช้ที่ล็อกอิน
-              ) : (
-                <p>Please log in to access the course details.</p>
-              )}
-            </div> */}
-            {/* <div>
-              {authLoading ? (
-                <p>Loading user data...</p>
-              ) : isLoggedIn ? (
-                <p>Welcome, {user.email}</p> // แสดงชื่อผู้ใช้ที่ล็อกอิน
-              ) : (
-                <p>Please log in to access the course details.</p>
-              )}
-            </div> */}
             <article className="flex flex-col relative lg:flex-row lg:items-start items-center">
               <div className="article-content lg:w-[740px] ">
                 {/* back to all course */}
