@@ -1,6 +1,57 @@
 import Navbar from "@/components/navbar";
+import axios from "axios";
+import { useRouter } from "next/router";
+import { useAuth } from "@/contexts/useUserAuth";
+import { useState, useEffect } from "react";
 
 export default function MyAssignment() {
+  const { isLoggedIn, user, userData, subscriptions } = useAuth();
+  const [submission, setSubmission] = useState([]);
+  const [selectedStatus, setSelectedStatus] = useState("All");
+  const [answers, setAnswers] = useState({});
+
+  const router = useRouter();
+
+  const getSubmission = async () => {
+    try {
+      const response = await axios.get(
+        `/api/getAllSubmission?user_id=${userData.id}`
+      );
+
+      setSubmission(response.data.data);
+    } catch (error) {
+      console.error("Error fetching courses:", error);
+    }
+  };
+
+  const filteredSubmissions = submission.filter((sub) => {
+    if (selectedStatus === "All") {
+      return true;
+    }
+    return sub.status.toLowerCase() === selectedStatus.toLowerCase();
+  });
+
+  const handleSubmitAnswer = async (submissionId, answer) => {
+    try {
+      const response = await axios.put("/api/submitSubmission", {
+        submission_id: submissionId,
+        answer: answer,
+      });
+
+      console.log("Submission updated:", response.data);
+      getSubmission();
+    } catch (error) {
+      console.error("Error submitting answer:", error);
+    }
+  };
+
+
+  useEffect(() => {
+    if (userData) {
+      getSubmission();
+    }
+  }, [userData]);
+
   return (
     <div className="w-full">
       <Navbar />
@@ -76,56 +127,125 @@ export default function MyAssignment() {
         <div className="my-assignment-header flex flex-col items-center gap-[60px] mt-24">
           <h3 className="font-medium text-4xl gap-14 m-0">My Assignments</h3>
           <div className="flex text-base font-normal gap-4 text-[#9AA1B9]">
-            <button className="m-0 p-2 focus:text-black focus:border-b-2">
+            <button
+              className={`m-0 p-2 ${
+                selectedStatus === "All"
+                  ? "border-b-2 border-black text-black"
+                  : ""
+              }`}
+              onClick={() => setSelectedStatus("All")}
+            >
               All
             </button>
-            <button className="m-0 p-2 focus:text-black focus:border-b-2">
-              In progress
+            <button
+              className={`m-0 p-2 focus:text-black ${
+                selectedStatus === "in-progress"
+                  ? "border-b-2 border-black text-black"
+                  : ""
+              }`}
+              onClick={() => setSelectedStatus("in-progress")}
+            >
+              In Progress
             </button>
-            <button className="m-0 p-2 focus:text-black focus:border-b-2">
+            <button
+              className={`m-0 p-2 focus:text-black ${
+                selectedStatus === "submitted"
+                  ? "border-b-2 border-black text-black"
+                  : ""
+              }`}
+              onClick={() => setSelectedStatus("submitted")}
+            >
               Submitted
             </button>
           </div>
         </div>
         {/* assignment card section */}
         <div className="assignment-card-section flex flex-col gap-6 w-full max-w-[1120px] mt-10">
-          <div className="assignment-card w-full h-[354px] bg-[#E5ECF8] rounded-lg px-24 py-10">
-            <div className="card-header flex justify-between">
-              <div className="card-header-left flex flex-col gap-3">
-                <h3 className="m-0">Course: Course_Name</h3>
-                <p>Introduction: Assignment_Name</p>
+          {filteredSubmissions.map((submission) => (
+            <div
+              className="assignment-card w-full h-[354px] bg-[#E5ECF8] rounded-lg px-24 py-10"
+              key={submission.submission_id}
+            >
+              <div className="card-header flex justify-between">
+                <div className="card-header-left flex flex-col gap-3">
+                  <h3 className="m-0">Course: {submission.course_name}</h3>
+                  <p>Introduction: {submission.sub_lesson_name}</p>
+                </div>
+                {submission && submission.status === "in-progress" ? (
+                  <div className="card-right w-fit h-fit px-2 py-1 bg-[#FFFBDB] rounded text-base font-medium text-[#996500]">
+                    In-Progress
+                  </div>
+                ) : (
+                  <div className="card-right w-fit h-fit px-2 py-1 bg-[#DDF9EF] rounded text-base font-medium text-[#0A7B60]">
+                    Submitted
+                  </div>
+                )}
               </div>
-              <div className="card-right w-fit h-fit px-2 py-1 bg-[#FFFBDB] rounded text-base font-medium text-[#996500]">
-                Status
-              </div>
-            </div>
 
-            {/* Submission Area */}
-            <div className="card-submission box-border flex items-end w-full h-[175px] rounded-lg bg-white border-[1px] border-[#D6D9E4] p-6 gap-6">
-              <div className="card-submission-left flex flex-col w-5/6 h-full gap-1">
-                <p className="m-0">assignment_description ?</p>
-                <div className="relative w-full h-full">
-                  <input
-                    className="border-[1px] w-full h-full rounded-lg pl-4 pt-2 text-left text-gray-800"
-                    placeholder="Answer..."
-                  />
+              {/* Submission Area */}
+              <div className="card-submission box-border flex items-end w-full h-[175px] rounded-lg bg-white border-[1px] border-[#D6D9E4] p-6 gap-6">
+                <div className="card-submission-left flex flex-col w-5/6 h-full gap-1">
+                  <p className="m-0">{submission.description}</p>
+                  <div className="relative w-full h-full">
+                    {submission.answer == null ? (
+                      <input
+                        className="border-[1px] w-full h-full rounded-lg pl-4 pt-2 text-left text-gray-800"
+                        placeholder="Answer..."
+                        onChange={(e) =>
+                          setAnswers({
+                            ...answers,
+                            [submission.submission_id]: e.target.value,
+                          })
+                        }
+                        value={answers[submission.submission_id] || ""}
+                      />
+                    ) : (
+                      <input
+                        className="border-none w-full h-full rounded-lg pl-4 pt-2 text-left text-[#9AA1B9]"
+                        placeholder="Answer..."
+                        value={submission.answer || ""}
+                        disabled={!!submission.answer}
+                      />
+                    )}
+                  </div>
+                </div>
+                <div className="card-submission-right box-border gap-4 flex flex-col justify-center h-full">
+                  {submission.status === "submitted" ? (
+                    <button
+                      className="m-0 font-bold text-[#2F5FAC] min-w-32 text-center h-14"
+                      onClick={() => {
+                        router.push(`course/${submission.course_id}`);
+                      }}
+                    >
+                      Open in Course
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        className="box-border x-8 py-3 rounded-xl shadow-sm bg-[#2F5FAC] text-base font-bold text-white"
+                        onClick={() =>
+                          handleSubmitAnswer(
+                            submission.submission_id,
+                            answers[submission.submission_id]
+                          )
+                        }
+                      >
+                        Submit
+                      </button>
+                      <button
+                        className="m-0 font-bold text-[#2F5FAC] min-w-32 text-center"
+                        onClick={() => {
+                          router.push(`course/${submission.course_id}`);
+                        }}
+                      >
+                        Open in Course
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
-              <div className="card-submission-right box-border gap-4 flex flex-col justify-center">
-                <button className="box-border x-8 py-3 rounded-xl shadow-sm bg-[#2F5FAC] text-base font-bold text-white">
-                  Submit
-                </button>
-                <button
-                  className="m-0 font-bold text-[#2F5FAC] min-w-32 text-center"
-                  onClick={() => {
-                    router.push(`course/${course.course_id}`);
-                  }}
-                >
-                  Open in Course
-                </button>
-              </div>
             </div>
-          </div>
+          ))}
         </div>
       </div>
     </div>
