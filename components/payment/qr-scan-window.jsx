@@ -32,46 +32,32 @@ const QrScanWindow = React.memo(function QrScanWindow() {
     setError(null);
 
     try {
-      console.log("userId", userData.id);
-      const response = await axios.post("/api/payment/checkPaymentStatus", {
+      const response = await axios.post("/api/payment/checkSubscription", {
         courseId,
         userId: userData.id,
       });
-      if (response.data.exists && response.data.status === "complete") {
+      if (response.data.subscription) {
         router.push(`/payment/success-payment?courseId=${courseId}`);
-      } else if (response.data.exists && response.data.status !== "complete") {
-        const stripeSessionResponse = await axios.post(
-          "/api/payment/getStripeUrl",
+      } else {
+        const newCheckoutResponse = await axios.post(
+          "/api/payment/createPromptpayUrl",
           {
-            sessionId: response.data.sessionId,
+            courseId,
+            amount,
+            userId: userData.id,
           }
         );
 
-        if (stripeSessionResponse.data.url) {
-          setCheckoutUrl(stripeSessionResponse.data.url);
-          setReferenceNumber(response.data.referenceNumber);
+        if (newCheckoutResponse.data.url) {
+          setCheckoutUrl(newCheckoutResponse.data.url);
+          setReferenceNumber(newCheckoutResponse.data.referenceNumber);
         } else {
-          setError("Error fetching Stripe session URL");
+          setError("Error creating checkout session");
         }
       }
     } catch (err) {
-      console.error(err);
       setError("Error: " + err.message);
-      const newCheckoutResponse = await axios.post(
-        "/api/payment/createPromptpayUrl",
-        {
-          courseId,
-          amount,
-          userId: userData.id,
-        }
-      );
-
-      if (newCheckoutResponse.data.url) {
-        setCheckoutUrl(newCheckoutResponse.data.url);
-        setReferenceNumber(newCheckoutResponse.data.referenceNumber);
-      } else {
-        setError("Error creating checkout session");
-      }
+      console.error(err);
     } finally {
       setLoading(false);
       hasFetchedRef.current = true;
