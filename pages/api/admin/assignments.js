@@ -29,7 +29,7 @@ export default async function handler(req, res) {
           LEFT JOIN lessons AS l ON sl.lesson_id = l.lesson_id
           LEFT JOIN courses AS c ON l.course_id = c.course_id
           ${description ? "WHERE a.description ILIKE $1" : ""}
-          ORDER BY a.assignment_id
+          ORDER BY a.created_at DESC
           LIMIT $${description ? 2 : 1} OFFSET $${description ? 3 : 2};
         `;
 

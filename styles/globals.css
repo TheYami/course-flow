@@ -27,3 +27,9 @@
     transform: rotate(1turn);
   }
 }
+.truncate {
+  white-space: nowrap;   /* ห้ามข้อความในบรรทัดใหม่ */
+  overflow: hidden;      /* ซ่อนข้อความที่เกิน */
+  text-overflow: ellipsis; /* แสดง ... เมื่อข้อความเกิน */
+  max-width: 200px;      /* กำหนดขนาดสูงสุดของช่อง */
+}

@@ -16,9 +16,9 @@ const AdminHeaderbar = ({ title, buttonLabel, onSearch, navigatePath }) => {
   };
 
   return (
-    <div className="flex bg-[#FFFFFF] justify-between items-center p-6 mb-6 border-b shadow-sm">
-      <h1 className="text-2xl font-sans ml-8">{title}</h1>
-      <div className="flex mr-8 space-x-4">
+    <div className="flex bg-[#FFFFFF] justify-between items-center py-4 px-10 mb-6 border-b shadow-sm">
+      <h1 className="text-2xl font-sans ">{title}</h1>
+      <div className="flex  space-x-4">
         <div className="relative">
           <input
             className="border rounded-md mt-1 pl-8 pr-20 py-[0.75rem] focus:ring-2 focus:ring-[#2F5FAC] focus:outline-none"
@@ -35,7 +35,7 @@ const AdminHeaderbar = ({ title, buttonLabel, onSearch, navigatePath }) => {
           </span>
         </div>
         <button
-          className="bg-[#2F5FAC] hover:bg-[#3f74ca] text-[#FFFFFF] py-3 px-10 rounded-lg"
+          className="bg-[#2F5FAC] hover:bg-[#3f74ca] text-[#FFFFFF] py-3 px-8 rounded-lg"
           onClick={() => handleNavigation(navigatePath)}
         >
           {buttonLabel || "Search"}

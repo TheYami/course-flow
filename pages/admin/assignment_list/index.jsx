@@ -5,27 +5,50 @@ import { TrashIcon, EditIcon } from "@/assets/icons/admin_icon/adminIcon";
 import axios from "axios";
 import formatDate from "@/utils/formatDate";
 import useAdminAuth from "@/hooks/useAdminAuth";
-
+import { useRouter } from "next/router";
 
 const AdminPanelAssignments = () => {
+  const router = useRouter()
   const [assignments, setAssignments] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const { loading } = useAdminAuth();
+  const [editLoading, setEditLoading] = useState(false);
+  const [limit, setLimit] = useState(6);
+  const [modalOpen, setIsModalOpen] = useState(false)
+  const [selectedAssignmentId, setSelectedAssignmentId] = useState(null)
 
   useEffect(() => {
     if (!loading) {
-      fetchAssignments(currentPage);
+      console.log("Fetching assignments with limit: ", limit); 
+      fetchAssignments(currentPage, limit);
     }
-  }, [currentPage, loading]);
+  }, [currentPage, limit, loading]);
 
-  const fetchAssignments = async (page) => {
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 768) {
+        setLimit(10); 
+      } else {
+        setLimit(6);
+      }
+      console.log("Updated limit: ", limit);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  const fetchAssignments = async (page, limit) => {
     setLoadingData(true);
     try {
       const { data } = await axios.get("/api/admin/assignments", {
-        params: { page, limit: 6 },
+        params: { page, limit },
       });
       setAssignments(data.data);
       setTotalPages(data.totalPages);
@@ -41,7 +64,7 @@ const AdminPanelAssignments = () => {
     setLoadingData(true);
     try {
       const { data } = await axios.get("/api/admin/assignments", {
-        params: { description: searchQuery, page: 1, limit: 6 },
+        params: { description: searchQuery, page: 1, limit: limit },
       });
       setAssignments(data.data);
       setTotalPages(data.totalPages);
@@ -58,14 +81,14 @@ const AdminPanelAssignments = () => {
     return (
       <div className="flex justify-center mt-4">
         <button
-          className="px-4 py-2 mx-2 bg-[#2F5FAC] hover:bg-[#3f74ca] rounded text-[#FFFFFF]"
+          className={`px-4 py-2 mx-2 bg-[#2F5FAC] hover:bg-[#3f74ca] rounded text-[#FFFFFF] ${currentPage === 1 ? 'hidden': 'block'}`}
           disabled={currentPage === 1}
           onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
         >
           Previous
         </button>
         <span className="px-4 py-2">{`Page ${currentPage} of ${totalPages}`}</span>
-        <button
+        {currentPage < totalPages && (<button
           className="px-4 py-2 mx-2 bg-[#2F5FAC] hover:bg-[#3f74ca] rounded text-[#FFFFFF]"
           disabled={currentPage === totalPages}
           onClick={() =>
@@ -73,7 +96,7 @@ const AdminPanelAssignments = () => {
           }
         >
           Next
-        </button>
+        </button>)}
       </div>
     );
   };
@@ -88,7 +111,7 @@ const AdminPanelAssignments = () => {
       "Action",
     ];
     return headers.map((header) => (
-      <th key={header} className="p-2 text-[#424C6B] font-normal">
+      <th key={header} className="py-2 px-3 text-[#424C6B] font-normal">
         {header}
       </th>
     ));
@@ -96,29 +119,34 @@ const AdminPanelAssignments = () => {
 
   const renderTableBody = () => {
     return assignments.map((assignment) => (
-      <tr key={assignment.assignment_id} className="hover:bg-[#F6F7FC]">
-        <td className="p-4 border-t border-[#F1F2F6]">
+      <tr key={assignment.assignment_id} className="hover:bg-[#F6F7FC] text-left">
+        <td className="py-4 px-3 border-t border-[#F1F2F6] truncate">
           {assignment.description}
         </td>
-        <td className="p-4 border-t border-[#F1F2F6]">
+        <td className="py-4 px-3 border-t border-[#F1F2F6] truncate">
           {assignment.course_name}
         </td>
-        <td className="p-4 border-t border-[#F1F2F6]">
+        <td className="py-4 px-3 border-t border-[#F1F2F6] truncate">
           {assignment.lesson_name}
         </td>
-        <td className="p-4 border-t border-[#F1F2F6]">
+        <td className="py-4 px-3 border-t border-[#F1F2F6] truncate">
           {assignment.sub_lesson_name}
         </td>
-        <td className="p-4 border-t border-[#F1F2F6]">
+        <td className="py-4 px-3 border-t border-[#F1F2F6]">
           {formatDate(assignment.created_at)}
         </td>
-        <td className="p-4 border-t border-[#F1F2F6]">
+        <td className="py-4 px-3 border-t flex gap-3 border-[#F1F2F6]">
           <button
-            onClick={handleDeleteAssignments} 
+            onClick={() => {
+              setSelectedAssignmentId(assignment.assignment_id);
+              setIsModalOpen(true)
+            }} 
             className="hover:scale-110">
             <TrashIcon />
           </button>
-          <button className="hover:scale-110">
+          <button 
+            onClick={() => router.push(`/admin/edit_assignment/${assignment.assignment_id}`)}
+            className="hover:scale-110">
             <EditIcon />
           </button>
         </td>
@@ -126,24 +154,26 @@ const AdminPanelAssignments = () => {
     ));
   };
 
-  const handleDeleteAssignments = async () =>{
-    if (!oldAssignment.assignment_id) return;
-    const { assignmentId } = router.query;
+  const handleDeleteAssignments = async () => {
+    if (!selectedAssignmentId) return;
+
     try {
       setEditLoading(true);
       const response = await axios.delete(
-        `/api/admin/delete_assignment/${assignmentId}`
+        `/api/admin/delete_assignment/${selectedAssignmentId}`
       );
-
+  
       if (response.status === 200) {
         setEditLoading(false);
-        router.push("/admin/assignment_list");
+        fetchAssignments(currentPage, limit);
+        setIsModalOpen(false);
       }
     } catch (error) {
       console.error("Error deleting assignment:", error);
       setEditLoading(false);
     }
-  }
+  };
+
 
   return (
     <div className="flex">
@@ -162,7 +192,7 @@ const AdminPanelAssignments = () => {
             </div>
           ) : (
             <>
-              <table className="w-[80vw]  text-left m-8 rounded-lg overflow-hidden shadow-sm">
+              <table className="w-[80vw] text-left rounded-lg overflow-hidden shadow-sm xl:ml-2">
                 <thead className="bg-[#E4E6ED]">
                   <tr>{renderTableHeaders()}</tr>
                 </thead>
@@ -179,6 +209,33 @@ const AdminPanelAssignments = () => {
                 </tbody>
               </table>
               {renderPagination()}
+
+              {modalOpen && <div className="confirmation-modal fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                <div className="bg-white rounded-3xl shadow-lg">
+                  <div className="px-6 pt-6 pb-2 border-b flex justify-between">
+                    <h3 className="text-xl">Confirmation</h3>
+                  </div>
+                  <div className="p-6">
+                    <p>Are you sure you want to delete this assignment?</p>
+                    <div className="flex justify-center gap-6 mt-6">
+                      <button
+                        type="button"
+                        className="font-semibold px-4 py-3 bg-[#FFFFFF] border-1 border-[#F47E20] text-[#F47E20] rounded-xl hover:bg-[#F47E20] hover:text-[#FFFFFF]"
+                        onClick={() => handleDeleteAssignments(assignments.assignment_id)}
+                      >
+                        Yes, I want to delete the assignment
+                      </button>
+                      <button
+                        type="button"
+                        className="px-4 py-3 bg-[#2F5FAC] text-[#FFFFFF] rounded-xl hover:bg-[#FFFFFF] hover:text-[#2F5FAC] border-1 border-[#2F5FAC]"
+                        onClick={() => setIsModalOpen(false)}
+                      >
+                        No, keep it
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>}
             </>
           )}
         </div>

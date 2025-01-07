@@ -32,10 +32,10 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="w-72 bg-[#FFFFFF] h-screen border-r pl-0 relative">
+    <div className="w-60 bg-[#FFFFFF] h-screen border-r pl-0 relative">
       <div
         onClick={() => handleNavigation("/admin/course_list")}
-        className="ml-4 mt-2 mb-8 cursor-pointer"
+        className=" mt-2 mb-8 cursor-pointer"
       >
         <AdminPanelIcon />
       </div>
