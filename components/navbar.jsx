@@ -188,7 +188,10 @@ export default function Navbar() {
                           </div>
                         </li>
 
-                        <li className="cursor-pointer hover:bg-gray-300 p-1 rounded-md">
+                        <li
+                          onClick={() => router.push("/mycourse")}
+                          className="cursor-pointer hover:bg-gray-300 p-1 rounded-md"
+                        >
                           <div className="flex gap-3 items-center">
                             <svg
                               width="14"
@@ -211,7 +214,12 @@ export default function Navbar() {
                           </div>
                         </li>
 
-                        <li className="cursor-pointer hover:bg-gray-300 p-1 rounded-md">
+                        <li
+                          className="cursor-pointer hover:bg-gray-300 p-1 rounded-md"
+                          onClick={() => {
+                            router.push("/my-assignment");
+                          }}
+                        >
                           <div className="flex gap-3 items-center">
                             <svg
                               width="12"
