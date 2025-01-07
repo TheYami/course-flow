@@ -26,6 +26,7 @@ export default async function handler(req, res) {
       courses.summary,
       lessons.lesson_id,
       lessons.lesson_name,
+      sub_lessons.sub_lesson_id,
       sub_lessons.sub_lesson_name,
       sub_lessons.complete_status,
       sub_lessons.video
@@ -77,12 +78,19 @@ export default async function handler(req, res) {
         course.lessons.push(lesson);
       }
 
-      lesson.sub_lessons.push({
-        sub_lesson_name: row.sub_lesson_name,
-        video: row.video,
-        complete_status: row.complete_status,
-      });
+      let subLesson = lesson.sub_lessons.find(
+        (item) => item.sub_lesson_name === row.sub_lesson_name
+      );
 
+      if (!subLesson) {
+        subLesson = {
+          sub_lesson_id: row.sub_lesson_id,
+          sub_lesson_name: row.sub_lesson_name,
+          video: row.video,
+          complete_status: row.complete_status,
+        };
+        lesson.sub_lessons.push(subLesson);
+      }
       return acc;
     }, []);
 
