@@ -85,7 +85,6 @@ export default function AssignmentForm({
           : error
           ? `Error: ${error}`
           : assignmentDescription}
-          test {subLessonId}
       </p>
       <form onSubmit={handleSubmit} className="space-y-4">
         <textarea
