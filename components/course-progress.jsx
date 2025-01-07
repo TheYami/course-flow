@@ -330,8 +330,7 @@ export default function CourseProgress({ slug }) {
                                 </svg>
                               )}
                               <p className="text-sm text-[#646D89] rounded p-2 mb-2">
-                                {subLesson.sub_lesson_name} number
-                                {subLesson.sub_lesson_id}
+                                {subLesson.sub_lesson_name}
                               </p>
                             </div>
                           </div>
