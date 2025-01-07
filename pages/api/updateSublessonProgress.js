@@ -6,7 +6,13 @@ export default async function handler(req, res) {
   }
 
   const { user_id, courseId } = req.query;
-  const { subLessonId} = req.body;
+  const { subLessonId } = req.body;
+
+  console.log("Request received with:", {
+    method: req.method,
+    query: req.query,
+    body: req.body,
+  });
 
   if (!user_id) {
     return res.status(400).json({ error: "Missing user id" });
@@ -20,24 +26,28 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "Missing subLessonId" });
   }
 
-  if (!status) {
-    return res.status(400).json({ error: "Missing status" });
-  }
-
-  // Query สำหรับการอัปเดตสถานะ
   const updateQuery = `
     UPDATE sub_lesson_progress 
-    SET status = $1 
+    SET progress_status = $1 
     WHERE course_id = $2 AND user_id = $3 AND sub_lesson_id = $4
     RETURNING *`;
 
   try {
+    console.log("Executing update with values:", {
+      status: "complete",
+      courseId,
+      user_id,
+      subLessonId,
+    });
+
     const result = await connectionPool.query(updateQuery, [
       "complete",
       courseId,
       user_id,
       subLessonId,
     ]);
+
+    console.log("Query result:", result);
 
     if (!result.rows || result.rows.length === 0) {
       return res
