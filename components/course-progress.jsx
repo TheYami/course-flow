@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
 import supabase from "../lib/supabase";
-import Image from "next/image";
 import CollapsiblePanel from "./collapsible-panel";
 import AssignmentForm from "./mycourse/assignment-form";
 import axios from "axios";
@@ -8,6 +7,7 @@ import { useRouter } from "next/router";
 
 export default function CourseProgress({ slug }) {
 export default function CourseProgress({ slug }) {
+  const [subLessonId, setSubLessonId] = useState(null);
   const [progress, setProgress] = useState(0);
   const [subscribeCoursesData, setSubscribeCoursesData] = useState([]); //ข้อมูลที่ user subscribe แต่ละคอร์ส
   const [selectedSubLesson, setSelectedSubLesson] = useState(null); //ข้อมูลของ sub-lesson ที่ถูกเลือก
@@ -19,6 +19,7 @@ export default function CourseProgress({ slug }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const [isVideoEnded, setIsVideoEnded] = useState(false);
+  const [assignmentDescription, setAssignmentDescription] = useState(null);
   const handleVideoEnd = () => {
     setIsVideoEnded(true);
   };
@@ -69,6 +70,7 @@ export default function CourseProgress({ slug }) {
         setLoading(false);
 
         setSubscribeCoursesData(subscribeData.data);
+        setSubLessonId(subscribeData.data[0].lessons[0].sub_lessons[0].sub_lesson_id);
       } catch (error) {
         console.error("Error fetching subscriptions:", error);
       }
@@ -99,8 +101,17 @@ export default function CourseProgress({ slug }) {
   }
 
   const handleLessonClick = (lesson, index) => {
-    setSelectedSubLesson(lesson);
-    setSelectedSubLessonIndex(index);
+    setSelectedSubLesson(lesson); // เลือก sub-lesson ที่คลิก
+    setSelectedSubLessonIndex(index); // เก็บ index ของ sub-lesson ที่เลือก
+    
+    console.log(lesson);
+    console.log(selectedSubLesson?.sub_lesson_id);
+    // ตรวจสอบว่า lesson มี assignments และเลือก assignment ที่ต้องการ
+    if (lesson.assignments && lesson.assignments.length > 0) {
+      setAssignmentDescription(lesson.assignments[0].assignment_description);
+    } else {
+      setAssignmentDescription("No assignment available for this lesson.");
+    }
 
     if (learningSectionRef.current) {
       learningSectionRef.current.scrollIntoView({ behavior: "smooth" });
@@ -123,19 +134,24 @@ export default function CourseProgress({ slug }) {
         const nextIndex = selectedSubLessonIndex + 1;
 
         if (currentLesson && nextIndex < currentLesson.sub_lessons.length) {
-          setSelectedSubLesson(currentLesson.sub_lessons[nextIndex]);
+          const nextSubLesson = currentLesson.sub_lessons[nextIndex]; // กำหนดค่าของ nextSubLesson
+          setSelectedSubLesson(nextSubLesson);
           setSelectedSubLessonIndex(nextIndex);
+          setSubLessonId(nextSubLesson.sub_lesson_id); // ใช้ nextSubLesson อย่างถูกต้อง
         } else {
           const currentLessonIndex =
             currentCourse.lessons.indexOf(currentLesson);
           if (currentLessonIndex + 1 < currentCourse.lessons.length) {
             const nextLesson = currentCourse.lessons[currentLessonIndex + 1];
-            setSelectedSubLesson(nextLesson.sub_lessons[0]);
+            const nextSubLesson = nextLesson.sub_lessons[0]; // กำหนดค่าของ nextSubLesson
+            setSelectedSubLesson(nextSubLesson);
             setSelectedSubLessonIndex(0);
+            setSubLessonId(nextSubLesson.sub_lesson_id); // ใช้ nextSubLesson อย่างถูกต้อง
           }
         }
       }
     }
+    setIsVideoEnded(false);
   };
 
   const handlePreviousLesson = () => {
@@ -154,25 +170,28 @@ export default function CourseProgress({ slug }) {
         const previousIndex = selectedSubLessonIndex - 1;
 
         if (currentLesson && previousIndex >= 0) {
-          setSelectedSubLesson(currentLesson.sub_lessons[previousIndex]);
+          const prevSubLesson = currentLesson.sub_lessons[previousIndex]; // กำหนดค่าของ prevSubLesson
+          setSelectedSubLesson(prevSubLesson);
           setSelectedSubLessonIndex(previousIndex);
+          setSubLessonId(prevSubLesson.sub_lesson_id); // อัปเดต subLessonId
         } else {
           const currentLessonIndex =
             currentCourse.lessons.indexOf(currentLesson);
           if (currentLessonIndex - 1 >= 0) {
             const previousLesson =
               currentCourse.lessons[currentLessonIndex - 1];
-            setSelectedSubLesson(
-              previousLesson.sub_lessons[previousLesson.sub_lessons.length - 1]
-            );
+            const prevSubLesson =
+              previousLesson.sub_lessons[previousLesson.sub_lessons.length - 1]; // กำหนดค่าของ prevSubLesson
+            setSelectedSubLesson(prevSubLesson);
             setSelectedSubLessonIndex(previousLesson.sub_lessons.length - 1);
+            setSubLessonId(prevSubLesson.sub_lesson_id); // อัปเดต subLessonId
           }
         }
       }
     }
+    setIsVideoEnded(false);
   };
 
-  console.log(subscribeCoursesData); //ข้อมูลที่ user subscribe แต่ละคอร์ส
   console.log(selectedSubLesson); //ข้อมูลของ sub-lesson ที่ถูกเลือก
   console.log(selectedSubLessonIndex); //เก็บตำแหน่งของ index ของ sub_lesson ที่ถูกเลือก
 
@@ -189,7 +208,9 @@ export default function CourseProgress({ slug }) {
     }
   };
   console.log(slug);
-
+  console.log(userData);
+  console.log(subLessonId);
+  
   return subscribeCoursesData && subscribeCoursesData.length > 0 ? (
     <>
       <div className="flex flex-col items-center md:flex-row md:justify-center md:items-start gap-3">
@@ -309,7 +330,8 @@ export default function CourseProgress({ slug }) {
                                 </svg>
                               )}
                               <p className="text-sm text-[#646D89] rounded p-2 mb-2">
-                                {subLesson.sub_lesson_name}
+                                {subLesson.sub_lesson_name} number
+                                {subLesson.sub_lesson_id}
                               </p>
                             </div>
                           </div>
@@ -344,6 +366,7 @@ export default function CourseProgress({ slug }) {
                   controls
                   muted
                   onEnded={handleVideoEnd} // เรียกฟังก์ชันเมื่อวิดีโอเล่นจบ
+                  key={selectedSubLesson.video}
                 >
                   <source src={selectedSubLesson.video} type="video/mp4" />
                   Your browser does not support the video tag.
