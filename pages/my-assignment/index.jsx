@@ -39,6 +39,7 @@ export default function MyAssignment() {
       });
 
       console.log("Submission updated:", response.data);
+      alert("Your answer has been sent successfully");
       getSubmission();
     } catch (error) {
       console.error("Error submitting answer:", error);

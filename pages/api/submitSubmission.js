@@ -18,14 +18,10 @@ export default async function handler(req, res) {
     RETURNING *`;
 
   try {
-    console.log("Executing update with values:", {
-      status: "Submitted",
-      submission_id,
-      answer,
-    });
+
 
     const result = await connectionPool.query(updateQuery, [
-      "Submitted",
+      "submitted",
       answer,
       submission_id,
     ]);
