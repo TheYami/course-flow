@@ -4,7 +4,7 @@ import { ChevronDownIcon, ChevronUpIcon } from "@heroicons/react/20/solid"; // à
 
 const CollapsiblePanel = ({ title, children }) => {
   console.log(`Rendering panel: ${title}`);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(true);
 
   const togglePanel = () => setIsOpen(!isOpen);
 
