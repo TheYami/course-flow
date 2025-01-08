@@ -20,6 +20,8 @@ export default function CourseProgress({ slug }) {
   const router = useRouter();
   const [isVideoEnded, setIsVideoEnded] = useState(false);
   const [assignmentDescription, setAssignmentDescription] = useState(null);
+  const videoSectionRef = useRef(null);
+
   const handleVideoEnd = () => {
     setIsVideoEnded(true);
   };
@@ -70,7 +72,9 @@ export default function CourseProgress({ slug }) {
         setLoading(false);
 
         setSubscribeCoursesData(subscribeData.data);
-        setSubLessonId(subscribeData.data[0].lessons[0].sub_lessons[0].sub_lesson_id);
+        setSubLessonId(
+          subscribeData.data[0].lessons[0].sub_lessons[0].sub_lesson_id
+        );
       } catch (error) {
         console.error("Error fetching subscriptions:", error);
       }
@@ -103,7 +107,7 @@ export default function CourseProgress({ slug }) {
   const handleLessonClick = (lesson, index) => {
     setSelectedSubLesson(lesson); // เลือก sub-lesson ที่คลิก
     setSelectedSubLessonIndex(index); // เก็บ index ของ sub-lesson ที่เลือก
-    
+
     console.log(lesson);
     console.log(selectedSubLesson?.sub_lesson_id);
     // ตรวจสอบว่า lesson มี assignments และเลือก assignment ที่ต้องการ
@@ -151,6 +155,10 @@ export default function CourseProgress({ slug }) {
         }
       }
     }
+    // เลื่อนอัตโนมัติไปยังวิดีโอ
+    if (videoSectionRef.current) {
+      videoSectionRef.current.scrollIntoView({ behavior: "smooth" });
+    }
     setIsVideoEnded(false);
   };
 
@@ -189,6 +197,10 @@ export default function CourseProgress({ slug }) {
         }
       }
     }
+    // เลื่อนอัตโนมัติไปยังวิดีโอ
+    if (videoSectionRef.current) {
+      videoSectionRef.current.scrollIntoView({ behavior: "smooth" });
+    }
     setIsVideoEnded(false);
   };
 
@@ -210,7 +222,7 @@ export default function CourseProgress({ slug }) {
   console.log(slug);
   console.log(userData);
   console.log(subLessonId);
-  
+
   return subscribeCoursesData && subscribeCoursesData.length > 0 ? (
     <>
       <div className="flex flex-col items-center md:flex-row md:justify-center md:items-start gap-3">
@@ -266,12 +278,17 @@ export default function CourseProgress({ slug }) {
                         {lesson.sub_lessons.map((subLesson, subLessonIndex) => (
                           <div
                             key={subLessonIndex}
-                            className="mb-4 cursor-pointer"
+                            className={`mb-4 cursor-pointer flex items-center rounded w-[309px] pl-1 ${
+                              selectedSubLesson?.sub_lesson_id ===
+                              subLesson.sub_lesson_id
+                                ? "bg-[#F6F7FC]" // สีของรายการที่ถูกเลือก
+                                : ""
+                            }`}
                             onClick={() =>
                               handleLessonClick(subLesson, subLessonIndex)
                             }
                           >
-                            <div className="flex items-center bg-[#F6F7FC] rounded w-[309px] pl-1">
+                            <div className="flex items-center  rounded w-[309px] pl-1">
                               {subLesson.complete_status === "not started" ? (
                                 <svg
                                   width="16"
@@ -355,21 +372,35 @@ export default function CourseProgress({ slug }) {
         {/* Right Section */}
         <section className="flex-col xl:ml-12" ref={learningSectionRef}>
           {selectedSubLesson && (
-            <div className="w-[343px] lg:w-[739px] flex flex-col items-start justify-center lg:ml-4 mt-6 lg:mt-4">
+            <div
+              className="w-[343px] lg:w-[739px] flex flex-col items-start justify-center lg:ml-4 mt-6 lg:mt-4"
+              onLoad={() => {
+                // Scroll to the learning section when a sub-lesson is selected
+                learningSectionRef.current?.scrollIntoView({
+                  behavior: "smooth",
+                  block: "start",
+                });
+              }}
+            >
               <h1 className="w-[343px] lg:w-[439px] text-2xl p-2">
                 {selectedSubLesson.sub_lesson_name || "No Subtitle"}
               </h1>
               {selectedSubLesson?.video ? (
-                <video
-                  className="w-[343px] lg:w-[739px]"
-                  controls
-                  muted
-                  onEnded={handleVideoEnd} // เรียกฟังก์ชันเมื่อวิดีโอเล่นจบ
-                  key={selectedSubLesson.video}
-                >
-                  <source src={selectedSubLesson.video} type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
+                <div ref={videoSectionRef}>
+                  <video
+                    className="w-[343px] lg:w-[739px] rounded-xl"
+                    controls
+                    muted
+                    onEnded={handleVideoEnd} // เรียกฟังก์ชันเมื่อวิดีโอเล่นจบ
+                    key={selectedSubLesson.video}
+                  >
+                    <source
+                      src={selectedSubLesson.video || ""}
+                      type="video/mp4"
+                    />
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
               ) : (
                 <img
                   src="/assets/image/mockupvideo.png"
@@ -392,7 +423,7 @@ export default function CourseProgress({ slug }) {
       </div>
 
       {/* Previous, Next */}
-      <div className="flex justify-between mt-10 px-3 shadow-[0_-1px_15px_-6px_rgba(0,0,0,0.3)] h-[92px]">
+      <div className="flex justify-between mt-10 px-3 shadow-[0_-1px_15px_-6px_rgba(0,0,0,0.3)] h-[92px] sticky bottom-0 bg-white z-50">
         <button
           className="text-[#2F5FAC] font-semibold xl:ml-10 2xl:ml-64"
           onClick={handlePreviousLesson}
