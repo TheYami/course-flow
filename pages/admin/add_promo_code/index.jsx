@@ -347,18 +347,21 @@ const AdminPanelAddPromoCode = () => {
                                 ...prev,
                                 percent: "100",
                               }));
+                              return;
                             }
                             if (type === "Percent" && value < 0) {
                               setFormData((prev) => ({
                                 ...prev,
                                 percent: "0",
                               }));
+                              return;
                             }
                             if (type === "Fixed amount" && value < 0) {
                               setFormData((prev) => ({
                                 ...prev,
                                 fixedAmount: "0",
                               }));
+                              return;
                             } else {
                               handleInputChange(e);
                             }
