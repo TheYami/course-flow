@@ -265,7 +265,7 @@ const EditAssignment = () => {
       onSubmit={handleSubmit}
     >
       <header className="top-bar flex justify-between items-center h-[92px] px-10 py-4 bg-white border-b-[1px] border-[#D6D9E4]">
-        <div className="flex dlex-row gap-4 items-center">
+        <div className="flex flex-row gap-4 items-center">
           <div
             onClick={handleCancel}
             className=" cursor-pointer"

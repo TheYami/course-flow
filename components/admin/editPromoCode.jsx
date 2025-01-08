@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from "react";
-import Sidebar from "@/components/admin/AdminSidebar";
 import axios from "axios";
-import { XICon, AlertIcon } from "@/assets/icons/admin_icon/adminIcon";
-import useAdminAuth from "@/hooks/useAdminAuth";
+import {
+  XICon,
+  AlertIcon,
+  ArrowBack,
+} from "@/assets/icons/admin_icon/adminIcon";
 import { useRouter } from "next/router";
 
-const AdminPanelAddPromoCode = () => {
+const EditPromoCodePage = ({ promoCodeId }) => {
   const [allCourses, setAllCourses] = useState([
     { course_id: 0, course_name: "All courses" },
   ]);
+  const [promoCode, setPromoCode] = useState("");
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [formData, setFormData] = useState({
     promoCode: "",
     minimumPurchase: "",
-    discountType: "fixed",
+    discountType: "fixedAmount",
     fixedAmount: "",
     percent: "",
   });
@@ -29,33 +32,58 @@ const AdminPanelAddPromoCode = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [isAllCourseSelected, setIsAllCourseSelected] = useState(false);
-  const { loading } = useAdminAuth();
   const router = useRouter();
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const { data } = await axios.get("/api/admin/fetch_all_courses");
-        setAllCourses((prevCourses) => {
-          const newCourses = data.data;
-          return [
-            ...prevCourses,
-            ...newCourses.filter(
-              (course) =>
-                !prevCourses.some(
-                  (prevCourse) => prevCourse.course_id === course.course_id
-                )
-            ),
-          ];
+        const [allCoursesResponse, promoDataResponse] = await Promise.all([
+          axios.get("/api/admin/fetch_all_courses"),
+          axios.get(`/api/admin/fetch_edit_promocode/${promoCodeId}`),
+        ]);
+
+        const allCourses = allCoursesResponse.data.data;
+        const promoData = promoDataResponse.data;
+
+        setFormData({
+          promoCode: promoData.data.code,
+          minimumPurchase: promoData.data.min_price,
+          discountType: promoData.data.discount_type,
+          ...(promoData.data.discount_type === "Fixed amount"
+            ? { fixedAmount: promoData.data.discount }
+            : { percent: promoData.data.discount }),
         });
+
+        setPromoCode(promoData.data.code);
+
+        const selectedCourses = promoData.data.courses.map((course) => ({
+          course_id: course.course_id,
+          course_name: course.course_name,
+        }));
+
+        setSelectedCourses(selectedCourses);
+
+        setAllCourses((prevCourses) => [
+          ...prevCourses,
+          ...allCourses.filter(
+            (course) =>
+              !prevCourses.some(
+                (prevCourse) => prevCourse.course_id === course.course_id
+              )
+          ),
+        ]);
+
+        setIsFillForm(true);
       } catch (error) {
+        console.error("Error loading courses or promo data:", error);
         setError("Failed to load courses.");
       } finally {
         setIsLoading(false);
       }
     };
+
     fetchCourses();
-  }, [loading]);
+  }, [promoCodeId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -134,7 +162,6 @@ const AdminPanelAddPromoCode = () => {
     setIsLoading(true);
 
     if (!validateForm()) {
-      setIsLoading(false);
       return;
     }
 
@@ -153,7 +180,6 @@ const AdminPanelAddPromoCode = () => {
               .filter((courseId) => courseId !== 0)
           : selectedCourses.map((course) => course.course_id),
     };
-    console.log(payload);
 
     try {
       const storedToken = localStorage.getItem(
@@ -167,8 +193,8 @@ const AdminPanelAddPromoCode = () => {
         alert("Not authenticated");
         return;
       }
-      const response = await axios.post(
-        "/api/admin/create_promo_code",
+      const response = await axios.put(
+        `/api/admin/edit_promocode/${promoCodeId}`,
         payload,
         {
           headers: {
@@ -177,19 +203,13 @@ const AdminPanelAddPromoCode = () => {
         }
       );
 
-      if (response.status === 201) {
-        console.log(
-          "Promo code created successfully:",
-          response.data.promocode
-        );
+      if (response.status === 200) {
         router.push("/admin/promo_code");
       } else {
         console.error("Error creating promo code:", response.data.message);
-        alert("Error: " + response.data.message);
       }
     } catch (error) {
       console.error("Error submitting form:", error);
-      alert("An error occurred while submitting the form.");
     } finally {
       setIsLoading(false);
     }
@@ -200,16 +220,26 @@ const AdminPanelAddPromoCode = () => {
   };
 
   return (
-    <div className="flex">
+    <div className="flex w-full">
       {isLoading && (
         <div className="absolute inset-0 bg-[#FFFFFF] bg-opacity-20 flex items-center justify-center z-10">
           <div className="loader border-t-4 border-[#2F5FAC] w-12 h-12 rounded-full animate-spin"></div>
         </div>
       )}
-      <Sidebar />
       <div className="flex-1 bg-[#F6F7FC]">
         <div className="flex bg-[#FFFFFF] justify-between items-center p-6 mb-6 border-b shadow-sm">
-          <h1 className="text-2xl font-bold">Add Promo Code</h1>
+          <div className="flex">
+            <div
+              onClick={handleCancel}
+              className=" cursor-pointer absolute top-11"
+            >
+              <ArrowBack />
+            </div>
+            <h1 className="text-2xl font-sans text-[#9AA1B9] ml-10 mr-3">
+              Promo Code
+            </h1>
+            <h1 className="text-2xl font-sans mr-3">{promoCode}</h1>
+          </div>
           <div className="flex space-x-4">
             <button
               type="button"
@@ -223,7 +253,7 @@ const AdminPanelAddPromoCode = () => {
               onClick={handleSubmit}
               className="bg-[#2F5FAC] hover:bg-white hover:text-[#2F5FAC] hover:border hover:border-[#2F5FAC] text-[#FFFFFF] create-button w-[120px] h-[60px] px-8 py-[18px] font-[700] rounded-[12px] flex justify-center items-center"
             >
-              Create
+              Save
             </button>
           </div>
         </div>
@@ -237,7 +267,7 @@ const AdminPanelAddPromoCode = () => {
                     type="text"
                     placeholder="Enter promo code"
                     name="promoCode"
-                    value={formData.promoCode}
+                    value={formData.promoCode || ""}
                     onChange={handleInputChange}
                     className={`border-1 rounded-md p-2 w-full ${
                       isFillForm.promoCode === false
@@ -264,7 +294,7 @@ const AdminPanelAddPromoCode = () => {
                     type="number"
                     placeholder="Enter amount"
                     name="minimumPurchase"
-                    value={formData.minimumPurchase}
+                    value={formData.minimumPurchase || ""}
                     onChange={(e) => {
                       const value = e.target.value;
                       if (value < 0) {
@@ -338,7 +368,7 @@ const AdminPanelAddPromoCode = () => {
                               type === "Fixed amount"
                                 ? "fixedAmount"
                                 : "percent"
-                            ]
+                            ] || ""
                           }
                           onChange={(e) => {
                             const value = e.target.value;
@@ -400,7 +430,7 @@ const AdminPanelAddPromoCode = () => {
               </div>
             </div>
 
-            <div className="relative w-full pb-10 my-10">
+            <div className="relative w-full my-10">
               <label>Courses Included</label>
               <button
                 type="button"
@@ -479,4 +509,4 @@ const AdminPanelAddPromoCode = () => {
   );
 };
 
-export default AdminPanelAddPromoCode;
+export default EditPromoCodePage;
