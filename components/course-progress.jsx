@@ -226,7 +226,7 @@ export default function CourseProgress({ slug }) {
     <>
       <div className="flex flex-col items-center md:flex-row md:justify-center md:items-start gap-3">
         {/* Left Section */}
-        <section className="w-[343px] lg:w-[387px] flex-col mt-4 pt-4 p-4 box-border rounded-md ml-4 shadow-md xl:ml-8">
+        <section className="w-[343px] lg:w-[387px] flex-col mt-4 pt-4 p-4 box-border rounded-md ml-0 shadow-md xl:ml-8">
           <h1 className="text-xs font-normal mb-4 text-[#F47E20]">Course</h1>
 
           {/* Course Header */}
@@ -372,7 +372,7 @@ export default function CourseProgress({ slug }) {
         <section className="flex-col xl:ml-12" ref={learningSectionRef}>
           {selectedSubLesson && (
             <div
-              className="w-[343px] lg:w-[739px] flex flex-col items-start justify-center lg:ml-4 mt-6 lg:mt-4"
+              className="w-[343px] lg:w-[480px] xl:w-[739px] flex flex-col items-start justify-center lg:ml-4 mt-6 lg:mt-4"
               onLoad={() => {
                 // Scroll to the learning section when a sub-lesson is selected
                 learningSectionRef.current?.scrollIntoView({
@@ -387,7 +387,7 @@ export default function CourseProgress({ slug }) {
               {selectedSubLesson?.video ? (
                 <div ref={videoSectionRef}>
                   <video
-                    className="w-[343px] lg:w-[739px] rounded-xl"
+                    className="w-[343px] lg:w-[480px] xl:w-[739px] rounded-xl"
                     controls
                     muted
                     onEnded={handleVideoEnd} // เรียกฟังก์ชันเมื่อวิดีโอเล่นจบ

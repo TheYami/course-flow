@@ -64,7 +64,7 @@ export default function AssignmentForm({
   };
 
   return (
-    <div className="bg-[#E5ECF8] border rounded-lg p-4 mt-6 w-[343px] lg:w-[739px] lg:ml-4 lg:mt-20">
+    <div className="bg-[#E5ECF8] border rounded-lg p-4 mt-6 w-[343px] lg:w-[480px] xl:w-[739px] lg:ml-4 lg:mt-20">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold text-gray-800">Assignment</h2>
         {/* assignment status */}
