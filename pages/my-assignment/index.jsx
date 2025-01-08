@@ -3,6 +3,7 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import { useAuth } from "@/contexts/useUserAuth";
 import { useState, useEffect } from "react";
+import Footer from "@/components/footer";
 
 export default function MyAssignment() {
   const { isLoggedIn, user, userData, subscriptions } = useAuth();
@@ -46,7 +47,6 @@ export default function MyAssignment() {
     }
   };
 
-
   useEffect(() => {
     if (userData) {
       getSubmission();
@@ -57,7 +57,7 @@ export default function MyAssignment() {
     <div className="w-full">
       <Navbar />
       <div className="flex flex-col items-center">
-        <div className="relative w-full">
+        <div className="relative w-full ">
           {/* gliter */}
           <svg
             width="100%"
@@ -125,7 +125,7 @@ export default function MyAssignment() {
           </svg>
         </div>
 
-        <div className="my-assignment-header flex flex-col items-center gap-[60px] mt-24">
+        <div className="my-assignment-header flex flex-col items-center gap-[20px] sm:gap-[60px] mt-12 sm:mt-24 z-10">
           <h3 className="font-medium text-4xl gap-14 m-0">My Assignments</h3>
           <div className="flex text-base font-normal gap-4 text-[#9AA1B9]">
             <button
@@ -161,13 +161,13 @@ export default function MyAssignment() {
           </div>
         </div>
         {/* assignment card section */}
-        <div className="assignment-card-section flex flex-col gap-6 w-full max-w-[1120px] mt-10">
+        <div className="assignment-card-section flex flex-col items-center gap-6 w-full max-w-[1120px] mt-10 z-10">
           {filteredSubmissions.map((submission) => (
             <div
-              className="assignment-card w-full h-[354px] bg-[#E5ECF8] rounded-lg px-24 py-10"
+              className="assignment-card w-[410px] sm:ml-0 sm:w-full sm:h-[380px] bg-[#E5ECF8] rounded-lg px-3 sm:px-24 py-3 sm:py-10 sm:mx-24 "
               key={submission.submission_id}
             >
-              <div className="card-header flex justify-between">
+              <div className="card-header flex flex-col sm:flex-row justify-between">
                 <div className="card-header-left flex flex-col gap-3">
                   <h3 className="m-0">Course: {submission.course_name}</h3>
                   <p>Introduction: {submission.sub_lesson_name}</p>
@@ -184,12 +184,12 @@ export default function MyAssignment() {
               </div>
 
               {/* Submission Area */}
-              <div className="card-submission box-border flex items-end w-full h-[175px] rounded-lg bg-white border-[1px] border-[#D6D9E4] p-6 gap-6">
-                <div className="card-submission-left flex flex-col w-5/6 h-full gap-1">
+              <div className="card-submission mt-3 box-border flex flex-col sm:flex-row items-center sm:items-end w-full sm:h-[175px] rounded-lg bg-white border-[1px] border-[#D6D9E4] p-2 sm:p-6 sm:gap-6">
+                <div className="card-submission-left flex flex-col p-2 sm:p-0 w-full sm:w-5/6 h-full gap-1">
                   <p className="m-0">{submission.description}</p>
-                  <div className="relative w-full h-full">
+                  <div className="relative w-full h-[100px] sm:h-full">
                     {submission.answer == null ? (
-                      <input
+                      <textarea
                         className="border-[1px] w-full h-full rounded-lg pl-4 pt-2 text-left text-gray-800"
                         placeholder="Answer..."
                         onChange={(e) =>
@@ -201,8 +201,8 @@ export default function MyAssignment() {
                         value={answers[submission.submission_id] || ""}
                       />
                     ) : (
-                      <input
-                        className="border-none w-full h-full rounded-lg pl-4 pt-2 text-left text-[#9AA1B9]"
+                      <textarea
+                        className="border-none w-full h-full rounded-lg pl-4 pt-2 text-left bg-[#FFFFFF] text-[#9AA1B9]"
                         placeholder="Answer..."
                         value={submission.answer || ""}
                         disabled={!!submission.answer}
@@ -210,7 +210,7 @@ export default function MyAssignment() {
                     )}
                   </div>
                 </div>
-                <div className="card-submission-right box-border gap-4 flex flex-col justify-center h-full">
+                <div className="card-submission-right box-border gap-4 flex flex-col justify-center w-[345px] sm:w-[135px] h-full">
                   {submission.status === "submitted" ? (
                     <button
                       className="m-0 font-bold text-[#2F5FAC] min-w-32 text-center h-14"
@@ -248,6 +248,9 @@ export default function MyAssignment() {
             </div>
           ))}
         </div>
+      </div>
+      <div className="mt-5 sm:mt-10">
+        <Footer />
       </div>
     </div>
   );
