@@ -36,7 +36,6 @@ const LoginPage = () => {
         }
 
         if (data.role === "admin") {
-          alert("admin log in succesfully");
           router.push("/admin/course_list");
         } else {
           alert("You do not have permission to access the admin panel.");
