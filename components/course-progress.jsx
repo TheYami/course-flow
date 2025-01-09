@@ -20,6 +20,7 @@ export default function CourseProgress({ slug }) {
   const router = useRouter();
   const [isVideoEnded, setIsVideoEnded] = useState(false);
   const [assignmentDescription, setAssignmentDescription] = useState(null);
+   const videoSectionRef = useRef(null);
   const handleVideoEnd = async() => {
         try {
       await axios.put(
@@ -111,6 +112,7 @@ export default function CourseProgress({ slug }) {
   const handleLessonClick = (lesson, index) => {
     setSelectedSubLesson(lesson); // เลือก sub-lesson ที่คลิก
     setSelectedSubLessonIndex(index); // เก็บ index ของ sub-lesson ที่เลือก
+    setSubLessonId(lesson.sub_lesson_id); 
     setIsVideoEnded(false);
     console.log(lesson);
     console.log("Selected Sub LessonId : ", selectedSubLesson?.sub_lesson_id);
@@ -300,7 +302,7 @@ export default function CourseProgress({ slug }) {
                               handleLessonClick(subLesson, subLessonIndex)
                             }
                           >
-                            <div className="flex items-center bg-[#F6F7FC] rounded w-[309px] pl-1">
+                            <div className="flex items-center rounded w-[309px] pl-1">
                               {subLesson.progress_status === "not-started" ? (
                                 <svg
                                   width="16"
