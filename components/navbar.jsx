@@ -101,12 +101,12 @@ export default function Navbar() {
           {/* Navigation Links */}
           <ul className="flex items-center text-gray-700 font-medium m-0 p-0 gap-2 lg:gap-8">
             <li>
-              <a
+              <Link
                 href="/course"
-                className=" text-darkBlue500 font-bold no-underline text-sm md:text-base xl:mr-5"
+                className=" text-darkBlue500 font-bold no-underline text-sm md:text-base lg:pr-6"
               >
                 Our Courses
-              </a>
+              </Link>
             </li>
 
             {user === null ? (
