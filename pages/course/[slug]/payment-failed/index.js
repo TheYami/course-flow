@@ -36,6 +36,7 @@ export default function index() {
 
           <div >
             <button 
+              onClick={()=>router.push(`/course/${slug}/payment`)}
               className='w-[263px] lg:w-[321.5px] px-8 py-[18px] bg-[#2F5FAC] text-white font-bold rounded-xl'>
                 Back to Payment
               </button>

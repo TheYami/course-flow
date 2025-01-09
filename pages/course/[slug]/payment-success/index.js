@@ -39,6 +39,7 @@ export default function index() {
                 </button>
 
               <button 
+                onClick={() => router.push(`/my-course/${slug}`)}
                 className='w-[263px] lg:w-[321.5px] px-8 py-[18px] bg-[#2F5FAC] text-white font-bold rounded-xl'>
                   Start Learning
                 </button>
