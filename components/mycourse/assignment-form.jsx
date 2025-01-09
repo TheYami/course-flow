@@ -78,7 +78,6 @@ export default function AssignmentForm({
   const handleSubmit = (event) => {
     event.preventDefault();
     alert(`Your answer: ${answer}`);
-    setIsSubmitted(true); // ตั้งค่าให้ไม่สามารถแก้ไขคำตอบได้
     if (onComplete) onComplete();
   };
 

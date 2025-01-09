@@ -4,6 +4,7 @@ import CollapsiblePanel from "./collapsible-panel";
 import AssignmentForm from "./mycourse/assignment-form";
 import axios from "axios";
 import { useRouter } from "next/router";
+import e from "cors";
 
 export default function CourseProgress({ slug }) {
   const [subLessonId, setSubLessonId] = useState(null);
@@ -19,9 +20,14 @@ export default function CourseProgress({ slug }) {
   const router = useRouter();
   const [isVideoEnded, setIsVideoEnded] = useState(false);
   const [assignmentDescription, setAssignmentDescription] = useState(null);
-  const videoSectionRef = useRef(null);
-
-  const handleVideoEnd = () => {
+  const handleVideoEnd = async() => {
+        try {
+      await axios.put(
+        `/api/updateSublessonProgress?user_id=${userData.id}&courseId=${subscribeCoursesData[0].course_id}&subLessonId=${selectedSubLesson.sub_lesson_id}&status=completed`
+      );
+    } catch (error) {
+      console.error("Error update progress:", error);
+    }
     setIsVideoEnded(true);
   };
 
@@ -203,14 +209,24 @@ export default function CourseProgress({ slug }) {
     setIsVideoEnded(false);
   };
 
-  // console.log(selectedSubLesson); //ข้อมูลของ sub-lesson ที่ถูกเลือก
-  // console.log(selectedSubLessonIndex); //เก็บตำแหน่งของ index ของ sub_lesson ที่ถูกเลือก
 
   //update progress
   const handleCompleteAssignment = () => {
     setProgress((prev) => Math.min(prev + 10, 100));
   };
 
+  const handleOnPlay = async () => {
+    console.log("user_id", userData.id);
+    console.log("courseId", subscribeCoursesData[0].course_id);
+    console.log("sub_lesson_id", selectedSubLesson.sub_lesson_id);
+    try {
+      await axios.put(
+        `/api/updateSublessonProgress?user_id=${userData.id}&courseId=${subscribeCoursesData[0].course_id}&subLessonId=${selectedSubLesson.sub_lesson_id}&status=in-progress`
+      );
+    } catch (error) {
+      console.error("Error update progress:", error);
+    }
+  };
   //auto scroll to learning section
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
@@ -383,21 +399,17 @@ export default function CourseProgress({ slug }) {
                 {selectedSubLesson.sub_lesson_name || "No Subtitle"}
               </h1>
               {selectedSubLesson?.video ? (
-                <div ref={videoSectionRef}>
-                  <video
-                    className="w-[343px] lg:w-[480px] xl:w-[739px] rounded-xl"
-                    controls
-                    muted
-                    onEnded={handleVideoEnd} // เรียกฟังก์ชันเมื่อวิดีโอเล่นจบ
-                    key={selectedSubLesson.video}
-                  >
-                    <source
-                      src={selectedSubLesson.video || ""}
-                      type="video/mp4"
-                    />
-                    Your browser does not support the video tag.
-                  </video>
-                </div>
+                <video
+                  className="w-[343px] lg:w-[739px]"
+                  controls
+                  muted
+                  onPlay={handleOnPlay}
+                  onEnded={handleVideoEnd} // เรียกฟังก์ชันเมื่อวิดีโอเล่นจบ
+                  key={selectedSubLesson.video}
+                >
+                  <source src={selectedSubLesson.video} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
               ) : (
                 <img
                   src="/assets/image/mockupvideo.png"

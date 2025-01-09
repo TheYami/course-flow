@@ -39,6 +39,7 @@ export default async function handler(req, res) {
       ON sub_lesson_progress.user_id = subscriptions.user_id
      AND sub_lesson_progress.sub_lesson_id = sub_lessons.sub_lesson_id
     WHERE subscriptions.user_id = $1 AND courses.course_id = $2
+    ORDER BY sub_lesson_id
   `;
 
   try {
@@ -98,7 +99,7 @@ export default async function handler(req, res) {
       return acc;
     }, []);
 
-    
+
     formattedData.forEach((course) => {
       const allSubLessons = course.lessons.flatMap(
         (lesson) => lesson.sub_lessons
