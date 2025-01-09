@@ -106,9 +106,10 @@ export default function CourseProgress({ slug }) {
   const handleLessonClick = (lesson, index) => {
     setSelectedSubLesson(lesson); // เลือก sub-lesson ที่คลิก
     setSelectedSubLessonIndex(index); // เก็บ index ของ sub-lesson ที่เลือก
+    setSubLessonId(lesson.sub_lesson_id); // ตั้งค่า subLessonId จาก lesson ที่เลือก
 
-    console.log(lesson);
-    console.log(selectedSubLesson?.sub_lesson_id);
+    // console.log(lesson);
+    // console.log(selectedSubLesson?.sub_lesson_id);
     // ตรวจสอบว่า lesson มี assignments และเลือก assignment ที่ต้องการ
     if (lesson.assignments && lesson.assignments.length > 0) {
       setAssignmentDescription(lesson.assignments[0].assignment_description);
@@ -119,6 +120,7 @@ export default function CourseProgress({ slug }) {
     if (learningSectionRef.current) {
       learningSectionRef.current.scrollIntoView({ behavior: "smooth" });
     }
+    setIsVideoEnded(false);
   };
 
   const handleNextLesson = () => {
@@ -218,8 +220,8 @@ export default function CourseProgress({ slug }) {
       element.scrollIntoView({ behavior: "smooth" });
     }
   };
-  console.log(slug);
-  console.log(userData);
+  // console.log(slug);
+  // console.log(userData);
   console.log(subLessonId);
 
   return subscribeCoursesData && subscribeCoursesData.length > 0 ? (
