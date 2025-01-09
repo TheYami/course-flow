@@ -127,19 +127,19 @@ const AddAssignment = () => {
     setCreateLoading(true);
 
     if (!selectedCourse) {
-      setCourseError("!! Please select a course");
-      setLessonError("!! Please select a lesson");
-      setSubLessonError("!! Please select a sub-lesson");
+      setCourseError("Please select a course");
+      setLessonError("Please select a lesson");
+      setSubLessonError("Please select a sub-lesson");
     }
     if (selectedCourse && !selectedLesson) {
-      setLessonError("!! Please select a lesson");
-      setSubLessonError("!! Please select a sub-lesson");
+      setLessonError("Please select a lesson");
+      setSubLessonError("Please select a sub-lesson");
     }
     if (selectedCourse && selectedLesson && !selectedSubLesson) {
-      setSubLessonError("!! Please select a sub-lesson");
+      setSubLessonError("Please select a sub-lesson");
     }
     if (!assignment) {
-      setAssignmentError("!! Please fill an assignment");
+      setAssignmentError("Please fill an assignment");
     }
 
     if (
@@ -171,9 +171,6 @@ const AddAssignment = () => {
   const handleCancel = () => {
     router.push("/admin/assignment_list");
   };
-  console.log("course error", courseError);
-  console.log("lesson error", lessonError);
-  console.log("sub-lesson error", subLessonError);
 
   return (
     <form

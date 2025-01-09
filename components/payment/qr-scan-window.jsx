@@ -21,9 +21,7 @@ const QrScanWindow = React.memo(function QrScanWindow() {
 
   const { courseId, amount } = router.query;
 
-  useEffect(() => {
-    if (hasFetchedRef.current) return;
-    
+  const fetchCheckoutUrl = async () => {
     if (!userData) {
       setError("User data not available yet");
       setLoading(false);
@@ -33,32 +31,41 @@ const QrScanWindow = React.memo(function QrScanWindow() {
     setLoading(true);
     setError(null);
 
-    const fetchCheckoutUrl = async () => {
-      if (!checkoutUrl) {
-        try {
-          if (userData) {
-            setUserId(userData.id);
-          }
-          const response = await axios.post("/api/payment/createPromptpayUrl", {
+    try {
+      const response = await axios.post("/api/payment/checkSubscription", {
+        courseId,
+        userId: userData.id,
+      });
+      if (response.data.subscription) {
+        router.push(`/payment/success-payment?courseId=${courseId}`);
+      } else {
+        const newCheckoutResponse = await axios.post(
+          "/api/payment/createPromptpayUrl",
+          {
             courseId,
             amount,
-            userId:userData.id,
-          });
-          if (response.data.url) {
-            setCheckoutUrl(response.data.url);
-            setReferenceNumber(response.data.referenceNumber);
-          } else {
-            setError("Error creating checkout session");
+            userId: userData.id,
           }
-        } catch (err) {
-          console.error(err);
-          setError("Error: " + err.message);
-        } finally {
-          setLoading(false);
-          hasFetchedRef.current = true;
+        );
+
+        if (newCheckoutResponse.data.url) {
+          setCheckoutUrl(newCheckoutResponse.data.url);
+          setReferenceNumber(newCheckoutResponse.data.referenceNumber);
+        } else {
+          setError("Error creating checkout session");
         }
       }
-    };
+    } catch (err) {
+      setError("Error: " + err.message);
+      console.error(err);
+    } finally {
+      setLoading(false);
+      hasFetchedRef.current = true;
+    }
+  };
+
+  useEffect(() => {
+    if (hasFetchedRef.current) return;
     fetchCheckoutUrl();
   }, [userData]);
 
@@ -73,7 +80,7 @@ const QrScanWindow = React.memo(function QrScanWindow() {
 
       if (data.status === "complete") {
         router.push(`/payment/success-payment?courseId=${courseId}`);
-      } else if (data.status === "failed"){
+      } else if (data.status === "failed") {
         router.push(`/payment/failed-payment?courseId=${courseId}`);
       }
     };
