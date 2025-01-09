@@ -171,9 +171,6 @@ const AddAssignment = () => {
   const handleCancel = () => {
     router.push("/admin/assignment_list");
   };
-  console.log("course error", courseError);
-  console.log("lesson error", lessonError);
-  console.log("sub-lesson error", subLessonError);
 
   return (
     <form
