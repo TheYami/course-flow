@@ -12,6 +12,12 @@ export default function PaymentSuccessfullCard() {
     }
   };
 
+  const handleStartLearning = () => {
+    if (courseId) {
+      router.push(`/mycourse/${courseId}`);
+    }
+  };
+
   return (
     <div className="payment-successfull-card flex flex-col items-center rounded-[8px] gap-8 p-10 shadow-[4px_4px_24px_0px_rgba(0,0,0,0.08)] xl:w-[739px]">
       <div className="alert-part flex flex-col gap-6 items-center justify-center">
@@ -34,6 +40,7 @@ export default function PaymentSuccessfullCard() {
           View Course detail
         </div>
         <div
+          onClick={handleStartLearning}
           className="w-full text-center text-white bg-[#2F5FAC] font-[500] px-8 py-[18px] rounded-[12px]"
           type="button"
         >
