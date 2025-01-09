@@ -1,18 +1,15 @@
 import connectionPool from "@/utils/db";
-import { Result } from "postcss";
-
-// เอาไว้สร้างเก็บ Progress สำหรับ Sublesson ใน User แต่ละคน
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { courseId } = req.query;
   const { user } = req.body;
+  const { courseId } = req.query;
 
   try {
-    // Query lessons จากฐานข้อมูล
+    //ดึง sub_lesson_id จาก course_id ที่ทำการ subscription สำเร็จแล้ว
     const result = await connectionPool.query(
       `SELECT l.course_id,l.lesson_id,sl.sub_lesson_id
 FROM lessons AS l
@@ -22,46 +19,43 @@ ON l.lesson_id =sl.lesson_id
       [courseId]
     );
 
-  // ตัวอย่างหน้าตาผลลัพธ์
-  //"result": [
-  //       {
-  //           "course_id": 1,
-  //           "lesson_id": 2,
-  //           "sub_lesson_id": 3
-  //       },
-  //       {
-  //           "course_id": 1,
-  //           "lesson_id": 2,
-  //           "sub_lesson_id": 4
-  //       },
-  //       {
-  //           "course_id": 1,
-  //           "lesson_id": 26,
-  //           "sub_lesson_id": 48
-  //       },
+    const lessons = result.rows;
+    const subLessonIds = lessons.flatMap(
+      (subLesson) => subLesson.sub_lesson_id
+    );
 
-    if (!result.rows || result.rows.length === 0) {
+    if (subLessonIds.length === 0) {
       return res
         .status(404)
-        .json({ error: "No lessons found for this course" });
+        .json({ error: "No sub_lessons found for the provided course" });
     }
 
-    const lessons = result.rows;
+    const assignmentQuery = `
+  SELECT sub_lesson_id, assignment_id
+  FROM assignments
+  WHERE sub_lesson_id IN (${subLessonIds.join(", ")});
+`;
+    //ดึง assignment_id จาก sub_lesson_id
+    const subLessonsWithAssignments = await connectionPool.query(
+      assignmentQuery
+    );
 
-    // สร้าง array ของ sub_lesson_id
-    const subLessonIds = lessons.flatMap((subLesson) => subLesson.sub_lesson_id);
-
-    const values = subLessonIds
-      .map((id) => `(${id}, 'not-started', ${user.id},${courseId})`)
+    const values = subLessonsWithAssignments.rows
+      .map(
+        ({ assignment_id }) =>
+          `(${assignment_id}, ${user.id}, null, null, 'in-progress')`
+      )
       .join(", ");
 
-    const query = `INSERT INTO sub_lesson_progress (sub_lesson_id, progress_status, user_id,course_id) VALUES ${values};`;
-
+    const query = `
+      INSERT INTO submissions (assignment_id, user_id, answer, submission_date, status)
+      VALUES ${values};
+    `;
+    //สร้าง submissions จาก assignment_id สำหร้บ user แต่ละคน
     await connectionPool.query(query);
 
     res.status(200).json({
-      message: "Lessons and sub-lessons added successfully",
-      result: subLessonIds,
+      message: "Submissions are successfully created",
     });
   } catch (error) {
     console.error("Error inserting data:", error);

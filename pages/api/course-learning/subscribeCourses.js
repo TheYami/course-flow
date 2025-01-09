@@ -29,11 +29,15 @@ export default async function handler(req, res) {
       sub_lessons.sub_lesson_id,
       sub_lessons.sub_lesson_name,
       sub_lessons.complete_status,
-      sub_lessons.video
+      sub_lessons.video,
+      sub_lesson_progress.progress_status
     FROM subscriptions
     JOIN courses ON subscriptions.course_id = courses.course_id
     JOIN lessons ON courses.course_id = lessons.course_id
     JOIN sub_lessons ON lessons.lesson_id = sub_lessons.lesson_id
+    JOIN sub_lesson_progress 
+      ON sub_lesson_progress.user_id = subscriptions.user_id
+     AND sub_lesson_progress.sub_lesson_id = sub_lessons.sub_lesson_id
     WHERE subscriptions.user_id = $1 AND courses.course_id = $2
   `;
 
@@ -60,7 +64,7 @@ export default async function handler(req, res) {
           detail: row.detail,
           summary: row.summary,
           lessons: [],
-          complete_lessons_count: row.completed_lessons_count,
+          progress: 0,
         };
         acc.push(course);
       }
@@ -87,13 +91,28 @@ export default async function handler(req, res) {
           sub_lesson_id: row.sub_lesson_id,
           sub_lesson_name: row.sub_lesson_name,
           video: row.video,
-          complete_status: row.complete_status,
+          progress_status: row.progress_status,
         };
         lesson.sub_lessons.push(subLesson);
       }
       return acc;
     }, []);
 
+    
+    formattedData.forEach((course) => {
+      const allSubLessons = course.lessons.flatMap(
+        (lesson) => lesson.sub_lessons
+      );
+      const totalSubLessons = allSubLessons.length; // จำนวน sub_lessons ทั้งหมด
+      const completedSubLessons = allSubLessons.filter(
+        (subLesson) => subLesson.progress_status === "completed"
+      ).length; // จำนวนที่ progress_status เป็น 'completed'
+
+      course.progress =
+        totalSubLessons > 0
+          ? Math.round((completedSubLessons / totalSubLessons) * 100)
+          : 0;
+    });
     // ส่งข้อมูลกลับไปยัง client
     return res.status(200).json(formattedData);
   } catch (error) {
