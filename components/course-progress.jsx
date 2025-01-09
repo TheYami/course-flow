@@ -6,7 +6,6 @@ import axios from "axios";
 import { useRouter } from "next/router";
 
 export default function CourseProgress({ slug }) {
-export default function CourseProgress({ slug }) {
   const [subLessonId, setSubLessonId] = useState(null);
   const [progress, setProgress] = useState(0);
   const [subscribeCoursesData, setSubscribeCoursesData] = useState([]); //ข้อมูลที่ user subscribe แต่ละคอร์ส
