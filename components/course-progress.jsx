@@ -4,6 +4,7 @@ import CollapsiblePanel from "./collapsible-panel";
 import AssignmentForm from "./mycourse/assignment-form";
 import axios from "axios";
 import { useRouter } from "next/router";
+import e from "cors";
 
 export default function CourseProgress({ slug }) {
   const [subLessonId, setSubLessonId] = useState(null);
@@ -19,9 +20,14 @@ export default function CourseProgress({ slug }) {
   const router = useRouter();
   const [isVideoEnded, setIsVideoEnded] = useState(false);
   const [assignmentDescription, setAssignmentDescription] = useState(null);
-  const videoSectionRef = useRef(null);
-
-  const handleVideoEnd = () => {
+  const handleVideoEnd = async() => {
+        try {
+      await axios.put(
+        `/api/updateSublessonProgress?user_id=${userData.id}&courseId=${subscribeCoursesData[0].course_id}&subLessonId=${selectedSubLesson.sub_lesson_id}&status=completed`
+      );
+    } catch (error) {
+      console.error("Error update progress:", error);
+    }
     setIsVideoEnded(true);
   };
 
@@ -67,7 +73,6 @@ export default function CourseProgress({ slug }) {
         const subscribeData = await axios.get(
           `/api/course-learning/subscribeCourses?user_id=${userData.id}&course_id=${slug}`
         ); // ดึงข้อมูลการสมัครคอร์สของผู้ใช้
-        console.log(subscribeData.data);
         setLoading(false);
 
         setSubscribeCoursesData(subscribeData.data);
@@ -82,7 +87,7 @@ export default function CourseProgress({ slug }) {
   }, [userData]);
 
   useEffect(() => {
-    console.log(subscribeCoursesData);
+    console.log("Subscription Course Data", subscribeCoursesData[0]);
   }, [subscribeCoursesData]);
 
   useEffect(() => {
@@ -106,10 +111,9 @@ export default function CourseProgress({ slug }) {
   const handleLessonClick = (lesson, index) => {
     setSelectedSubLesson(lesson); // เลือก sub-lesson ที่คลิก
     setSelectedSubLessonIndex(index); // เก็บ index ของ sub-lesson ที่เลือก
-    setSubLessonId(lesson.sub_lesson_id); // ตั้งค่า subLessonId จาก lesson ที่เลือก
-
-    // console.log(lesson);
-    // console.log(selectedSubLesson?.sub_lesson_id);
+    setIsVideoEnded(false);
+    console.log(lesson);
+    console.log("Selected Sub LessonId : ", selectedSubLesson?.sub_lesson_id);
     // ตรวจสอบว่า lesson มี assignments และเลือก assignment ที่ต้องการ
     if (lesson.assignments && lesson.assignments.length > 0) {
       setAssignmentDescription(lesson.assignments[0].assignment_description);
@@ -205,14 +209,24 @@ export default function CourseProgress({ slug }) {
     setIsVideoEnded(false);
   };
 
-  console.log(selectedSubLesson); //ข้อมูลของ sub-lesson ที่ถูกเลือก
-  console.log(selectedSubLessonIndex); //เก็บตำแหน่งของ index ของ sub_lesson ที่ถูกเลือก
 
   //update progress
   const handleCompleteAssignment = () => {
     setProgress((prev) => Math.min(prev + 10, 100));
   };
 
+  const handleOnPlay = async () => {
+    console.log("user_id", userData.id);
+    console.log("courseId", subscribeCoursesData[0].course_id);
+    console.log("sub_lesson_id", selectedSubLesson.sub_lesson_id);
+    try {
+      await axios.put(
+        `/api/updateSublessonProgress?user_id=${userData.id}&courseId=${subscribeCoursesData[0].course_id}&subLessonId=${selectedSubLesson.sub_lesson_id}&status=in-progress`
+      );
+    } catch (error) {
+      console.error("Error update progress:", error);
+    }
+  };
   //auto scroll to learning section
   const scrollToSection = (id) => {
     const element = document.getElementById(id);
@@ -220,9 +234,6 @@ export default function CourseProgress({ slug }) {
       element.scrollIntoView({ behavior: "smooth" });
     }
   };
-  // console.log(slug);
-  // console.log(userData);
-  console.log(subLessonId);
 
   return subscribeCoursesData && subscribeCoursesData.length > 0 ? (
     <>
@@ -244,12 +255,12 @@ export default function CourseProgress({ slug }) {
           {/* Progress Bar */}
           <div className="mb-6">
             <div className="text-xs font-normal mb-1 text-[#646D89]">
-              {progress || 0}% Complete
+              {subscribeCoursesData[0].progress || 0}% Complete
             </div>
             <div className="w-full bg-gray-300 h-4 rounded-full">
               <div
                 className="bg-gradient-to-r from-[#95BEFF] to-[#0040E5] h-4 rounded-full"
-                style={{ width: `${progress || 0}%` }}
+                style={{ width: `${subscribeCoursesData[0].progress || 0}%` }}
               ></div>
             </div>
           </div>
@@ -289,25 +300,25 @@ export default function CourseProgress({ slug }) {
                               handleLessonClick(subLesson, subLessonIndex)
                             }
                           >
-                            <div className="flex items-center  rounded w-[309px] pl-1">
-                              {subLesson.complete_status === "not started" ? (
+                            <div className="flex items-center bg-[#F6F7FC] rounded w-[309px] pl-1">
+                              {subLesson.progress_status === "not-started" ? (
                                 <svg
                                   width="16"
                                   height="16"
                                   viewBox="0 0 16 16"
                                   fill="none"
                                   xmlns="http://www.w3.org/2000/svg"
-                                  className="w-6 h-6"
+                                  className="mb-[5px]"
                                 >
                                   <circle
                                     cx="8"
                                     cy="8"
                                     r="7.25"
                                     stroke="#2FAC8E"
-                                    strokeWidth="1.5"
+                                    stroke-width="1.5"
                                   />
                                 </svg>
-                              ) : subLesson.complete_status ===
+                              ) : subLesson.progress_status ===
                                 "in-progress" ? (
                                 <svg
                                   width="8"
@@ -315,34 +326,35 @@ export default function CourseProgress({ slug }) {
                                   viewBox="0 0 8 16"
                                   fill="none"
                                   xmlns="http://www.w3.org/2000/svg"
-                                  className="w-6 h-6"
+                                  className="mb-[5px]"
                                 >
                                   <mask
-                                    id="path-1-inside-1_140_7811"
+                                    id="path-1-inside-1_140_7904"
                                     fill="white"
                                   >
-                                    <path d="M8 0C5.87827 0 3.84344 0.842854 2.34315 2.34315C0.842854 3.84344 0 5.87827 0 8C0 10.1217 0.842854 12.1566 2.34315 13.6569C3.84344 15.1571 5.87827 16 8 16L8 8L8 0Z" />
+                                    <path d="M8 -3.49691e-07C5.87827 -2.56947e-07 3.84344 0.842854 2.34315 2.34315C0.842854 3.84344 -2.82249e-07 5.87827 -3.49691e-07 8C-4.17134e-07 10.1217 0.842854 12.1566 2.34315 13.6569C3.84344 15.1571 5.87827 16 8 16L8 8L8 -3.49691e-07Z" />
                                   </mask>
                                   <path
-                                    d="M8 0C5.87827 0 3.84344 0.842854 2.34315 2.34315C0.842854 3.84344 0 5.87827 0 8C0 10.1217 0.842854 12.1566 2.34315 13.6569C3.84344 15.1571 5.87827 16 8 16L8 8L8 0Z"
+                                    d="M8 -3.49691e-07C5.87827 -2.56947e-07 3.84344 0.842854 2.34315 2.34315C0.842854 3.84344 -2.82249e-07 5.87827 -3.49691e-07 8C-4.17134e-07 10.1217 0.842854 12.1566 2.34315 13.6569C3.84344 15.1571 5.87827 16 8 16L8 8L8 -3.49691e-07Z"
                                     fill="#2FAC8E"
                                     stroke="#2FAC8E"
-                                    strokeWidth="3"
-                                    mask="url(#path-1-inside-1_140_7811)"
+                                    stroke-width="3"
+                                    mask="url(#path-1-inside-1_140_7904)"
                                   />
                                 </svg>
                               ) : (
                                 <svg
                                   width="20"
-                                  height="21"
-                                  viewBox="0 0 20 21"
+                                  height="20"
+                                  viewBox="0 0 20 20"
                                   fill="none"
                                   xmlns="http://www.w3.org/2000/svg"
+                                  className="mb-[5px]"
                                 >
                                   <path
                                     fill-rule="evenodd"
                                     clip-rule="evenodd"
-                                    d="M1.875 10.5C1.875 6.0125 5.5125 2.375 10 2.375C14.4875 2.375 18.125 6.0125 18.125 10.5C18.125 14.9875 14.4875 18.625 10 18.625C5.5125 18.625 1.875 14.9875 1.875 10.5ZM13.0083 8.98833C13.0583 8.92171 13.0945 8.84576 13.1147 8.76496C13.135 8.68415 13.1388 8.60012 13.1261 8.5178C13.1134 8.43547 13.0844 8.35652 13.0407 8.28558C12.9971 8.21464 12.9396 8.15315 12.8719 8.10471C12.8041 8.05627 12.7273 8.02187 12.6461 8.00352C12.5648 7.98518 12.4807 7.98326 12.3987 7.99789C12.3167 8.01251 12.2385 8.04338 12.1686 8.08868C12.0987 8.13398 12.0385 8.19279 11.9917 8.26167L9.295 12.0367L7.94167 10.6833C7.82319 10.5729 7.66648 10.5128 7.50456 10.5157C7.34265 10.5185 7.18816 10.5841 7.07365 10.6986C6.95914 10.8132 6.89354 10.9676 6.89069 11.1296C6.88783 11.2915 6.94793 11.4482 7.05833 11.5667L8.93333 13.4417C8.99749 13.5058 9.07483 13.5552 9.15999 13.5864C9.24515 13.6176 9.33608 13.6299 9.42647 13.6224C9.51686 13.615 9.60455 13.588 9.68344 13.5432C9.76233 13.4985 9.83054 13.4371 9.88333 13.3633L13.0083 8.98833Z"
+                                    d="M1.875 10C1.875 5.5125 5.5125 1.875 10 1.875C14.4875 1.875 18.125 5.5125 18.125 10C18.125 14.4875 14.4875 18.125 10 18.125C5.5125 18.125 1.875 14.4875 1.875 10ZM13.0083 8.48833C13.0583 8.42171 13.0945 8.34576 13.1147 8.26496C13.135 8.18415 13.1388 8.10012 13.1261 8.0178C13.1134 7.93547 13.0844 7.85652 13.0407 7.78558C12.9971 7.71464 12.9396 7.65315 12.8719 7.60471C12.8041 7.55627 12.7273 7.52187 12.6461 7.50352C12.5648 7.48518 12.4807 7.48326 12.3987 7.49789C12.3167 7.51251 12.2385 7.54338 12.1686 7.58868C12.0987 7.63398 12.0385 7.69279 11.9917 7.76167L9.295 11.5367L7.94167 10.1833C7.82319 10.0729 7.66648 10.0128 7.50456 10.0157C7.34265 10.0185 7.18816 10.0841 7.07365 10.1986C6.95914 10.3132 6.89354 10.4676 6.89069 10.6296C6.88783 10.7915 6.94793 10.9482 7.05833 11.0667L8.93333 12.9417C8.99749 13.0058 9.07483 13.0552 9.15999 13.0864C9.24515 13.1176 9.33608 13.1299 9.42647 13.1224C9.51686 13.115 9.60455 13.088 9.68344 13.0432C9.76233 12.9985 9.83054 12.9371 9.88333 12.8633L13.0083 8.48833Z"
                                     fill="#2FAC8E"
                                   />
                                 </svg>
@@ -387,21 +399,17 @@ export default function CourseProgress({ slug }) {
                 {selectedSubLesson.sub_lesson_name || "No Subtitle"}
               </h1>
               {selectedSubLesson?.video ? (
-                <div ref={videoSectionRef}>
-                  <video
-                    className="w-[343px] lg:w-[480px] xl:w-[739px] rounded-xl"
-                    controls
-                    muted
-                    onEnded={handleVideoEnd} // เรียกฟังก์ชันเมื่อวิดีโอเล่นจบ
-                    key={selectedSubLesson.video}
-                  >
-                    <source
-                      src={selectedSubLesson.video || ""}
-                      type="video/mp4"
-                    />
-                    Your browser does not support the video tag.
-                  </video>
-                </div>
+                <video
+                  className="w-[343px] lg:w-[739px]"
+                  controls
+                  muted
+                  onPlay={handleOnPlay}
+                  onEnded={handleVideoEnd} // เรียกฟังก์ชันเมื่อวิดีโอเล่นจบ
+                  key={selectedSubLesson.video}
+                >
+                  <source src={selectedSubLesson.video} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
               ) : (
                 <img
                   src="/assets/image/mockupvideo.png"
@@ -416,7 +424,7 @@ export default function CourseProgress({ slug }) {
             <AssignmentForm
               slug={slug}
               userData={userData}
-              subLessonId={subLessonId}
+              subLessonId={selectedSubLesson.sub_lesson_id}
               onComplete={handleCompleteAssignment}
             />
           )}
