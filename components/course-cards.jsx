@@ -4,13 +4,14 @@ export default function CourseCards({ courses }) {
   const router = useRouter();
 
   return (
-    <div className="course-card flex flex-col items-center md:grid md:grid-cols-2 lg:grid-cols-3 w-full md:w-fit gap-8 px-4">
-      {courses.length > 0 ? (
-        courses.map((course, course_id) => (
+  <div>
+    {courses.length > 0 ? (
+      <div className="course-card flex flex-col items-center md:grid md:grid-cols-2 lg:grid-cols-3 w-full md:w-fit gap-8 px-4">
+        {courses.map((course, course_id) => (
           <div
             key={course_id}
             className="card h-[475px] w-[343px] rounded-lg flex flex-col gap-2 bg-white drop-shadow-xl overflow-hidden hover:shadow-lg hover:cursor-pointer"
-            onClick={() => router.push(`course/${course.course_id}`)} // ใช้ slug ใน path
+            onClick={() => router.push(`course/${course.course_id}`)}
           >
             <img
               src={course.image_file}
@@ -67,10 +68,13 @@ export default function CourseCards({ courses }) {
               </div>
             </div>
           </div>
-        ))
-      ) : (
-        <p>No courses available</p>
-      )}
-    </div>
-  );
+        ))}
+      </div>
+    ) : (
+      <p className="text-lg font-medium text-gray-600">
+        No course found
+      </p>
+    )}
+  </div>
+);
 }

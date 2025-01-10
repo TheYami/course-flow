@@ -12,14 +12,23 @@ export default function MyAssignment() {
   const [answers, setAnswers] = useState({});
 
   const router = useRouter();
+  const checkSession = function () {
+    if (!isLoggedIn) {
+      router.push("/login"); // ไปที่หน้าล็อกอินหากไม่พบเซสชัน
+      return;
+    }
+  };
 
   const getSubmission = async () => {
     try {
       const response = await axios.get(
         `/api/getAllSubmission?user_id=${userData.id}`
       );
-
-      setSubmission(response.data.data);
+      if (response.data?.data?.length) {
+        setSubmission(response.data.data);
+      } else {
+        setSubmission([]);
+      }
     } catch (error) {
       console.error("Error fetching courses:", error);
     }
@@ -50,6 +59,8 @@ export default function MyAssignment() {
   useEffect(() => {
     if (userData) {
       getSubmission();
+    } else {
+      checkSession();
     }
   }, [userData]);
 
@@ -162,26 +173,31 @@ export default function MyAssignment() {
         </div>
         {/* assignment card section */}
         <div className="assignment-card-section flex flex-col items-center gap-6 w-full max-w-[1120px] mt-10 z-10">
-          {filteredSubmissions.map((submission) => (
-            <div
-              className="assignment-card w-[410px] sm:ml-0 sm:w-full sm:h-[380px] bg-[#E5ECF8] rounded-lg px-3 sm:px-24 py-3 sm:py-10 sm:mx-24 "
-              key={submission.submission_id}
-            >
-              <div className="card-header flex flex-col sm:flex-row justify-between">
-                <div className="card-header-left flex flex-col gap-3">
-                  <h3 className="m-0">Course: {submission.course_name}</h3>
-                  <p>Introduction: {submission.sub_lesson_name}</p>
+          {filteredSubmissions.length === 0 ? (
+            <div className="text-center text-gray-600">
+              <p className="text-lg font-medium">No assignment found</p>
+            </div>
+          ) : (
+            filteredSubmissions.map((submission) => (
+              <div
+                className="assignment-card w-[410px] sm:ml-0 sm:w-full sm:h-[380px] bg-[#E5ECF8] rounded-lg px-3 sm:px-24 py-3 sm:py-10 sm:mx-24 "
+                key={submission.submission_id}
+              >
+                <div className="card-header flex flex-col sm:flex-row justify-between">
+                  <div className="card-header-left flex flex-col gap-3">
+                    <h3 className="m-0">Course: {submission.course_name}</h3>
+                    <p>Introduction: {submission.sub_lesson_name}</p>
+                  </div>
+                  {submission && submission.status === "in-progress" ? (
+                    <div className="card-right w-fit h-fit px-2 py-1 bg-[#FFFBDB] rounded text-base font-medium text-[#996500]">
+                      In-Progress
+                    </div>
+                  ) : (
+                    <div className="card-right w-fit h-fit px-2 py-1 bg-[#DDF9EF] rounded text-base font-medium text-[#0A7B60]">
+                      Submitted
+                    </div>
+                  )}
                 </div>
-                {submission && submission.status === "in-progress" ? (
-                  <div className="card-right w-fit h-fit px-2 py-1 bg-[#FFFBDB] rounded text-base font-medium text-[#996500]">
-                    In-Progress
-                  </div>
-                ) : (
-                  <div className="card-right w-fit h-fit px-2 py-1 bg-[#DDF9EF] rounded text-base font-medium text-[#0A7B60]">
-                    Submitted
-                  </div>
-                )}
-              </div>
 
               {/* Submission Area */}
               <div className="card-submission mt-3 box-border flex flex-col sm:flex-row items-center sm:items-end w-full sm:h-[175px] rounded-lg bg-white border-[1px] border-[#D6D9E4] p-2 sm:p-6 sm:gap-6">
