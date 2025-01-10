@@ -163,7 +163,7 @@ export default function PaymentPage() {
 
             if (courseData.price < promo.min_price) {
               setPromotionError(true);
-              setPromontionErrorMsg("The course price is below the minimum price for this promotion code.");
+              setPromontionErrorMsg("The price is below the minimum for this code.")
               setLoading(false);
               return;
             }
