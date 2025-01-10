@@ -215,7 +215,10 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
       </div>
       <div className="action flex lg:flex-col gap-2 text-xs lg:text-base font-bold">
         {subscriptionStatus ? (
-          <button className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-[#2F5FAC] text-white shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-1 flex-grow">
+          <button
+            className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-[#2F5FAC] text-white shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-1 flex-grow"
+            onClick={() => router.push(`/mycourse/${course.course_id}`)}
+          >
             Start Learning
           </button>
         ) : (
