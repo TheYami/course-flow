@@ -97,9 +97,9 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
 
   const handlSubscription = () => {
     if (!isLoggedIn) {
-      alert("Please Login");
       router.push("/login");
     } else {
+      router;
       setAction("subscribe");
       setIsModalOpen(true);
     }
@@ -110,7 +110,6 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
   };
 
   const handleModalClose = (wishlist) => {
-
     setInWishlist(wishlist);
     setIsModalOpen(false); // ปิด Modal
   };
@@ -124,7 +123,7 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
     );
   }
 
-  console.log("slug float is: ", slug);
+  // console.log("slug float is: ", slug);
   return (
     <div className="subscription-float  w-full lg:w-[357px] px-4 lg:px-6 flex flex-col gap-2 py-3 bg-white">
       {/* course label */}
@@ -216,7 +215,10 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
       </div>
       <div className="action flex lg:flex-col gap-2 text-xs lg:text-base font-bold">
         {subscriptionStatus ? (
-          <button className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-[#2F5FAC] text-white shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-1 flex-grow">
+          <button
+            className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-[#2F5FAC] text-white shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-1 flex-grow"
+            onClick={() => router.push(`/mycourse/${course.course_id}`)}
+          >
             Start Learning
           </button>
         ) : (
@@ -224,16 +226,17 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
             <button
               className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-white border border-orange-500 text-orange-500 shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-0 flex-grow"
               onClick={() => {
-                if(!user){
-                  alert("Please Login");
+                if (!user) {
                   router.push("/login");
+                } else {
+                  if (!inWishlist) {
+                    setIsModalOpen(true);
+                    setAction("add");
+                  } else {
+                    handleRemoveFromWishlist();
+                  }
                 }
-                else {
-                if (!inWishlist) {
-                  setIsModalOpen(true);
-                  setAction("add")
-                } else {handleRemoveFromWishlist();}
-              }}}
+              }}
             >
               {inWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
             </button>
@@ -241,12 +244,17 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
               className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-[#2F5FAC] text-white shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-1 flex-grow"
               onClick={handlSubscription}
             >
-              Subscribe This Course 
+              Subscribe This Course
             </button>
           </>
         )}
         {isModalOpen && (
-          <Modal course={course} action={action} onClose={handleModalClose} user={user} />
+          <Modal
+            course={course}
+            action={action}
+            onClose={handleModalClose}
+            user={user}
+          />
         )}
       </div>
     </div>

@@ -27,7 +27,7 @@ export default function Modal({ course, action, onClose, user }) {
   };
 
   const handleSubscribe = () => {
-    router.push("/"); // ไปยังหน้าแรกหรือที่กำหนด
+    router.push(`${router.asPath}/payment`);
     setIsModalOpen(false); // ปิด modal
     onClose(inWishlist); // ส่งค่า inWishlist กลับไปที่ parent
   };
