@@ -89,10 +89,13 @@ const EditCourse = () => {
   };
 
   const validateForm = () => {
-    const updatedState = {};
-    Object.keys(formValues).forEach((key) => {
-      updatedState[key] = Boolean(formValues[key]);
-    });
+    const updatedState = {
+      course_name: Boolean(formValues.course_name),
+      summary: Boolean(formValues.summary),
+      detail: Boolean(formValues.detail),
+      price: Boolean(formValues.price),
+    };
+
     setIsFillForm(updatedState);
   };
 
@@ -273,14 +276,21 @@ const EditCourse = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoadingData(true);
-
+    console.log("step 1");
     validateForm();
     const isValid = Object.values(isFillForm).every((value) => value === true);
-
+    console.log("step 2");
     if (!isValid) {
       setLoadingData(false);
+
+      console.log("form is not valid");
+      console.log("formValues", formValues);
+
+      console.log("isFillForm", isFillForm);
+
       return;
     }
+    console.log("step 3");
 
     try {
       const storedToken = localStorage.getItem(
@@ -353,6 +363,7 @@ const EditCourse = () => {
           </div>
           <div className="flex space-x-4">
             <button
+              type="buttton"
               onClick={handleCancel}
               className="border border-[#F47E20] hover:bg-[#F47E20] text-[#F47E20] hover:text-[#FFFFFF] font-semibold px-6 py-3 rounded-lg"
             >
@@ -564,7 +575,7 @@ const EditCourse = () => {
                         <div className="relative w-[240px] h-[240px]">
                           <img
                             type="button"
-                            src={imagePreview}
+                            src={imagePreview || null}
                             alt="Uploaded Preview"
                             className="w-[240px] h-[240px] object-cover rounded-lg"
                           />
@@ -628,7 +639,7 @@ const EditCourse = () => {
                       ) : (
                         <div className="relative w-[240px] h-[240px]">
                           <video
-                            src={videoPreview}
+                            src={videoPreview || null}
                             controls
                             className="w-[240px] h-[240px] object-cover rounded-lg"
                             alt="Uploaded Video Preview"
@@ -686,7 +697,7 @@ const EditCourse = () => {
                           <div className="w-full h-full flex flex-col justify-center items-center">
                             <div className="mt-2 text-sm text-[#9AA1B9]">
                               <a
-                                href={documentPreview}
+                                href={documentPreview || null}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-[#5483D0]"
@@ -719,6 +730,7 @@ const EditCourse = () => {
         {loadingData ? null : (
           <div className="flex font-semibold text-[#2F5FAC] justify-end mr-16 pb-20 mt-0 cursor-pointer">
             <button
+              type="buttton"
               onClick={() => {
                 setIsModalOpen(true);
               }}

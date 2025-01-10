@@ -282,7 +282,6 @@ export const AddCourse = () => {
         }
       );
       handleResetAll();
-      alert("Course created successfully!");
       router.push("/admin/course_list");
     } catch (error) {
       alert("Can not upload course to database");

@@ -141,7 +141,10 @@ const AdminPanelPromoCode = () => {
           {promoCode.code}
         </td>
         <td className="px-2 py-4 border-t border-[#F1F2F6]">
-          {promoCode.min_price.toLocaleString()}
+          {Number(promoCode.min_price).toLocaleString('en-US',{
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
         </td>
         <td className="px-2 py-4 border-t border-[#F1F2F6]">
           {promoCode.discount_type}
