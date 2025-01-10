@@ -18,15 +18,16 @@ export default function Profile() {
   // Load wishlist
   useEffect(() => {
     const fetchWishlist = async () => {
-      if (!userData) return;
+      if (!isLoggedIn) {
+        router.push("/login");
+        return;
+      }
       setLoading(false);
-
       try {
         const wishListResult = await axios.get(
           `/api/wishlist?user_id=${userData.id}`
         );
         setWishlist(wishListResult.data.data || []);
-        
       } catch (err) {
         console.error("Error fetching course:", err);
         setError(err.response?.data?.message || "Error fetching course");
@@ -37,12 +38,6 @@ export default function Profile() {
 
     fetchWishlist();
   }, [userData, wishlist.length]);
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/profile");
-  };
-
 
   if (error) {
     <div className="error-message text-red-500">
@@ -151,7 +146,9 @@ export default function Profile() {
               {/*end of gliter */}
 
               <div className="search-bar w-full flex flex-col justify-center items-center mt-10 mb-12 lg:my-16">
-                <h3 className="font-medium text-2xl lg:text-4xl">My Wishlist</h3>
+                <h3 className="font-medium text-2xl lg:text-4xl">
+                  My Wishlist
+                </h3>
               </div>
             </div>
 
@@ -160,15 +157,7 @@ export default function Profile() {
           <Footer />
         </div>
       ) : (
-        <>
-          <h1>Hello, Guest!</h1>
-          <button
-            onClick={() => router.push("/login")}
-            className="bg-blue-500 text-white py-2 px-4 rounded"
-          >
-            Log in
-          </button>
-        </>
+        <loading />
       )}
     </>
   );
