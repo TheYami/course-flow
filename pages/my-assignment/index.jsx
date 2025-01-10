@@ -190,7 +190,7 @@ export default function MyAssignment() {
                   <div className="relative w-full h-[100px] sm:h-full">
                     {submission.answer == null ? (
                       <textarea
-                        className="border-[1px] w-full h-full rounded-lg pl-4 pt-2 text-left text-gray-800"
+                        className="border-[1px] w-full h-full rounded-lg pl-4 pt-2 text-left text-gray-800 resize-none"
                         placeholder="Answer..."
                         onChange={(e) =>
                           setAnswers({
@@ -202,7 +202,7 @@ export default function MyAssignment() {
                       />
                     ) : (
                       <textarea
-                        className="border-none w-full h-full rounded-lg pl-4 pt-2 text-left bg-[#FFFFFF] text-[#9AA1B9]"
+                        className="border-none w-full h-full rounded-lg pl-4 pt-2 text-left bg-[#FFFFFF] text-[#9AA1B9] resize-none"
                         placeholder="Answer..."
                         value={submission.answer || ""}
                         disabled={!!submission.answer}
