@@ -39,9 +39,9 @@ const useAdminAuth = () => {
   useEffect(() => {
     if (userData) {
       if (userData.role !== "admin") {
-        router.push("/admin"); // Redirect if the user is not an admin
+        router.push("/admin"); 
       } else {
-        setLoading(false); // Data is ready, stop loading
+        setLoading(false);
       }
     }
   }, [userData, router]);
