@@ -124,6 +124,7 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
     );
   }
 
+  console.log("slug float is: ", slug);
   return (
     <div className="subscription-float  w-full lg:w-[357px] px-4 lg:px-6 flex flex-col gap-2 py-3 bg-white">
       {/* course label */}
