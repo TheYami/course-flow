@@ -1,13 +1,15 @@
 import Image from "next/image";
 import successfullIcon from "@/assets/icons/payment-icons/payment-successfull-icon.svg";
-import { useRouter, useEffect } from "next/router";
+import { useRouter } from "next/router";
 import useUserAuth from "@/hooks/useUserAuth";
 import axios from "axios";
+import { useEffect } from "react";
 
 export default function PaymentSuccessfullCard() {
   const router = useRouter();
   const { courseId } = router.query;
   const { userData, loading } = useUserAuth();
+  const [apiCalled, setApiCalled] = useState(false);
 
   const handleViewCourseDetail = () => {
     if (courseId) {
@@ -22,11 +24,12 @@ export default function PaymentSuccessfullCard() {
   };
 
   useEffect(() => {
-    const manageDatabase = async () => {
-      if (userData && courseId) {
+    if (userData && courseId && !apiCalled) {
+      const manageDatabase = async () => {
         try {
+          setApiCalled(true);
           const createSubLessonProgressResponse = await axios.post(
-            `/api/createSublessonProgress?courseId=${courseId}&user_id=${userData.id}`,
+            `/api/createSublessonProgress?courseId=${courseId}&&user_id=${userData.id}`,
             null
           );
           const createSubmissionResponse = await axios.post(
@@ -36,9 +39,9 @@ export default function PaymentSuccessfullCard() {
         } catch (error) {
           console.error("Error making API calls:", error);
         }
-      }
-    };
-    manageDatabase();
+      };
+      manageDatabase();
+    }
   }, [userData, courseId]);
 
   return (

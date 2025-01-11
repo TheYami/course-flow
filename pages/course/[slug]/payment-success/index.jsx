@@ -1,7 +1,8 @@
 import Footer from "@/components/footer";
 import Navbar from "@/components/navbar";
 import React from "react";
-import { useRouter, useEffect } from "next/router";
+import { useRouter} from "next/router";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import useUserAuth from "@/hooks/useUserAuth";
 import axios from "axios";
@@ -9,24 +10,28 @@ import axios from "axios";
 export default function index() {
   const router = useRouter();
   const { slug } = router.query;
-  const { userData, loading } = useUserAuth();
+  const { userData, loading: userLoading } = useUserAuth();
+  const [apiCalled, setApiCalled] = useState(false);
 
   useEffect(() => {
-    if (userData && slug) {    const manageDatabase = async () => {
-      try {
-        const createSubLessonProgressResponse = await axios.post(
-          `/api/createSublessonProgress?courseId=${slug}&&user_id=${userData.id}`,
-          null
-        );
-        const createSubmissionResponse = await axios.post(
-          `/api/course-learning/createSubmission?courseId=${slug}`,
-          { user: userData }
-        );
-      } catch (error) {
-        console.error("Error making API calls:", error);
-      }
-    };
-    manageDatabase();}
+    if (userData && slug && !apiCalled) {
+      const manageDatabase = async () => {
+        try {
+          setApiCalled(true);
+          const createSubLessonProgressResponse = await axios.post(
+            `/api/createSublessonProgress?courseId=${slug}&&user_id=${userData.id}`,
+            null
+          );
+          const createSubmissionResponse = await axios.post(
+            `/api/course-learning/createSubmission?courseId=${slug}`,
+            { user: userData }
+          );
+        } catch (error) {
+          console.error("Error making API calls:", error);
+        }
+      };
+      manageDatabase();
+    }
   }, [userData, slug]);
 
   return (
