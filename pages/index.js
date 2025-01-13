@@ -5,9 +5,10 @@ import Instructor from "@/components/instructor";
 import Review from "@/components/review";
 import Checkout from "@/components/checkout-course";
 import Footer from "@/components/footer";
+import ReviewTest from "@/components/review";
  export default function Homepage (){
     return (
-        <>
+        <div>
         <Navbar />
         <HeroSection />
         <Feature />
@@ -15,6 +16,6 @@ import Footer from "@/components/footer";
         <Review />
         <Checkout />
         <Footer />
-        </>
+        </div>
     )
 }
