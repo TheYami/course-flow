@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function HeroSection() {
   return (
     <section className="relative h-screen overflow-hidden bg-cover bg-center bg-[url('/assets/image/herobg.png')] md:bg-lightblue md:bg-none md:h-auto">
-      <div className="hidden md:block md:absolute z-10 md:left-[200px] md:right-[-150px] md:top-[-10px] xl:left-[280px] xl:top-[-20px] xl:right-[-25px] 2xl:left-[700px] 2xl:top-[-100px] overflow-hidden">
+      <div className="hidden md:block md:absolute z-10 md:left-[200px] md:right-[-150px] md:top-[10px] xl:left-[280px] xl:top-[-20px] xl:right-[-25px] 2xl:left-[700px] 2xl:top-[-100px] overflow-hidden">
         <img
           src="/assets/image/decoratehero02.png"
           alt="overlay decoration"
