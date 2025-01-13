@@ -3,39 +3,40 @@ import Link from "next/link";
 export default function HeroSection() {
   return (
     <section className="relative h-screen overflow-hidden bg-cover bg-center bg-[url('/assets/image/herobg.png')] md:bg-lightblue md:bg-none md:h-auto">
-      <div className="container mx-auto flex flex-col md:flex-row items-center justify-between p-8 text-black md:max-w-screen-md lg:max-w-screen-lg xl:h-[700px] xl:pt-30">
+      <div className="hidden md:block md:absolute z-10 md:left-[200px] md:right-[-150px] md:top-[-10px] xl:left-[280px] xl:top-[-20px] xl:right-[-25px] 2xl:left-[700px] 2xl:top-[-100px] overflow-hidden">
+        <img
+          src="/assets/image/decoratehero02.png"
+          alt="overlay decoration"
+          className="opacity-100"
+        />
+      </div>
+      <div className=" relative container mx-auto flex flex-col md:flex-row items-center justify-between p-8 text-black md:max-w-screen-md lg:max-w-screen-lg xl:h-[700px] xl:pt-30">
         {/* Text Content */}
         <div className="text-left  md:shrink-0 md:w-1/2 xl:pl-12 xl:ml-5">
           <h1 className="text-4xl font-semibold pt-10 md:text-6xl xl:text-[66px]">
             Best Virtual{" "}
             <span className="block xl:ml-[2px]">Classroom Software</span>
           </h1>
-          <p className="mt-4 relative z-20 font-normal text-fmgray700 w-[330px] xl:w-[603px] xl:text-xl">
+          <p className="mt-4 z-20 font-normal text-fmgray700 w-[330px] xl:w-[603px] xl:text-xl">
             Welcome to Schooler! The one-stop online class management system
             that caters to all your educational needs!
           </p>
           <div className="mt-20">
             <Link
               href="/course"
-              className="bg-blue500 text-white mt-10 px-[32px] py-[18px] rounded-xl hover:bg-blue-600 font-bold text-base relative z-20 h-[60px] gap-[10px] xl:w-[193px] no-underline"
+              className="bg-blue500 text-white mt-10 px-[32px] py-[18px] rounded-xl hover:bg-blue-600 font-bold text-base z-20 h-[60px] gap-[10px] xl:w-[193px] no-underline"
             >
               Explore Courses
             </Link>
           </div>
         </div>
 
-        {/* Additional Image */}
-        <div className="hidden md:block absolute z-10 xl:left-[280px] xl:top-[-20px] xl:right-[-25px] 2xl:left-[910px] 2xl:top-[1px] overflow-hidden">
-          <img
-            src="/assets/image/decoratehero02.png"
-            alt="overlay decoration"
-            className="w-full opacity-80 2xl:w-[150%] 2xl:h-[150%]"
-          />
-        </div>
-        <div className="hidden md:inline md:absolute md:z-50 md:left-[-30px] md:top-[10px] xl:top-[70px] xl:left-[-30px]">
+        {/* Decoration Image */}
+
+        <div className="hidden md:inline md:absolute md:z-50 md:left-[-30px] md:top-[10px] xl:top-[70px] xl:left-[-80px] 2xl:left-[-320px]">
           <Image
             src="/assets/icon/circle2.png"
-            alt=" blue sphere"
+            alt=" blue sphere1"
             width={64}
             height={16}
             className="opacity-100 xl:w-24"
