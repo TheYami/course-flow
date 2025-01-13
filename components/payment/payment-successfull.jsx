@@ -3,7 +3,7 @@ import successfullIcon from "@/assets/icons/payment-icons/payment-successfull-ic
 import { useRouter } from "next/router";
 import useUserAuth from "@/hooks/useUserAuth";
 import axios from "axios";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function PaymentSuccessfullCard() {
   const router = useRouter();
