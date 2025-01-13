@@ -18,30 +18,28 @@ export default function Feature() {
 
   return (
     <>
-      <div className="flex justify-center">
-        <div className="decorative-image-container relative">
-          <Image
-            src="/assets/icon/halfsphere.png"
-            alt="halfsphere"
-            width={48}
-            height={48}
-            className="opacity-80 absolute left-7 md:hidden  lg:hidden xl:hidden"
-          />
-          <Image
-            src="/assets/icon/partsphere.png"
-            alt="partsphere"
-            width={48}
-            height={48}
-            className="opacity-80 w-[20px] h-[20px] absolute z-50 hidden left-7 md:block md:left-[40px] md:top-[-11px] md:-rotate-90 lg:left-[50px] xl:top-[-10px] xl:left-[150px] 2xl:left-[390px]"
-          />
-          <Image
-            src="/assets/icon/circle.png"
-            alt="circle top left content"
-            width={32}
-            height={32}
-            className="opacity-100 absolute top-9 left-3/4 md:top-[120px] md:left-[280px] lg:top-[60px] lg:left-[350px] 2xl:left-[750px]"
-          />
-        </div>
+      <div className="flex justify-center relative">
+        <Image
+          src="/assets/icon/halfsphere.png"
+          alt="halfsphere"
+          width={48}
+          height={48}
+          className="opacity-80 absolute left-7 md:hidden  lg:hidden xl:hidden"
+        />
+        <Image
+          src="/assets/icon/partsphere.png"
+          alt="partsphere"
+          width={48}
+          height={48}
+          className="opacity-80 absolute z-50 hidden left-7 md:block md:left-[40px] md:top-[-11px] md:-rotate-90 lg:left-[50px] xl:top-[-10px] xl:left-[150px] 2xl:left-[390px]"
+        />
+        <Image
+          src="/assets/icon/circle.png"
+          alt="circle top left content"
+          width={32}
+          height={32}
+          className="opacity-100 absolute top-9 left-3/4 md:top-[120px] md:left-[280px] lg:top-[60px] lg:left-[350px] 2xl:left-[750px]"
+        />
         <section className="flex flex-col items-center justify-center p-3 mt-10 gap-20 w-full md:w-[768px] lg:w-[1024px]  lg:my-20 relative xl:w-[1440px] xl:h-[780px] xl:mb-12 xl:mt-24 2xl:ml-[0px] 2xl:h-[1111px] 2xl:my-0">
           {/* First Feature Block */}
           <div className="flex flex-col md:flex-row items-start w-full space-y-6 md:space-y-0 md:space-x-10 lg:space-x-0 lg:w-[1024px] lg:pl-[45px] lg:gap-5 lg:items-center xl:ml-[0px] xl:h-[400px] xl:w-[1210px] xl:gap-[150px] xl:pl-[25px] relative">
