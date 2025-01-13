@@ -45,10 +45,6 @@ export default function MyCourse() {
     }
   }, [userData]);
 
-  console.log("all",allCourses)
-  console.log("in progress", inProgressCourses)
-  console.log("complete", completedCourses)
-
   useEffect(() => {
     if (selectedTab === "all" ) {
       setCourses(allCourses);
