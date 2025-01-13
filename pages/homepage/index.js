@@ -5,16 +5,16 @@ import Instructor from "@/components/instructor";
 import Review from "@/components/review";
 import Checkout from "@/components/checkout-course";
 import Footer from "@/components/footer";
- export default function Homepage (){
-    return (
-        <>
-        <Navbar />
-        <HeroSection />
-        <Feature />
-        <Instructor />
-        <Review />
-        <Checkout />
-        <Footer />
-        </>
-    )
+export default function Homepage() {
+  return (
+    <>
+      <Navbar />
+      <HeroSection />
+      <Feature />
+      <Instructor />
+      <Review />
+      <Checkout />
+      <Footer />
+    </>
+  );
 }
