@@ -183,7 +183,10 @@ export const AddCourse = () => {
     }
   };
 
-  const validateForm = () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
     const updatedState = {};
     Object.keys(courseData).forEach((key) => {
       if (key !== "file") {
@@ -192,15 +195,11 @@ export const AddCourse = () => {
     });
     updatedState.lessonData = lessonData && lessonData.length >= 1;
 
+    const isValid = Object.values(updatedState).every(
+      (value) => value === true
+    );
+
     setIsFillForm(updatedState);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    validateForm();
-    const isValid = Object.values(isFillForm).every((value) => value === true);
 
     if (!isValid) {
       setIsLoading(false);
@@ -216,6 +215,7 @@ export const AddCourse = () => {
 
       if (!accessToken) {
         alert("Not authenticated");
+        setIsLoading(false);
         return;
       }
 
@@ -380,16 +380,17 @@ export const AddCourse = () => {
             type="submit"
             className="bg-[#2F5FAC] hover:bg-white hover:text-[#2F5FAC] hover:border hover:border-[#2F5FAC] text-[#FFFFFF] create-button w-[120px] h-[60px] px-8 py-[18px] font-[700] rounded-[12px] flex justify-center items-center"
           >
-            {isLoading ? (
-              <Image src={loadingIcon} alt="loading icon" className="w-8 h-8" />
-            ) : (
-              "Create"
-            )}
+            Create
           </button>
         </div>
       </header>
 
       <main className="course-data-form bg-[#F6F7FC]">
+        {isLoading && (
+          <div className="absolute inset-0 bg-[#FFFFFF] bg-opacity-20 flex items-center justify-center z-10">
+            <div className="loader border-t-4 border-[#2F5FAC] w-12 h-12 rounded-full animate-spin"></div>
+          </div>
+        )}
         <div className="bg-[#FFFFFF] mx-10 my-10 rounded-[16px] px-[100px] pt-[40px] pb-[60px] flex flex-col gap-[40px]">
           {/* Course Name */}
           <section className="course-name">
