@@ -7,12 +7,14 @@ export default async function handler(req, res) {
       course_name,
       detail,
       price,
-      total_time,
+      totalTime,
       summary,
       image_file,
       video_file,
       document_file,
     } = req.body;
+
+    const total_time = totalTime;
 
     if (!courseId) {
       return res.status(400).json({ error: "Course ID is required" });
@@ -80,7 +82,7 @@ export default async function handler(req, res) {
 
     updates.push(`updated_at = $${index}`);
     values.push(new Date().toISOString());
-    values.push(courseId); 
+    values.push(courseId);
 
     try {
       const query = `

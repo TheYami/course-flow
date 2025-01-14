@@ -5,6 +5,7 @@ import AssignmentForm from "./mycourse/assignment-form";
 import axios from "axios";
 import { useRouter } from "next/router";
 import e from "cors";
+import Loading from "./Loding";
 
 export default function CourseProgress({ slug }) {
   const [subLessonId, setSubLessonId] = useState(null);
@@ -20,12 +21,14 @@ export default function CourseProgress({ slug }) {
   const router = useRouter();
   const [isVideoEnded, setIsVideoEnded] = useState(false);
   const [assignmentDescription, setAssignmentDescription] = useState(null);
+  const [status, setStatus] = useState(null);
    const videoSectionRef = useRef(null);
   const handleVideoEnd = async() => {
         try {
       await axios.put(
         `/api/updateSublessonProgress?user_id=${userData.id}&courseId=${subscribeCoursesData[0].course_id}&subLessonId=${selectedSubLesson.sub_lesson_id}&status=completed`
       );
+      setStatus("completed")
     } catch (error) {
       console.error("Error update progress:", error);
     }
@@ -85,18 +88,15 @@ export default function CourseProgress({ slug }) {
       }
     };
     fetchSubscribeCourses();
-  }, [userData]);
+  }, [userData,status]);
 
-  useEffect(() => {
-    console.log("Subscription Course Data", subscribeCoursesData[0]);
-  }, [subscribeCoursesData]);
 
   useEffect(() => {
     // ตรวจสอบว่ามีข้อมูลคอร์สที่ subscribe หรือไม่
     if (
       subscribeCoursesData.length > 0 &&
       subscribeCoursesData[0].lessons?.length > 0 &&
-      subscribeCoursesData[0].lessons[0].sub_lessons?.length > 0
+      subscribeCoursesData[0].lessons[0].sub_lessons?.length > 0 && status == null
     ) {
       const firstSubLesson = subscribeCoursesData[0].lessons[0].sub_lessons[0];
       setSelectedSubLesson(firstSubLesson); // ตั้งค่า sub_lesson แรก
@@ -106,7 +106,7 @@ export default function CourseProgress({ slug }) {
   }, [subscribeCoursesData]);
 
   if (loading) {
-    return <div>Loading...</div>; // แสดงเมื่อยังโหลดข้อมูล
+    return <Loading />; // แสดงเมื่อยังโหลดข้อมูล
   }
 
   const handleLessonClick = (lesson, index) => {
@@ -225,6 +225,7 @@ export default function CourseProgress({ slug }) {
       await axios.put(
         `/api/updateSublessonProgress?user_id=${userData.id}&courseId=${subscribeCoursesData[0].course_id}&subLessonId=${selectedSubLesson.sub_lesson_id}&status=in-progress`
       );
+      setStatus("in-progress")
     } catch (error) {
       console.error("Error update progress:", error);
     }
@@ -453,7 +454,7 @@ export default function CourseProgress({ slug }) {
     </>
   ) : (
     <div className="flex items-center justify-center h-full">
-      <p className="text-sm text-gray-500">Loading course information...</p>
+      <loading/>
     </div>
   );
 }

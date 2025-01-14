@@ -19,6 +19,7 @@ export default function CourseDetail() {
   const [loading, setLoading] = useState(true);
   const [openLesson, setOpenLesson] = useState(null);
   const [isSubscribe, setIsSubscribe] = useState(false);
+  const [number,setNumber] = useState(0)
 
   // ใช้ useAuth เพื่อเข้าถึงค่า isLoggedIn และ user
   const {
@@ -58,7 +59,6 @@ export default function CourseDetail() {
   useEffect(() => {
     if (slug) getCourseById();
   }, [slug]);
-
 
   return (
     <div>
@@ -130,50 +130,58 @@ export default function CourseDetail() {
                         {course.detail}
                       </p>
                     </div>
-                    {isSubscribe?  <div className="attach-file flex flex-col gap-6 w-5/6 md:w-2/3 mt-2">
-                      <h2 className="text-2xl lg:text-4xl m-0">Attach File</h2>
-                      <div className="file flex gap-3 bg-[#E5ECF8] rounded-lg py-4 px-4">
-                        <div className="file-left">
-                          <a href={course.document_file}
-                          target="_blank">
-                            <svg
-                              width="50"
-                              height="50"
-                              viewBox="0 0 50 50"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <rect
-                                width="50"
-                                height="50"
-                                rx="4"
-                                fill="white"
-                              />
-                              <path
-                                d="M32.5 27.25V24.625C32.5 23.7299 32.1444 22.8715 31.5115 22.2385C30.8786 21.6056 30.0201 21.25 29.125 21.25H27.625C27.3266 21.25 27.0405 21.1315 26.8295 20.9205C26.6185 20.7095 26.5 20.4234 26.5 20.125V18.625C26.5 17.7299 26.1444 16.8714 25.5115 16.2385C24.8785 15.6056 24.0201 15.25 23.125 15.25H21.25M23.5 15.25H18.625C18.004 15.25 17.5 15.754 17.5 16.375V33.625C17.5 34.246 18.004 34.75 18.625 34.75H31.375C31.996 34.75 32.5 34.246 32.5 33.625V24.25C32.5 21.8631 31.5518 19.5739 29.864 17.886C28.1761 16.1982 25.8869 15.25 23.5 15.25V15.25Z"
-                                stroke="#5483D0"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          </a>
-                        </div>
-                        <div className="file-right flex flex-col gap-1 w-fit">
-                          <p>{course.course_name}.pdf</p>
-                          <FileSizeDisplay fileUrl={course.document_file} />
-                        </div>
+                    {isSubscribe ? (
+                      <div className="attach-file flex flex-col gap-6 w-5/6 md:w-2/3 mt-2">
+                        <h2 className="text-2xl lg:text-4xl m-0">
+                          Attach File
+                        </h2>
+                        {course.fileUrl ? (
+                          <div className="file flex gap-3 bg-[#E5ECF8] rounded-lg py-4 px-4">
+                            <div className="file-left">
+                              <a href={course.document_file} target="_blank">
+                                <svg
+                                  width="50"
+                                  height="50"
+                                  viewBox="0 0 50 50"
+                                  fill="none"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                >
+                                  <rect
+                                    width="50"
+                                    height="50"
+                                    rx="4"
+                                    fill="white"
+                                  />
+                                  <path
+                                    d="M32.5 27.25V24.625C32.5 23.7299 32.1444 22.8715 31.5115 22.2385C30.8786 21.6056 30.0201 21.25 29.125 21.25H27.625C27.3266 21.25 27.0405 21.1315 26.8295 20.9205C26.6185 20.7095 26.5 20.4234 26.5 20.125V18.625C26.5 17.7299 26.1444 16.8714 25.5115 16.2385C24.8785 15.6056 24.0201 15.25 23.125 15.25H21.25M23.5 15.25H18.625C18.004 15.25 17.5 15.754 17.5 16.375V33.625C17.5 34.246 18.004 34.75 18.625 34.75H31.375C31.996 34.75 32.5 34.246 32.5 33.625V24.25C32.5 21.8631 31.5518 19.5739 29.864 17.886C28.1761 16.1982 25.8869 15.25 23.5 15.25V15.25Z"
+                                    stroke="#5483D0"
+                                    strokeWidth="1.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                </svg>
+                              </a>
+                            </div>
+                            <div className="file-right flex flex-col gap-1 w-fit">
+                              <p>{course.course_name}</p>
+                              <FileSizeDisplay fileUrl={course.document_file} />
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="file flex gap-3 bg-[#E5ECF8] rounded-lg py-4 px-4">
+                            No file for this course
+                          </div>
+                        )}
                       </div>
-                    </div>: null}
-                   
+                    ) : null}
 
                     {/* accordion */}
-                    <div className="accordion w-full h-fit mt-8  lg:mb-9 pb-4 ">
+                    <div className="accordion w-full h-fit mt-8 mb-9 lg:mb-[280px] pb-4 ">
                       <h2 className="font-medium text-2xl lg:text-4xl lg:mb-6">
                         Lesson Samples
                       </h2>
                       {Array.isArray(course.lessons) &&
-                        course.lessons.map((lesson) => (
+                        course.lessons.map((lesson, index) => (
                           <div
                             className="accordion-item !border-0 "
                             key={lesson.lesson_id}
@@ -186,6 +194,10 @@ export default function CourseDetail() {
                                   toggleAccordion(lesson.lesson_id)
                                 }
                               >
+                                <span className="text-[#646D89]">
+                                  {String(index + 1).padStart(2, "0")}
+                                </span>
+                                &nbsp; &nbsp; &nbsp;
                                 {lesson.lesson_name}
                               </button>
                             </div>
@@ -203,7 +215,9 @@ export default function CourseDetail() {
                                       key={index}
                                       className="text-base text-[#646D89]"
                                     >
-                                      <p>• {subLesson.sub_lesson_name}</p>
+                                      <p className="my-1">
+                                        • {subLesson.sub_lesson_name}
+                                      </p>
                                     </div>
                                   ))}
                               </div>
@@ -225,7 +239,7 @@ export default function CourseDetail() {
           </>
         ) : null}
       </div>
-      <div className="other-course flex flex-col gap-8 lg:gap-14 items-center bg-[#F6F7FC] py-10 lg:pt-36 lg:pb-24">
+      <div className="other-course flex flex-col gap-8 lg:gap-14 items-center bg-[#F6F7FC] py-10 lg:pt-36 lg:pb-24 md:hidden">
         <p className="other-course-header font-medium text-2xl lg:text-4xl m-0 ">
           Other Interesting Course
         </p>
@@ -234,7 +248,7 @@ export default function CourseDetail() {
       <div className="sub-float-mobile sticky bottom-0 lg:hidden">
         <SubscritonFloat course={course} subscriptionStatus={isSubscribe} />
       </div>
-      <div className="">
+      <div className="md:hidden">
         <Checkout />
       </div>
 

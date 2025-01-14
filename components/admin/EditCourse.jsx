@@ -88,17 +88,6 @@ const EditCourse = () => {
     }
   };
 
-  const validateForm = () => {
-    const updatedState = {
-      course_name: Boolean(formValues.course_name),
-      summary: Boolean(formValues.summary),
-      detail: Boolean(formValues.detail),
-      price: Boolean(formValues.price),
-    };
-
-    setIsFillForm(updatedState);
-  };
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormValues((prev) => ({ ...prev, [name]: value }));
@@ -276,21 +265,23 @@ const EditCourse = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoadingData(true);
-    console.log("step 1");
-    validateForm();
-    const isValid = Object.values(isFillForm).every((value) => value === true);
-    console.log("step 2");
+
+    const updatedState = {
+      course_name: Boolean(formValues.course_name),
+      summary: Boolean(formValues.summary),
+      detail: Boolean(formValues.detail),
+      price: Boolean(formValues.price),
+    };
+
+    setIsFillForm(updatedState);
+    const isValid = Object.values(updatedState).every(
+      (value) => value === true
+    );
+
     if (!isValid) {
       setLoadingData(false);
-
-      console.log("form is not valid");
-      console.log("formValues", formValues);
-
-      console.log("isFillForm", isFillForm);
-
       return;
     }
-    console.log("step 3");
 
     try {
       const storedToken = localStorage.getItem(
@@ -301,6 +292,7 @@ const EditCourse = () => {
 
       if (!accessToken) {
         alert("Not authenticated");
+        setLoadingData(false);
         return;
       }
 
