@@ -44,7 +44,7 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
     fetchWishlist();
   }, [userData]);
 
-  // set InWishlist ถ้าเคยเพิ่มไปในDBแล้ว
+  // set InWishlist ถ้าเคยเพิ่มไปใน DB แล้ว
   useEffect(() => {
     if (!wishlist || !course) return;
 
@@ -56,7 +56,7 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
     }
   }, [wishlist, course]);
 
-  // ล็อคจอ เมื่อแสดงModal
+  // ล็อคจอเมื่อแสดง Modal
   useEffect(() => {
     if (isModalOpen) {
       document.body.style.overflow = "hidden";
@@ -82,24 +82,22 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
           });
           setInWishlist(false);
         } else {
-          // Add to wishlist
           setAction("add");
           setIsModalOpen(true);
         }
       } catch (err) {
         console.error("Error updating wishlist:", err);
-        setError(err.response.data.message || "Error updating wishlist");
+        setError(err.response?.data?.message || "Error updating wishlist");
       } finally {
         setLoading(false);
       }
     }
   };
 
-  const handlSubscription = () => {
+  const handleSubscription = async () => {
     if (!isLoggedIn) {
       router.push("/login");
     } else {
-      router;
       setAction("subscribe");
       setIsModalOpen(true);
     }
@@ -123,8 +121,40 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
     );
   }
 
+  // ฟังก์ชันสำหรับการสมัคร course
+  const handleSubscriptionAction = async () => {
+    try {
+      setLoading(true);
+      // ตรวจสอบว่าผู้ใช้ไม่ได้สมัครแล้ว
+      const existingSubscription = subscriptions.find(
+        (sub) => sub.course_id === course.course_id
+      );
+
+      if (existingSubscription) {
+        alert("You are already subscribed to this course.");
+        setIsModalOpen(false);
+        return;
+      }
+
+      // ถ้ายังไม่ได้ subscribe, ทำการสมัคร
+      await axios.post("/api/subscribe", {
+        user_id: user.id,
+        course_id: course.course_id,
+      });
+
+      alert("You have successfully subscribed to this course!");
+      setIsModalOpen(false); // ปิด Modal
+      router.push(`/mycourse/${course.course_id}`); // นำทางไปยังหน้า mycourse
+    } catch (error) {
+      console.error("Error subscribing to course:", error);
+      alert("Something went wrong. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="subscription-float  w-full lg:w-[357px] px-4 lg:px-6 flex flex-col gap-2 py-3 bg-white">
+    <div className="subscription-float w-full lg:w-[357px] px-4 lg:px-6 flex flex-col gap-2 py-3 bg-white">
       {/* course label */}
       {showButton ? (
         <div className="text-xs text-orange-500 lg:hidden">Course</div>
@@ -224,38 +254,28 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
           <>
             <button
               className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-white border border-orange-500 text-orange-500 shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-0 flex-grow"
-              onClick={() => {
-                if (!user) {
-                  router.push("/login");
-                } else {
-                  if (!inWishlist) {
-                    setIsModalOpen(true);
-                    setAction("add");
-                  } else {
-                    handleRemoveFromWishlist();
-                  }
-                }
-              }}
+              onClick={handleRemoveFromWishlist}
             >
               {inWishlist ? "Remove from Wishlist" : "Add to Wishlist"}
             </button>
             <button
               className="box-border lg:h-[60px] flex flex-row justify-center items-center px-2 py-2 gap-2 bg-[#2F5FAC] text-white shadow-[4px_4px_24px_rgba(0,0,0,0.08)] rounded-[12px] flex-none order-1 flex-grow"
-              onClick={handlSubscription}
+              onClick={handleSubscription}
             >
               Subscribe This Course
             </button>
           </>
         )}
-        {isModalOpen && (
-          <Modal
-            course={course}
-            action={action}
-            onClose={handleModalClose}
-            user={user}
-          />
-        )}
       </div>
+      {isModalOpen && (
+        <Modal
+          course={course}
+          action={action}
+          onClose={handleModalClose}
+          onConfirm={handleSubscriptionAction}
+          user={user}
+        />
+      )}
     </div>
   );
 }
