@@ -5,7 +5,7 @@ export default function Footer() {
         {/* Logo Section */}
         <a href="#" className="md:flex-shrink-0">
           <img
-            src="/assets/icon/courseflow.png"
+            src="/assets/icon/CourseFlow.png"
             alt="CourseFlow Logo"
             className="w-[140px] h-auto py-2 2xl:ml-14"
           />
