@@ -165,7 +165,7 @@ export const AddCourse = () => {
   };
 
   const uploadToCloudinary = async (file, preset = "unSigned") => {
-    const cloudinaryUrl = "https://api.cloudinary.com/v1_1/dxjamlkhi/upload";
+    const cloudinaryUrl = process.env.NEXT_PUBLIC_CLOUDINARY_URL;
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", preset);

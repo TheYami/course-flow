@@ -17,6 +17,7 @@ const useUserAuth = () => {
       if (!session) {
         setUser(null);
         setLoading(false);
+        router.push("/login")
         return;
       }
 

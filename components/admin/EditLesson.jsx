@@ -27,7 +27,6 @@ export const EditLesson = ({ lessonId }) => {
       videoUrl: null,
     })),
   });
-  
 
   useEffect(() => {
     const fetchLessonData = async () => {
@@ -73,7 +72,7 @@ export const EditLesson = ({ lessonId }) => {
         i === index ? { ...subLesson, [name]: value } : subLesson
       )
     );
-  
+
     setIsFillForm((prev) => ({
       ...prev,
       subLessons: prev.subLessons.map((subLesson, i) =>
@@ -87,7 +86,7 @@ export const EditLesson = ({ lessonId }) => {
       ...prev,
       { subLessonName: "", videoUrl: "", videoPreview: "" },
     ]);
-  
+
     setIsFillForm((prev) => ({
       ...prev,
       subLessons: [...prev.subLessons, { subLessonName: null, videoUrl: null }],
@@ -113,7 +112,7 @@ export const EditLesson = ({ lessonId }) => {
               : subLesson
           )
         );
-  
+
         setIsFillForm((prev) => ({
           ...prev,
           subLessons: prev.subLessons.map((subLesson, i) =>
@@ -134,7 +133,7 @@ export const EditLesson = ({ lessonId }) => {
           : subLesson
       )
     );
-  
+
     setIsFillForm((prev) => ({
       ...prev,
       subLessons: prev.subLessons.map((subLesson, i) =>
@@ -149,9 +148,9 @@ export const EditLesson = ({ lessonId }) => {
       setError("Invalid lesson ID.");
       return;
     }
-  
+
     setLoadingData(true);
-  
+
     try {
       await axios.delete(`/api/admin/delete_lesson/${lessonId}`);
     } catch (err) {
@@ -166,13 +165,13 @@ export const EditLesson = ({ lessonId }) => {
 
   const handleDeleteSubLesson = (index) => {
     const subLesson = subLessonData[index];
-  
+
     if (subLesson.subLessonId) {
       setDeletedSubLessons((prev) => [...prev, subLesson.subLessonId]);
     }
-  
+
     setSubLessonData((prev) => prev.filter((_, idx) => idx !== index));
-  
+
     setIsFillForm((prev) => ({
       ...prev,
       subLessons: prev.subLessons.filter((_, idx) => idx !== index),
@@ -180,7 +179,7 @@ export const EditLesson = ({ lessonId }) => {
   };
 
   const uploadToCloudinary = async (file, preset = "unSigned") => {
-    const cloudinaryUrl = "https://api.cloudinary.com/v1_1/dxjamlkhi/upload";
+    const cloudinaryUrl = process.env.NEXT_PUBLIC_CLOUDINARY_URL;
     const formData = new FormData();
     formData.append("file", file);
     formData.append("upload_preset", preset);
@@ -200,24 +199,23 @@ export const EditLesson = ({ lessonId }) => {
 
   const validateForm = () => {
     const isLessonNameValid = Boolean(lessonName);
-  
+
     const updatedSubLessons = subLessonData.map((subLesson) => ({
       subLessonName: Boolean(subLesson.subLessonName),
       videoUrl: Boolean(subLesson.videoPreview),
     }));
-  
+
     setIsFillForm({
       lessonName: isLessonNameValid,
       subLessons: updatedSubLessons,
     });
-  
+
     const isSubLessonsValid = updatedSubLessons.every(
       (subLesson) => subLesson.subLessonName && subLesson.videoUrl
     );
-  
+
     return isLessonNameValid && isSubLessonsValid;
   };
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -395,9 +393,11 @@ export const EditLesson = ({ lessonId }) => {
                         } `}
                       />
                       <div className="absolute right-80 top-1/2 transform -translate-y-1/2 text-[#9B2FAC]">
-                        {isFillForm.subLessons[index]?.subLessonName === false && <AlertIcon />}
+                        {isFillForm.subLessons[index]?.subLessonName ===
+                          false && <AlertIcon />}
                       </div>
-                      {isFillForm.subLessons[index]?.subLessonName === false && (
+                      {isFillForm.subLessons[index]?.subLessonName ===
+                        false && (
                         <p className="absolute text-[#9B2FAC] text-sm mt-1">
                           Please fill out this field
                         </p>

@@ -1,10 +1,15 @@
 import Image from "next/image";
 import successfullIcon from "@/assets/icons/payment-icons/payment-successfull-icon.svg";
 import { useRouter } from "next/router";
+import useUserAuth from "@/hooks/useUserAuth";
+import axios from "axios";
+import { useEffect, useState } from "react";
 
 export default function PaymentSuccessfullCard() {
   const router = useRouter();
   const { courseId } = router.query;
+  const { userData, loading } = useUserAuth();
+  const [apiCalled, setApiCalled] = useState(false);
 
   const handleViewCourseDetail = () => {
     if (courseId) {
@@ -17,6 +22,27 @@ export default function PaymentSuccessfullCard() {
       router.push(`/mycourse/${courseId}`);
     }
   };
+
+  useEffect(() => {
+    if (userData && courseId && !apiCalled) {
+      const manageDatabase = async () => {
+        try {
+          setApiCalled(true);
+          const createSubLessonProgressResponse = await axios.post(
+            `/api/createSublessonProgress?courseId=${courseId}&&user_id=${userData.id}`,
+            null
+          );
+          const createSubmissionResponse = await axios.post(
+            `/api/course-learning/createSubmission?courseId=${courseId}`,
+            { user: userData }
+          );
+        } catch (error) {
+          console.error("Error making API calls:", error);
+        }
+      };
+      manageDatabase();
+    }
+  }, [userData, courseId]);
 
   return (
     <div className="payment-successfull-card flex flex-col items-center rounded-[8px] gap-8 p-10 shadow-[4px_4px_24px_0px_rgba(0,0,0,0.08)] xl:w-[739px]">
