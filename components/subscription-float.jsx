@@ -70,6 +70,11 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
 
   // Add-Remove to wishlist
   const handleRemoveFromWishlist = async () => {
+    if (authLoading) {
+      // รอจนกว่าการโหลดข้อมูลจะเสร็จ
+      return;
+    }
+    
     if (!isLoggedIn) {
       alert("Please Login");
       router.push("/login");
@@ -95,6 +100,11 @@ export default function SubscriptionFloat({ course, subscriptionStatus }) {
   };
 
   const handleSubscription = async () => {
+    if (authLoading) {
+      // รอจนกว่าการโหลดข้อมูลจะเสร็จ
+      return;
+    }
+    
     if (!isLoggedIn) {
       router.push("/login");
     } else {
