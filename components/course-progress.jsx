@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import supabase from "../lib/supabase";
-import CollapsiblePanel from "./collapsible-panel";
+import CollapsiblePanel from "./CollapsiblePanel";
 import AssignmentForm from "./mycourse/assignment-form";
 import axios from "axios";
 import { useRouter } from "next/router";
